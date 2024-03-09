@@ -1,34 +1,28 @@
 import { experimental_extendTheme as extendTheme } from '@mui/material/styles';
-// import { teal, deepOrange, cyan, orange } from '@mui/material/colors';
+
+const APP_BAR_HEIGHT = '56px';
+const BOARD_BAR_HEIGHT = '64px';
+const BOARD_CONTENT_HEIGHT = `calc(100vh - ${APP_BAR_HEIGHT} - ${BOARD_BAR_HEIGHT})`;
 
 const theme = extendTheme({
   height: {
-    appBar: '56px',
-    boardBar: '64px',
+    appBarHeight: APP_BAR_HEIGHT,
+    boardBarHeight: BOARD_BAR_HEIGHT,
+    boardContentHeight: BOARD_CONTENT_HEIGHT,
   },
   colorSchemes: {
-    // light: {
-    //   palette: {
-    //     primary: teal,
-    //     secondary: deepOrange,
-    //   },
-    // },
-    // dark: {
-    //   palette: {
-    //     primary: cyan,
-    //     secondary: orange,
-    //   },
-    // },
+    //
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
           '*::-webkit-scrollbar': {
-            width: '4px',
-            height: '4px',
+            width: '8px',
+            height: '8px',
           },
           '*::-webkit-scrollbar-thumb': {
+            cursor: 'pointer',
             backgroundColor: '#dcdde1',
             borderRadius: '24px',
           },
@@ -39,33 +33,20 @@ const theme = extendTheme({
         },
       },
     },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          '&.MuiTypography-body1': {
+            fontSize: '0.925rem',
+          },
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: 'none',
         },
-      },
-    },
-    MuiInputLabel: {
-      styleOverrides: {
-        root: ({ theme }) => ({
-          // color: theme.palette.primary.main,
-        }),
-      },
-    },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: ({ theme }) => ({
-          // color: theme.palette.primary.main,
-          // '.MuiOutlinedInput-notchedOutline': {
-          //   borderColor: theme.palette.primary.light,
-          // },
-          // '&:hover': {
-          //   '.MuiOutlinedInput-notchedOutline': {
-          //     borderColor: theme.palette.primary.main,
-          //   },
-          // },
-        }),
       },
     },
   },

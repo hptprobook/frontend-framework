@@ -31,7 +31,7 @@ function BoardBar() {
       px={2}
       sx={{
         width: '100%',
-        height: (theme) => theme.height.boardBar,
+        height: (theme) => theme.height.boardBarHeight,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
