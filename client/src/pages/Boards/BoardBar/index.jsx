@@ -68,6 +68,9 @@ function BoardBar() {
               width: '32px',
               height: '32px',
               fontSize: '16px',
+              border: 'none',
+              color: '#fff',
+              cursor: 'pointer',
             },
           }}
         >
