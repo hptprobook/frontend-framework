@@ -33,6 +33,7 @@ function Recent() {
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
         endIcon={<ExpandMoreIcon />}
+        sx={{ color: '#fff' }}
       >
         Recent
       </Button>

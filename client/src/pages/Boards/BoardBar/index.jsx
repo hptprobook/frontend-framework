@@ -12,16 +12,16 @@ import Button from '@mui/material/Button';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 const MENU_STYLES = {
-  color: 'primary.main',
-  bgcolor: 'white',
+  color: '#fff',
+  bgcolor: 'transparent',
   border: 'none',
   px: '5px',
   borderRadius: '4px',
   '& .MuiSvgIcon-root': {
-    color: 'primary.main',
+    color: '#fff',
   },
   '&:hover': {
-    bgcolor: '#cee6fa',
+    bgcolor: 'primary.50',
   },
 };
 
@@ -38,7 +38,8 @@ function BoardBar() {
         gap: 2,
         overflowX: 'auto',
         overflowY: 'hidden',
-        borderTop: '1px solid #00a8ff',
+        borderBottom: '1px solid #fff',
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -54,8 +55,13 @@ function BoardBar() {
           variant="outlined"
           startIcon={<PersonAddIcon />}
           sx={{
+            color: '#fff',
+            borderColor: '#fff',
+            '&:hover': {
+              border: '2px solid #fff',
+            },
             '& .MuiButton-startIcon': {
-              mb: '1.5px',
+              mb: '3px',
             },
           }}
         >
