@@ -10,6 +10,7 @@ import AvatarGroup from '@mui/material/AvatarGroup';
 import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { capitalizeFirstLetter } from '~/utils/formatters';
 
 const MENU_STYLES = {
   color: '#fff',
@@ -25,7 +26,7 @@ const MENU_STYLES = {
   },
 };
 
-function BoardBar() {
+function BoardBar({ board }) {
   return (
     <Box
       px={2}
@@ -42,8 +43,8 @@ function BoardBar() {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Chip sx={MENU_STYLES} clickable icon={<DashboardIcon />} label="PK02909 - Phan Thanh Hóa" />
-        <Chip sx={MENU_STYLES} clickable icon={<SyncLockIcon />} label="Public/Private Workspace" />
+        <Chip sx={MENU_STYLES} clickable icon={<DashboardIcon />} label={board?.title} />
+        <Chip sx={MENU_STYLES} clickable icon={<SyncLockIcon />} label={capitalizeFirstLetter(board?.type)} />
         <Chip sx={MENU_STYLES} clickable icon={<AddToDriveIcon />} label="Add to Google Drive" />
         <Chip sx={MENU_STYLES} clickable icon={<BoltIcon />} label="Automation" />
         <Chip sx={MENU_STYLES} clickable icon={<FilterListIcon />} label="Filter" />

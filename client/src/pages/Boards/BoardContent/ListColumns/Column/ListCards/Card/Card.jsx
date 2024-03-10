@@ -8,70 +8,58 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import AttachmentIcon from '@mui/icons-material/Attachment';
 
-function Card({ temporaryHideMedia }) {
-  if (temporaryHideMedia) {
-    return (
-      <MuiCard
+function Card({ card }) {
+  const shouldShowCardActions = () => {
+    return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length;
+  };
+
+  return (
+    <MuiCard
+      sx={{
+        cursor: 'pointer',
+        boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
+        overflow: 'unset',
+      }}
+    >
+      {card?.cover && <CardMedia sx={{ height: 140 }} image={card.cover} />}
+      <CardContent
         sx={{
-          cursor: 'pointer',
-          boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
-          overflow: 'unset',
+          p: 1.5,
+          '&:last-child': {
+            p: 1.5,
+          },
         }}
       >
-        <CardContent
-          sx={{
-            p: 1.5,
-            '&:last-child': {
-              p: 1.5,
-            },
-          }}
-        >
-          <Typography>Học hack NASA bằng HTML</Typography>
-        </CardContent>
-      </MuiCard>
-    );
-  } else {
-    return (
-      <MuiCard
-        sx={{
-          cursor: 'pointer',
-          boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
-          overflow: 'unset',
-        }}
-      >
-        <CardMedia
-          sx={{ height: 140 }}
-          image="https://hgtvhome.sndimg.com/content/dam/images/hgtv/fullset/2022/6/16/1/shutterstock_1862856634.jpg.rend.hgtvcom.1280.853.suffix/1655430860853.jpeg"
-          title="green iguana"
-        />
-        <CardContent
-          sx={{
-            p: 1.5,
-            '&:last-child': {
-              p: 1.5,
-            },
-          }}
-        >
-          <Typography>Học hack NASA bằng HTML</Typography>
-        </CardContent>
+        <Typography>{card?.title}</Typography>
+      </CardContent>
+
+      {shouldShowCardActions() && (
         <CardActions
           sx={{
             p: '0 4px 8px 4px',
           }}
         >
-          <Button size="small" startIcon={<GroupIcon />}>
-            8
-          </Button>
-          <Button size="small" startIcon={<CommentIcon />}>
-            20
-          </Button>
-          <Button size="small" startIcon={<AttachmentIcon />}>
-            12
-          </Button>
+          {!!card?.memberIds?.length && (
+            <Button size="small" startIcon={<GroupIcon />}>
+              {card?.memberIds?.length}
+            </Button>
+          )}
+
+          {!!card?.comments?.length && (
+            <Button size="small" startIcon={<CommentIcon />}>
+              {card?.comments?.length}
+            </Button>
+          )}
+
+          {!!card?.attachments?.length && (
+            <Button size="small" startIcon={<AttachmentIcon />}>
+              {card?.attachments?.length}
+            </Button>
+          )}
         </CardActions>
-      </MuiCard>
-    );
-  }
+      )}
+    </MuiCard>
+  );
 }
 
 export default Card;
