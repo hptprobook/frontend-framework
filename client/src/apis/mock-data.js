@@ -6,13 +6,13 @@ export const mockData = {
     type: 'public',
     ownerIds: [],
     memberIds: [],
-    columnOrderIds: ['column-id-03', 'column-id-01', 'column-id-02'],
+    columnOrderIds: ['column-id-01', 'column-id-02', 'column-id-03'],
     columns: [
       {
         _id: 'column-id-01',
         boardId: 'board-id-01',
         title: 'To Do Column 01',
-        cardOrderIds: ['card-id-03', 'card-id-02', 'card-id-01', 'card-id-04', 'card-id-05', 'card-id-06', 'card-id-07'],
+        cardOrderIds: ['card-id-01', 'card-id-02', 'card-id-03', 'card-id-04', 'card-id-05', 'card-id-06', 'card-id-07'],
         cards: [
           {
             _id: 'card-id-01',
