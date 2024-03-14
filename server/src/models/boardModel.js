@@ -41,9 +41,22 @@ const findOneById = async (id) => {
   }
 };
 
+const getDetails = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(id) });
+    if (!result) throw new Error(`Board not found for ${BOARD_COLLECTION_NAME}`);
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const boardModel = {
   createNew,
   findOneById,
+  getDetails,
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
 };
