@@ -4,6 +4,7 @@ import { boardModel } from '~/models/boardModel';
 import ApiError from '~/utils/ApiError';
 import { slugify } from '~/utils/formatters';
 import { StatusCodes } from 'http-status-codes';
+import { cloneDeep } from 'lodash';
 
 const createNew = async (reqBody) => {
   try {
@@ -25,7 +26,16 @@ const getDetails = async (boardId) => {
     const board = await boardModel.getDetails(boardId);
     if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found');
 
-    return board;
+    const resBoard = cloneDeep(board);
+    resBoard.columns.forEach((col) => {
+      col.cards = resBoard.cards.filter((card) => card.columnId.equals(col._id));
+
+      // col.cards = resBoard.cards.filter((card) => card.columnId.toString() === col._id.toString());
+    });
+
+    delete resBoard.cards;
+
+    return resBoard;
   } catch (error) {
     throw error;
   }
