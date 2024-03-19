@@ -83,7 +83,19 @@ const getDetails = async (id) => {
       .toArray();
 
     if (!result) throw new ApiError(StatusCodes.NOT_FOUND, `Board not found for ${BOARD_COLLECTION_NAME}`);
-    return result[0] || {};
+    return result[0] || null;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const pushColumnOrderIds = async (col) => {
+  try {
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(col.boardId) }, { $push: { columnOrderIds: col._id } }, { returnDocument: 'after' });
+
+    return result || null;
   } catch (error) {
     throw new Error(error);
   }
@@ -93,6 +105,7 @@ export const boardModel = {
   createNew,
   findOneById,
   getDetails,
+  pushColumnOrderIds,
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
 };

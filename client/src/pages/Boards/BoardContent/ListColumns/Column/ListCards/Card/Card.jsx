@@ -37,9 +37,10 @@ function Card({ card }) {
         cursor: 'pointer',
         boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
         overflow: 'unset',
+        border: '2px solid transparent',
         display: card?.FE_PlaceholderCard ? 'none' : 'block',
         '&:hover': {
-          outline: '2px solid #1976d2',
+          borderColor: (theme) => theme.palette.primary.main,
         },
       }}
     >
