@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box';
 import ListColums from './ListColumns/ListColums';
-import { mapOrder } from '~/utils/sorts';
 import {
   DndContext,
   useSensor,
@@ -24,7 +23,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
 };
 
-function BoardContent({ board, createNewColumn, createNewCard, moveColumn }) {
+function BoardContent({ board, createNewColumn, createNewCard, moveColumn, moveCardSameColumn }) {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10,
@@ -46,7 +45,7 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumn }) {
   const lastOverId = useRef(null);
 
   useEffect(() => {
-    setOrderedColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'));
+    setOrderedColumns(board.columns);
   }, [board]);
 
   const findColumnByCardId = (cardId) => {
@@ -174,6 +173,7 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumn }) {
         const newCardIndex = overColumn?.cards?.findIndex((c) => c._id === overCardId);
         // Tương tự kéo Column
         const dndOrderedCards = arrayMove(oldColumn?.cards, oldCardIndex, newCardIndex);
+        const dndOrderedCardIds = dndOrderedCards.map((c) => c._id);
 
         setOrderedColumns((prevColumns) => {
           // Sao chép và cập nhật danh sách thẻ trong các cột
@@ -183,10 +183,12 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumn }) {
 
           // Cập nhật lại cards[] và cardOrderIds[]
           targetColumn.cards = dndOrderedCards;
-          targetColumn.cardOrderIds = dndOrderedCards.map((c) => c._id);
+          targetColumn.cardOrderIds = dndOrderedCardIds;
 
           return nextColumns;
         });
+
+        moveCardSameColumn(dndOrderedCards, dndOrderedCardIds, oldColumn._id);
       }
     }
 

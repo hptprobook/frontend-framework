@@ -20,6 +20,8 @@ const validateBeforeCreate = async (data) => {
   return await COLUMN_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
+const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt'];
+
 const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
@@ -56,10 +58,28 @@ const pushCardOrderIds = async (card) => {
   }
 };
 
+const update = async (columnId, updateData) => {
+  try {
+    Object.keys(updateData).forEach((fieldName) => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName];
+      }
+    });
+    const result = await GET_DB()
+      .collection(COLUMN_COLLECTION_NAME)
+      .findOneAndUpdate({ _id: new ObjectId(columnId) }, { $set: updateData }, { returnDocument: 'after' });
+
+    return result || null;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const columnModel = {
   createNew,
   findOneById,
   pushCardOrderIds,
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
+  update,
 };

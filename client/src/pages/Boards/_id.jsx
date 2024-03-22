@@ -4,9 +4,12 @@ import BoardBar from './BoardBar/BoardBar';
 import BoardContent from './BoardContent/BoardContent';
 // import { mockData } from '~/apis/mock-data';
 import { useEffect, useState } from 'react';
-import { createNewCardAPI, createNewColumnAPI, fetchBoardDetailsAPI, updateBoardDetailsAPI } from '~/apis';
+import { createNewCardAPI, createNewColumnAPI, fetchBoardDetailsAPI, updateBoardDetailsAPI, updateColumnDetailsAPI } from '~/apis';
 import { generatePlaceholderCard } from '~/utils/formatters';
 import { isEmpty } from 'lodash';
+import { mapOrder } from '~/utils/sorts';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 function Board() {
   const [board, setBoard] = useState(null);
@@ -15,12 +18,17 @@ function Board() {
     const boardId = '65f2628848c8bbbfd5825a80';
 
     fetchBoardDetailsAPI(boardId).then((board) => {
+      board.columns = mapOrder(board.columns, board.columnOrderIds, '_id');
+
       board.columns.forEach((column) => {
         if (isEmpty(column.cards)) {
           column.cards = [generatePlaceholderCard(column)];
           column.cardOrderIds = [generatePlaceholderCard(column)._id];
+        } else {
+          column.cards = mapOrder(column?.cards, column?.cardOrderIds, '_id');
         }
       });
+
       setBoard(board);
     });
   }, []);
@@ -69,6 +77,27 @@ function Board() {
     updateBoardDetailsAPI(board._id, { columnOrderIds: dndOrderedColumnIds });
   };
 
+  /* Khi di chuyển card trên một column */
+  const moveCardSameColumn = (dndOrderedCards, dndOrderedCardIds, columnId) => {
+    const newBoard = { ...board };
+    const columnToUpdate = newBoard.columns.find((column) => column._id === columnId);
+
+    if (columnToUpdate) {
+      columnToUpdate.cards = dndOrderedCards;
+      columnToUpdate.cardOrderIds = dndOrderedCardIds;
+    }
+
+    updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds });
+  };
+
+  if (!board) {
+    return (
+      <Box sx={{ display: 'flex', width: '100%', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Container
       disableGutters
@@ -79,7 +108,13 @@ function Board() {
     >
       <AppBar />
       <BoardBar board={board} />
-      <BoardContent board={board} createNewColumn={createNewColumn} createNewCard={createNewCard} moveColumn={moveColumn} />
+      <BoardContent
+        board={board}
+        createNewColumn={createNewColumn}
+        createNewCard={createNewCard}
+        moveColumn={moveColumn}
+        moveCardSameColumn={moveCardSameColumn}
+      />
     </Container>
   );
 }
