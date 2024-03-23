@@ -3,6 +3,8 @@ import ApiError from '~/utils/ApiError';
 import { slugify } from '~/utils/formatters';
 import { StatusCodes } from 'http-status-codes';
 import { cloneDeep } from 'lodash';
+import { columnModel } from '~/models/columnModel';
+import { cardModel } from '~/models/cardModel';
 
 const createNew = async (reqBody) => {
   try {
@@ -53,8 +55,29 @@ const update = async (boardId, reqBody) => {
   }
 };
 
+const moveCardDifferentColumn = async (reqBody) => {
+  try {
+    await columnModel.update(reqBody.prevColumnId, {
+      cardOrderIds: reqBody.prevCardOrderIds,
+      updatedAt: Date.now(),
+    });
+
+    await columnModel.update(reqBody.nextColumnId, {
+      cardOrderIds: reqBody.nextCardOrderIds,
+      updatedAt: Date.now(),
+    });
+
+    await cardModel.update(reqBody.currentCardId, { columnId: reqBody.nextColumnId });
+
+    return { updateResult: 'success' };
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const boardService = {
   createNew,
   getDetails,
   update,
+  moveCardDifferentColumn,
 };

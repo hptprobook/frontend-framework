@@ -23,7 +23,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
 };
 
-function BoardContent({ board, createNewColumn, createNewCard, moveColumn, moveCardSameColumn }) {
+function BoardContent({ board, createNewColumn, createNewCard, moveColumn, moveCardSameColumn, moveCardDifferentColumn }) {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10,
@@ -59,7 +59,8 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumn, moveC
     over,
     activeColumn,
     activeDraggingCardId,
-    activeDraggingCardData
+    activeDraggingCardData,
+    triggerFrom
   ) => {
     setOrderedColumns((prevColumns) => {
       // Tính toán vị trí mới cho thẻ đang kéo trong cột đích
@@ -101,6 +102,10 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumn, moveC
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map((c) => c._id);
       }
 
+      if (triggerFrom === 'handleDragEnd') {
+        moveCardDifferentColumn(activeDraggingCardId, oldColumn._id, nextOverColumn._id, nextColumns);
+      }
+
       return nextColumns; // Cập nhật danh sách cột sau khi di chuyển
     });
   };
@@ -138,7 +143,16 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumn, moveC
     // Kiểm tra nếu thẻ đang kéo và thẻ đích thuộc hai cột khác nhau
     if (activeColumn._id !== overColumn._id) {
       // Cập nhật trạng thái các cột để phản ánh việc di chuyển thẻ
-      moveCardBetweenDifferentColumns(overColumn, overCardId, active, over, activeColumn, activeDraggingCardId, activeDraggingCardData);
+      moveCardBetweenDifferentColumns(
+        overColumn,
+        overCardId,
+        active,
+        over,
+        activeColumn,
+        activeDraggingCardId,
+        activeDraggingCardData,
+        'handleDragOver'
+      );
     }
   };
 
@@ -166,7 +180,16 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumn, moveC
 
       if (oldColumn._id !== overColumn._id) {
         // 2 Column khác nhau
-        moveCardBetweenDifferentColumns(overColumn, overCardId, active, over, activeColumn, activeDraggingCardId, activeDraggingCardData);
+        moveCardBetweenDifferentColumns(
+          overColumn,
+          overCardId,
+          active,
+          over,
+          activeColumn,
+          activeDraggingCardId,
+          activeDraggingCardData,
+          'handleDragEnd'
+        );
       } else {
         // Column giống nhau
         const oldCardIndex = oldColumn?.cards?.findIndex((c) => c._id === activeDragItemId);
