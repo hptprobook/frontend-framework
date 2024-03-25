@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField';
 import CloseIcon from '@mui/icons-material/Close';
 import { toast } from 'react-toastify';
 
-function ListColums({ columns, createNewColumn, createNewCard }) {
+function ListColums({ columns, createNewColumn, createNewCard, handleDeleteColumn }) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const toggleOpenNewColumnForm = () => setOpenNewColumnForm(!openNewColumnForm);
@@ -45,7 +45,7 @@ function ListColums({ columns, createNewColumn, createNewCard }) {
         }}
       >
         {columns?.map((column) => (
-          <Column key={column?._id} column={column} createNewCard={createNewCard} />
+          <Column key={column?._id} column={column} createNewCard={createNewCard} handleDeleteColumn={handleDeleteColumn} />
         ))}
 
         {/* Box Add new column */}

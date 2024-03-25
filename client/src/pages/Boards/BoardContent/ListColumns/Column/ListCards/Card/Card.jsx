@@ -9,8 +9,24 @@ import Button from '@mui/material/Button';
 import AttachmentIcon from '@mui/icons-material/Attachment';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useState } from 'react';
+import CardDetail from './_id';
 
 function Card({ card }) {
+  const [openModal, setOpenModal] = useState(false);
+
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
   const shouldShowCardActions = () => {
     return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length;
   };
@@ -27,61 +43,74 @@ function Card({ card }) {
     opacity: isDragging ? 0.4 : undefined,
   };
 
+  const handleDetailCard = () => {
+    setOpenModal(true); // Mở modal
+  };
+
+  // Hàm để đóng modal
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   return (
-    <MuiCard
-      ref={setNodeRef}
-      style={dndKitCardStyles}
-      {...attributes}
-      {...listeners}
-      sx={{
-        cursor: 'pointer',
-        boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
-        overflow: 'unset',
-        border: '2px solid transparent',
-        display: card?.FE_PlaceholderCard ? 'none' : 'block',
-        '&:hover': {
-          borderColor: (theme) => theme.palette.primary.main,
-        },
-      }}
-    >
-      {card?.cover && <CardMedia sx={{ height: 140 }} image={card.cover} />}
-      <CardContent
+    <>
+      <MuiCard
+        ref={setNodeRef}
+        style={dndKitCardStyles}
+        {...attributes}
+        {...listeners}
         sx={{
-          p: 1.5,
-          '&:last-child': {
-            p: 1.5,
+          cursor: 'pointer',
+          boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
+          overflow: 'unset',
+          border: '2px solid transparent',
+          display: card?.FE_PlaceholderCard ? 'none' : 'block',
+          '&:hover': {
+            borderColor: (theme) => theme.palette.primary.main,
           },
         }}
+        onClick={handleDetailCard}
       >
-        <Typography>{card?.title}</Typography>
-      </CardContent>
-
-      {shouldShowCardActions() && (
-        <CardActions
+        {card?.cover && <CardMedia sx={{ height: 140 }} image={card.cover} />}
+        <CardContent
           sx={{
-            p: '0 4px 8px 4px',
+            p: 1.5,
+            '&:last-child': {
+              p: 1.5,
+            },
           }}
         >
-          {!!card?.memberIds?.length && (
-            <Button size="small" startIcon={<GroupIcon />}>
-              {card?.memberIds?.length}
-            </Button>
-          )}
+          <Typography>{card?.title}</Typography>
+        </CardContent>
 
-          {!!card?.comments?.length && (
-            <Button size="small" startIcon={<CommentIcon />}>
-              {card?.comments?.length}
-            </Button>
-          )}
+        {shouldShowCardActions() && (
+          <CardActions
+            sx={{
+              p: '0 4px 8px 4px',
+            }}
+          >
+            {!!card?.memberIds?.length && (
+              <Button size="small" startIcon={<GroupIcon />}>
+                {card?.memberIds?.length}
+              </Button>
+            )}
 
-          {!!card?.attachments?.length && (
-            <Button size="small" startIcon={<AttachmentIcon />}>
-              {card?.attachments?.length}
-            </Button>
-          )}
-        </CardActions>
-      )}
-    </MuiCard>
+            {!!card?.comments?.length && (
+              <Button size="small" startIcon={<CommentIcon />}>
+                {card?.comments?.length}
+              </Button>
+            )}
+
+            {!!card?.attachments?.length && (
+              <Button size="small" startIcon={<AttachmentIcon />}>
+                {card?.attachments?.length}
+              </Button>
+            )}
+          </CardActions>
+        )}
+      </MuiCard>
+      <CardDetail card={card} handleCloseModal={handleCloseModal} openModal={openModal} />
+    </>
   );
 }
 

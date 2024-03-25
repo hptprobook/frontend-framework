@@ -23,17 +23,20 @@ import { CSS } from '@dnd-kit/utilities';
 import TextField from '@mui/material/TextField';
 import CloseIcon from '@mui/icons-material/Close';
 import { toast } from 'react-toastify';
+import { useConfirm } from 'material-ui-confirm';
 
-function Column({ column, createNewCard }) {
+function Column({ column, createNewCard, handleDeleteColumn }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+  const [isEditingTitle, setEditingTitle] = useState(false);
 
   const orderedCards = column.cards;
 
   const [openNewCardForm, setOpenNewCardForm] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
+  const [editCardTitle, setEditCardTitle] = useState(column ? column.title : '');
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm);
   const addNewCard = async () => {
     if (!newCardTitle) {
@@ -67,6 +70,31 @@ function Column({ column, createNewCard }) {
     opacity: isDragging ? 0.4 : undefined,
   };
 
+  const confirmDelete = useConfirm();
+  const handleDelete = () => {
+    confirmDelete({
+      title: 'Delete Columns?',
+      description:
+        'Are you sure you want to delete this column? This action will delete the currently selected column and all cards within it',
+      confirmationButtonProps: { color: 'error', variant: 'outlined' },
+      confirmationText: 'Confirm',
+    })
+      .then(() => {
+        handleDeleteColumn(column._id);
+      })
+      .catch(() => {
+        //
+      });
+  };
+
+  const handleUpdateColumnTitle = (e) => {
+    if (e.key === 'Enter') {
+      // Call API
+    } else if (e.key === 'Escape') {
+      setEditingTitle(false);
+    }
+  };
+
   return (
     <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
       <Box
@@ -91,16 +119,38 @@ function Column({ column, createNewCard }) {
             justifyContent: 'space-between',
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 'bold',
-              fontSize: '1rem',
-              cursor: 'pointer',
-            }}
-          >
-            {column?.title}
-          </Typography>
+          {isEditingTitle ? (
+            <TextField
+              sx={{
+                m: 0,
+                p: 0,
+                ' input': {
+                  height: '1px',
+                  fontWeight: 'bold',
+                },
+              }}
+              autoFocus
+              value={editCardTitle}
+              onChange={(e) => setEditCardTitle(e.target.value)}
+              onKeyUp={handleUpdateColumnTitle}
+              onBlur={() => setEditingTitle(false)}
+              data-no-dnd="true"
+            />
+          ) : (
+            <Typography
+              variant="h6"
+              onClick={() => setEditingTitle(true)}
+              sx={{
+                fontWeight: 'bold',
+                fontSize: '1rem',
+                cursor: 'pointer',
+                pl: 1,
+              }}
+            >
+              {column?.title}
+            </Typography>
+          )}
+
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
               <Tooltip title="More options">
@@ -129,9 +179,19 @@ function Column({ column, createNewCard }) {
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              <MenuItem onClick={toggleOpenNewCardForm}>
+              <MenuItem
+                onClick={toggleOpenNewCardForm}
+                sx={{
+                  ':hover': {
+                    color: 'success.light',
+                    '& .add-card-icon': {
+                      color: 'success.light',
+                    },
+                  },
+                }}
+              >
                 <ListItemIcon>
-                  <AddCardIcon fontSize="small" />
+                  <AddCardIcon className="add-card-icon" fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Add new card</ListItemText>
               </MenuItem>
@@ -160,9 +220,19 @@ function Column({ column, createNewCard }) {
                 </ListItemIcon>
                 <ListItemText>Archive this column</ListItemText>
               </MenuItem>
-              <MenuItem>
+              <MenuItem
+                onClick={handleDelete}
+                sx={{
+                  ':hover': {
+                    color: 'warning.dark',
+                    '& .delete-forever-icon': {
+                      color: 'warning.dark',
+                    },
+                  },
+                }}
+              >
                 <ListItemIcon>
-                  <DeleteForeverIcon fontSize="small" />
+                  <DeleteForeverIcon className="delete-forever-icon" fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Remove this column</ListItemText>
               </MenuItem>

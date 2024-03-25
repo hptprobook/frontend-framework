@@ -13,9 +13,19 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const updatedBoard = await columnService.update(req.params.id, req.body);
+    const updatedColumn = await columnService.update(req.params.id, req.body);
 
-    res.status(StatusCodes.OK).json(updatedBoard);
+    res.status(StatusCodes.OK).json(updatedColumn);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const remove = async (req, res, next) => {
+  try {
+    const result = await columnService.remove(req.params.id);
+
+    res.status(StatusCodes.OK).json(result);
   } catch (error) {
     next(error);
   }
@@ -24,4 +34,5 @@ const update = async (req, res, next) => {
 export const columnController = {
   createNew,
   update,
+  remove,
 };

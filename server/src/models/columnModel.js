@@ -80,11 +80,24 @@ const update = async (columnId, updateData) => {
   }
 };
 
+const deleteOneById = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection(COLUMN_COLLECTION_NAME)
+      .deleteOne({ _id: new ObjectId(id) });
+    if (!result) throw new Error(`Column not found for ${COLUMN_COLLECTION_NAME}`);
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const columnModel = {
   createNew,
   findOneById,
   pushCardOrderIds,
+  update,
+  deleteOneById,
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
-  update,
 };
