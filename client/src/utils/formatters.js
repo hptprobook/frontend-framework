@@ -9,3 +9,9 @@ export const generatePlaceholderCard = (col) => ({
   columnId: col._id,
   FE_PlaceholderCard: true,
 });
+
+export const convertHTMLToText = (htmlString) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  return doc.body.textContent || '';
+};

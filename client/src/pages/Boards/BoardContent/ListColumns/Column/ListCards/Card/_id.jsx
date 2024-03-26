@@ -13,9 +13,34 @@ import PersonIcon from '@mui/icons-material/Person';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import BadgeIcon from '@mui/icons-material/Badge';
+import { convertHTMLToText } from '~/utils/formatters';
+import TextField from '@mui/material/TextField';
+import CommentIcon from '@mui/icons-material/Comment';
 
 export default function CardDetail({ openModal, handleCloseModal, card }) {
   const [desc, setDesc] = useState(card ? card.description : '');
+  const [title, setTitle] = useState(card ? card.title : '');
+  const [isEditingTitle, setEditingTitle] = useState(false);
+  const [isEditingDesc, setEditingDesc] = useState(false);
+
+  const handleSaveDesc = () => {
+    setEditingDesc(false);
+  };
+
+  const handleCancelEditDesc = () => {
+    setEditingDesc(false);
+  };
+
+  const handleSaveTitle = (e) => {
+    if (e.key === 'Enter') {
+      setEditingTitle(false);
+      setTitle(e.target.value);
+    }
+  };
+
+  const handleCancelEditTitle = () => {
+    setEditingTitle(false);
+  };
 
   return (
     <Dialog
@@ -43,14 +68,38 @@ export default function CardDetail({ openModal, handleCloseModal, card }) {
           <CreditCardIcon />
         </Grid>
         <Grid item xs={8}>
-          <Typography
-            sx={{
-              fontWeight: 'bold',
-              fontSize: '18px !important',
-            }}
-          >
-            {card?.title}
-          </Typography>
+          {isEditingTitle ? (
+            <Box>
+              <TextField
+                autoFocus
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onBlur={handleCancelEditTitle}
+                size="small"
+                onKeyUp={handleSaveTitle}
+                sx={{
+                  m: 0,
+                  p: 0,
+                  ' input': {
+                    height: '10px',
+                    fontWeight: 'bold',
+                    fontSize: '16px',
+                  },
+                }}
+              />
+            </Box>
+          ) : (
+            <Typography
+              sx={{
+                fontWeight: 'bold',
+                fontSize: '18px !important',
+              }}
+              onClick={() => setEditingTitle(true)}
+            >
+              {title}
+            </Typography>
+          )}
           <Typography gutterBottom>
             owned by <a href="#">{card?.columnId}</a>
           </Typography>
@@ -79,10 +128,43 @@ export default function CardDetail({ openModal, handleCloseModal, card }) {
           <ListIcon />
         </Grid>
         <Grid item xs={7.5}>
-          <Typography variant="h6" gutterBottom>
+          <Typography
+            sx={{
+              fontWeight: 'bold',
+              fontSize: '18px !important',
+            }}
+            gutterBottom
+          >
             Description
           </Typography>
-          <ReactQuill theme="snow" value={desc} onChange={setDesc} />
+          {isEditingDesc ? (
+            <>
+              <ReactQuill
+                value={desc}
+                onChange={setDesc}
+                style={{
+                  marginBottom: '12px',
+                }}
+              />
+              <Button
+                onClick={handleSaveDesc}
+                size="small"
+                variant="outlined"
+                sx={{
+                  mr: 1,
+                }}
+              >
+                Save
+              </Button>
+              <Button onClick={handleCancelEditDesc} size="small" variant="outlined">
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Typography variant="body1" onClick={() => setEditingDesc(true)}>
+              {convertHTMLToText(desc)}
+            </Typography>
+          )}
         </Grid>
         <Grid item xs={3.5}>
           <Box
@@ -178,6 +260,29 @@ export default function CardDetail({ openModal, handleCloseModal, card }) {
             </Typography>
           </Box>
         </Grid>
+      </Grid>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          px: 3,
+          pt: 3,
+        }}
+      >
+        <Grid item xs={1}>
+          <CommentIcon />
+        </Grid>
+        <Grid item xs={8}>
+          <Typography
+            sx={{
+              fontWeight: 'bold',
+              fontSize: '18px !important',
+            }}
+          >
+            Comments
+          </Typography>
+        </Grid>
+        <Grid item xs={3}></Grid>
       </Grid>
       <DialogActions>
         <Button
