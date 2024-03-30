@@ -15,7 +15,7 @@ import {
   InputLabel,
   OutlinedInput,
   Stack,
-  Typography
+  Typography,
 } from '@mui/material';
 
 // third party
@@ -24,7 +24,7 @@ import { Formik } from 'formik';
 
 // project import
 import FirebaseSocial from './FirebaseSocial';
-import AnimateButton from 'components/@extended/AnimateButton';
+import AnimateButton from '~/components/@extended/AnimateButton';
 
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
@@ -49,11 +49,11 @@ const AuthLogin = () => {
         initialValues={{
           email: 'info@codedthemes.com',
           password: '123456',
-          submit: null
+          submit: null,
         }}
         validationSchema={Yup.object().shape({
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
+          password: Yup.string().max(255).required('Password is required'),
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {

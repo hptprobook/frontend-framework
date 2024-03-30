@@ -9,7 +9,7 @@ import { Box, Drawer, useMediaQuery } from '@mui/material';
 import DrawerHeader from './DrawerHeader';
 import DrawerContent from './DrawerContent';
 import MiniDrawerStyled from './MiniDrawerStyled';
-import { drawerWidth } from 'config';
+import { drawerWidth } from '~/config';
 
 // ==============================|| MAIN LAYOUT - DRAWER ||============================== //
 
@@ -45,8 +45,8 @@ const MainDrawer = ({ open, handleDrawerToggle, window }) => {
               width: drawerWidth,
               borderRight: `1px solid ${theme.palette.divider}`,
               backgroundImage: 'none',
-              boxShadow: 'inherit'
-            }
+              boxShadow: 'inherit',
+            },
           }}
         >
           {open && drawerHeader}
@@ -60,7 +60,7 @@ const MainDrawer = ({ open, handleDrawerToggle, window }) => {
 MainDrawer.propTypes = {
   open: PropTypes.bool,
   handleDrawerToggle: PropTypes.func,
-  window: PropTypes.object
+  window: PropTypes.object,
 };
 
 export default MainDrawer;

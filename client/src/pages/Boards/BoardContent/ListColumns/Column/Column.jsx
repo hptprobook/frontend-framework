@@ -24,6 +24,8 @@ import TextField from '@mui/material/TextField';
 import CloseIcon from '@mui/icons-material/Close';
 import { toast } from 'react-toastify';
 import { useConfirm } from 'material-ui-confirm';
+import { useDispatch /* useSelector */ } from 'react-redux';
+import { updateColumnDetails } from '~/redux/slices/columnSlice';
 
 function Column({ column, createNewCard, handleDeleteColumn }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -31,12 +33,15 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const [isEditingTitle, setEditingTitle] = useState(false);
+  const dispatch = useDispatch();
 
   const orderedCards = column.cards;
 
   const [openNewCardForm, setOpenNewCardForm] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
-  const [editCardTitle, setEditCardTitle] = useState(column ? column.title : '');
+  const [editCardTitle, setEditCardTitle] = useState(
+    column ? column.title : ''
+  );
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm);
   const addNewCard = async () => {
     if (!newCardTitle) {
@@ -57,7 +62,14 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
     setNewCardTitle('');
   };
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: column?._id,
     data: { ...column },
   });
@@ -89,7 +101,15 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
 
   const handleUpdateColumnTitle = (e) => {
     if (e.key === 'Enter') {
-      // Call API
+      dispatch(
+        updateColumnDetails({
+          id: column._id,
+          data: {
+            title: editCardTitle,
+          },
+        })
+      );
+      setEditingTitle(false);
     } else if (e.key === 'Escape') {
       setEditingTitle(false);
     }
@@ -102,11 +122,13 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
         sx={{
           minWidth: '300px',
           maxWidth: '300px',
-          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#ebecf0'),
+          bgcolor: (theme) =>
+            theme.palette.mode === 'dark' ? '#333643' : '#ebecf0',
           ml: 2,
           borderRadius: '6px',
           height: 'fit-content',
-          maxHeight: (theme) => `calc(${theme.height.boardContentHeight} - ${theme.spacing(5)})`,
+          maxHeight: (theme) =>
+            `calc(${theme.height.boardContentHeight} - ${theme.spacing(5)})`,
         }}
       >
         {/* Box Column Header */}
@@ -152,7 +174,13 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
           )}
 
           <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                textAlign: 'center',
+              }}
+            >
               <Tooltip title="More options">
                 <IconButton
                   onClick={handleClick}
@@ -232,7 +260,10 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
                 }}
               >
                 <ListItemIcon>
-                  <DeleteForeverIcon className="delete-forever-icon" fontSize="small" />
+                  <DeleteForeverIcon
+                    className="delete-forever-icon"
+                    fontSize="small"
+                  />
                 </ListItemIcon>
                 <ListItemText>Remove this column</ListItemText>
               </MenuItem>
@@ -313,15 +344,22 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
                   },
                   '& input': {
                     color: (theme) => theme.palette.primary.main,
-                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#fff'),
+                    bgcolor: (theme) =>
+                      theme.palette.mode === 'dark' ? '#333643' : '#fff',
                   },
                   '& label.Mui-focused': {
                     color: (theme) => theme.palette.primary.main,
                   },
                   '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: (theme) => theme.palette.primary.main },
-                    '&:hover fieldset': { borderColor: (theme) => theme.palette.primary.main },
-                    '&.Mui-focused fieldset': { borderColor: (theme) => theme.palette.primary.main },
+                    '& fieldset': {
+                      borderColor: (theme) => theme.palette.primary.main,
+                    },
+                    '&:hover fieldset': {
+                      borderColor: (theme) => theme.palette.primary.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: (theme) => theme.palette.primary.main,
+                    },
                   },
                   '& .MuiOutlinedInput-input': {
                     borderRadius: 1,
@@ -343,7 +381,9 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
                     boxShadow: 'none',
                     border: '0.5px solid',
                     borderColor: (theme) => theme.palette.success.main,
-                    '&:hover': { bgcolor: (theme) => theme.palette.success.main },
+                    '&:hover': {
+                      bgcolor: (theme) => theme.palette.success.main,
+                    },
                   }}
                   onClick={addNewCard}
                 >

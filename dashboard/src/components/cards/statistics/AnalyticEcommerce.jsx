@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Box, Chip, Grid, Stack, Typography } from '@mui/material';
 
 // project import
-import MainCard from 'components/MainCard';
+import MainCard from '~/components/MainCard';
 
 // assets
 import { RiseOutlined, FallOutlined } from '@ant-design/icons';
@@ -60,11 +60,11 @@ AnalyticEcommerce.propTypes = {
   count: PropTypes.string,
   percentage: PropTypes.number,
   isLoss: PropTypes.bool,
-  extra: PropTypes.oneOfType([PropTypes.node, PropTypes.string])
+  extra: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
 };
 
 AnalyticEcommerce.defaultProps = {
-  color: 'primary'
+  color: 'primary',
 };
 
 export default AnalyticEcommerce;

@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import { Grid, Stack, Typography } from '@mui/material';
 
 // project import
-import MainCard from 'components/MainCard';
+import MainCard from '~/components/MainCard';
 import ComponentSkeleton from './ComponentSkeleton';
 
 // ===============================|| SHADOW BOX ||=============================== //
@@ -22,7 +22,7 @@ function ShadowBox({ shadow }) {
 }
 
 ShadowBox.propTypes = {
-  shadow: PropTypes.string.isRequired
+  shadow: PropTypes.string.isRequired,
 };
 
 // ===============================|| CUSTOM - SHADOW BOX ||=============================== //
@@ -43,7 +43,7 @@ CustomShadowBox.propTypes = {
   shadow: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  bgcolor: PropTypes.string
+  bgcolor: PropTypes.string,
 };
 
 // ============================|| COMPONENT - SHADOW ||============================ //

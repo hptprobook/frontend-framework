@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import { Suspense } from 'react';
 
 // project import

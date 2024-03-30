@@ -15,7 +15,7 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 
 // project import
@@ -24,21 +24,21 @@ import IncomeAreaChart from './IncomeAreaChart';
 import MonthlyBarChart from './MonthlyBarChart';
 import ReportAreaChart from './ReportAreaChart';
 import SalesColumnChart from './SalesColumnChart';
-import MainCard from 'components/MainCard';
-import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
+import MainCard from '~/components/MainCard';
+import AnalyticEcommerce from '~/components/cards/statistics/AnalyticEcommerce';
 
 // assets
 import { GiftOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons';
-import avatar1 from 'assets/images/users/avatar-1.png';
-import avatar2 from 'assets/images/users/avatar-2.png';
-import avatar3 from 'assets/images/users/avatar-3.png';
-import avatar4 from 'assets/images/users/avatar-4.png';
+import avatar1 from '~/assets/images/users/avatar-1.png';
+import avatar2 from '~/assets/images/users/avatar-2.png';
+import avatar3 from '~/assets/images/users/avatar-3.png';
+import avatar4 from '~/assets/images/users/avatar-4.png';
 
 // avatar style
 const avatarSX = {
   width: 36,
   height: 36,
-  fontSize: '1rem'
+  fontSize: '1rem',
 };
 
 // action style
@@ -48,23 +48,23 @@ const actionSX = {
   top: 'auto',
   right: 'auto',
   alignSelf: 'flex-start',
-  transform: 'none'
+  transform: 'none',
 };
 
 // sales report status
 const status = [
   {
     value: 'today',
-    label: 'Today'
+    label: 'Today',
   },
   {
     value: 'month',
-    label: 'This Month'
+    label: 'This Month',
   },
   {
     value: 'year',
-    label: 'This Year'
-  }
+    label: 'This Year',
+  },
 ];
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
@@ -234,8 +234,8 @@ const DashboardDefault = () => {
               '& .MuiListItemButton-root': {
                 py: 1.5,
                 '& .MuiAvatar-root': avatarSX,
-                '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-              }
+                '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' },
+              },
             }}
           >
             <ListItemButton divider>
@@ -243,7 +243,7 @@ const DashboardDefault = () => {
                 <Avatar
                   sx={{
                     color: 'success.main',
-                    bgcolor: 'success.lighter'
+                    bgcolor: 'success.lighter',
                   }}
                 >
                   <GiftOutlined />
@@ -266,7 +266,7 @@ const DashboardDefault = () => {
                 <Avatar
                   sx={{
                     color: 'primary.main',
-                    bgcolor: 'primary.lighter'
+                    bgcolor: 'primary.lighter',
                   }}
                 >
                   <MessageOutlined />
@@ -289,7 +289,7 @@ const DashboardDefault = () => {
                 <Avatar
                   sx={{
                     color: 'error.main',
-                    bgcolor: 'error.lighter'
+                    bgcolor: 'error.lighter',
                   }}
                 >
                   <SettingOutlined />

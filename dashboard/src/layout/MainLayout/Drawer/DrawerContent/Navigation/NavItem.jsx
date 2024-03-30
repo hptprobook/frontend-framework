@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import PropTypes from 'prop-types';
 import { forwardRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -8,7 +9,7 @@ import { useTheme } from '@mui/material/styles';
 import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 
 // project import
-import { activeItem } from 'store/reducers/menu';
+import { activeItem } from '~/store/reducers/menu';
 
 // ==============================|| NAVIGATION - LIST ITEM ||============================== //
 
@@ -60,7 +61,7 @@ const NavItem = ({ item, level }) => {
         py: !drawerOpen && level === 1 ? 1.25 : 1,
         ...(drawerOpen && {
           '&:hover': {
-            bgcolor: 'primary.lighter'
+            bgcolor: 'primary.lighter',
           },
           '&.Mui-selected': {
             bgcolor: 'primary.lighter',
@@ -68,21 +69,21 @@ const NavItem = ({ item, level }) => {
             color: iconSelectedColor,
             '&:hover': {
               color: iconSelectedColor,
-              bgcolor: 'primary.lighter'
-            }
-          }
+              bgcolor: 'primary.lighter',
+            },
+          },
         }),
         ...(!drawerOpen && {
           '&:hover': {
-            bgcolor: 'transparent'
+            bgcolor: 'transparent',
           },
           '&.Mui-selected': {
             '&:hover': {
-              bgcolor: 'transparent'
+              bgcolor: 'transparent',
             },
-            bgcolor: 'transparent'
-          }
-        })
+            bgcolor: 'transparent',
+          },
+        }),
       }}
     >
       {itemIcon && (
@@ -97,16 +98,16 @@ const NavItem = ({ item, level }) => {
               alignItems: 'center',
               justifyContent: 'center',
               '&:hover': {
-                bgcolor: 'secondary.lighter'
-              }
+                bgcolor: 'secondary.lighter',
+              },
             }),
             ...(!drawerOpen &&
               isSelected && {
                 bgcolor: 'primary.lighter',
                 '&:hover': {
-                  bgcolor: 'primary.lighter'
-                }
-              })
+                  bgcolor: 'primary.lighter',
+                },
+              }),
           }}
         >
           {itemIcon}
@@ -136,7 +137,7 @@ const NavItem = ({ item, level }) => {
 
 NavItem.propTypes = {
   item: PropTypes.object,
-  level: PropTypes.number
+  level: PropTypes.number,
 };
 
 export default NavItem;

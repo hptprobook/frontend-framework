@@ -9,10 +9,10 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import reactElementToJSXString from 'react-element-to-jsx-string';
 
 // project import
-import SyntaxHighlight from 'utils/SyntaxHighlight';
 
 // assets
 import { CodeOutlined, CopyOutlined } from '@ant-design/icons';
+import SyntaxHighlight from '~/utils/SyntaxHighlight';
 
 // ==============================|| CLIPBOARD & HIGHLIGHTER   ||============================== //
 
@@ -49,7 +49,7 @@ const Highlighter = ({ children }) => {
             {reactElementToJSXString(children, {
               showFunctions: true,
               showDefaultProps: false,
-              maxInlineAttributesLineLength: 100
+              maxInlineAttributesLineLength: 100,
             })}
           </SyntaxHighlight>
         )}
@@ -59,7 +59,7 @@ const Highlighter = ({ children }) => {
 };
 
 Highlighter.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 export default Highlighter;

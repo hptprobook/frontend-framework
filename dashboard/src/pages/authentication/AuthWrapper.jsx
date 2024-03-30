@@ -5,11 +5,9 @@ import { Box, Grid } from '@mui/material';
 
 // project import
 import AuthCard from './AuthCard';
-import Logo from 'components/Logo';
-import AuthFooter from 'components/cards/AuthFooter';
-
-// assets
-import AuthBackground from 'assets/images/auth/AuthBackground';
+import Logo from '~/components/Logo';
+import AuthFooter from '~/components/cards/AuthFooter';
+import AuthBackground from '~/assets/images/auth/AuthBackground';
 
 // ==============================|| AUTHENTICATION - WRAPPER ||============================== //
 
@@ -21,7 +19,7 @@ const AuthWrapper = ({ children }) => (
       direction="column"
       justifyContent="flex-end"
       sx={{
-        minHeight: '100vh'
+        minHeight: '100vh',
       }}
     >
       <Grid item xs={12} sx={{ ml: 3, mt: 3 }}>
@@ -49,7 +47,7 @@ const AuthWrapper = ({ children }) => (
 );
 
 AuthWrapper.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 export default AuthWrapper;

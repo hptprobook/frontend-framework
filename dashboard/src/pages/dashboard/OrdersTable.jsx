@@ -9,7 +9,7 @@ import { Box, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHea
 import { NumericFormat } from 'react-number-format';
 
 // project import
-import Dot from 'components/@extended/Dot';
+import Dot from '~/components/@extended/Dot';
 
 function createData(trackingNo, name, fat, carbs, protein) {
   return { trackingNo, name, fat, carbs, protein };
@@ -25,7 +25,7 @@ const rows = [
   createData(13256498, 'Keyboard', 125, 2, 70999),
   createData(98753263, 'Mouse', 89, 2, 10570),
   createData(98753275, 'Desktop', 185, 1, 98063),
-  createData(98753291, 'Chair', 100, 0, 14001)
+  createData(98753291, 'Chair', 100, 0, 14001),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -61,33 +61,33 @@ const headCells = [
     id: 'trackingNo',
     align: 'left',
     disablePadding: false,
-    label: 'Tracking No.'
+    label: 'Tracking No.',
   },
   {
     id: 'name',
     align: 'left',
     disablePadding: true,
-    label: 'Product Name'
+    label: 'Product Name',
   },
   {
     id: 'fat',
     align: 'right',
     disablePadding: false,
-    label: 'Total Order'
+    label: 'Total Order',
   },
   {
     id: 'carbs',
     align: 'left',
     disablePadding: false,
 
-    label: 'Status'
+    label: 'Status',
   },
   {
     id: 'protein',
     align: 'right',
     disablePadding: false,
-    label: 'Total Amount'
-  }
+    label: 'Total Amount',
+  },
 ];
 
 // ==============================|| ORDER TABLE - HEADER ||============================== //
@@ -113,7 +113,7 @@ function OrderTableHead({ order, orderBy }) {
 
 OrderTableHead.propTypes = {
   order: PropTypes.string,
-  orderBy: PropTypes.string
+  orderBy: PropTypes.string,
 };
 
 // ==============================|| ORDER TABLE - STATUS ||============================== //
@@ -149,7 +149,7 @@ const OrderStatus = ({ status }) => {
 };
 
 OrderStatus.propTypes = {
-  status: PropTypes.number
+  status: PropTypes.number,
 };
 
 // ==============================|| ORDER TABLE ||============================== //
@@ -170,18 +170,18 @@ export default function OrderTable() {
           position: 'relative',
           display: 'block',
           maxWidth: '100%',
-          '& td, & th': { whiteSpace: 'nowrap' }
+          '& td, & th': { whiteSpace: 'nowrap' },
         }}
       >
         <Table
           aria-labelledby="tableTitle"
           sx={{
             '& .MuiTableCell-root:first-of-type': {
-              pl: 2
+              pl: 2,
             },
             '& .MuiTableCell-root:last-of-type': {
-              pr: 3
-            }
+              pr: 3,
+            },
           }}
         >
           <OrderTableHead order={order} orderBy={orderBy} />

@@ -21,9 +21,9 @@ export default function AnimateButton({ children, type }) {
 
 AnimateButton.propTypes = {
   children: PropTypes.node,
-  type: PropTypes.oneOf(['slide', 'scale', 'rotate'])
+  type: PropTypes.oneOf(['slide', 'scale', 'rotate']),
 };
 
 AnimateButton.defaultProps = {
-  type: 'scale'
+  type: 'scale',
 };

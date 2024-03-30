@@ -7,7 +7,7 @@ import { AppBar, Box, ClickAwayListener, IconButton, Paper, Popper, Toolbar } fr
 // project import
 import Search from './Search';
 import Profile from './Profile';
-import Transitions from 'components/@extended/Transitions';
+import Transitions from '~/components/@extended/Transitions';
 
 // assets
 import { MoreOutlined } from '@ant-design/icons';
@@ -48,7 +48,7 @@ const MobileSection = () => {
           component="span"
           disableRipple
           sx={{
-            bgcolor: open ? 'grey.300' : 'grey.100'
+            bgcolor: open ? 'grey.300' : 'grey.100',
           }}
           ref={anchorRef}
           aria-controls={open ? 'menu-list-grow' : undefined}
@@ -67,17 +67,17 @@ const MobileSection = () => {
         transition
         disablePortal
         style={{
-          width: '100%'
+          width: '100%',
         }}
         popperOptions={{
           modifiers: [
             {
               name: 'offset',
               options: {
-                offset: [0, 9]
-              }
-            }
-          ]
+                offset: [0, 9],
+              },
+            },
+          ],
         }}
       >
         {({ TransitionProps }) => (

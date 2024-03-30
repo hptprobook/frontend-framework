@@ -11,6 +11,28 @@ const createNew = async (req, res, next) => {
   }
 };
 
+const update = async (req, res, next) => {
+  try {
+    const updatedCard = await cardService.update(req.params.id, req.body);
+
+    res.status(StatusCodes.OK).json(updatedCard);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const remove = async (req, res, next) => {
+  try {
+    const result = await cardService.remove(req.params.id);
+
+    res.status(StatusCodes.OK).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const cardController = {
   createNew,
+  update,
+  remove,
 };

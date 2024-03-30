@@ -16,12 +16,19 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import { convertHTMLToText } from '~/utils/formatters';
 import TextField from '@mui/material/TextField';
 import CommentIcon from '@mui/icons-material/Comment';
+import { useDispatch /* useSelector */ } from 'react-redux';
+import { deleteCardDetails, updateCardDetails } from '~/redux/slices/cardSlice';
+import { toast } from 'react-toastify';
+import { useConfirm } from 'material-ui-confirm';
 
 export default function CardDetail({ openModal, handleCloseModal, card }) {
   const [desc, setDesc] = useState(card ? card.description : '');
   const [title, setTitle] = useState(card ? card.title : '');
   const [isEditingTitle, setEditingTitle] = useState(false);
   const [isEditingDesc, setEditingDesc] = useState(false);
+
+  const dispatch = useDispatch();
+  // const updatedCard = useSelector((state) => state.cards.updatedCard);
 
   const handleSaveDesc = () => {
     setEditingDesc(false);
@@ -35,11 +42,36 @@ export default function CardDetail({ openModal, handleCloseModal, card }) {
     if (e.key === 'Enter') {
       setEditingTitle(false);
       setTitle(e.target.value);
+      dispatch(
+        updateCardDetails({
+          id: card._id,
+          data: {
+            title,
+          },
+        })
+      );
     }
   };
 
   const handleCancelEditTitle = () => {
     setEditingTitle(false);
+  };
+
+  const confirmDeleteCard = useConfirm();
+
+  const handleDeleteCard = () => {
+    confirmDeleteCard({
+      title: 'Delete Card?',
+      description:
+        'Are you sure you want to delete this card? This action will delete the currently selected card',
+      confirmationButtonProps: { color: 'error', variant: 'outlined' },
+      confirmationText: 'Confirm',
+    }).then(() => {
+      dispatch(deleteCardDetails({ id: card._id }));
+
+      toast.success('Deleted card successfully!');
+      handleCloseModal();
+    });
   };
 
   return (
@@ -113,7 +145,7 @@ export default function CardDetail({ openModal, handleCloseModal, card }) {
             alignItems: 'flex-end',
           }}
         >
-          <Button>Delete</Button>
+          <Button onClick={handleDeleteCard}>Delete</Button>
         </Grid>
       </Grid>
       <Grid
@@ -156,7 +188,11 @@ export default function CardDetail({ openModal, handleCloseModal, card }) {
               >
                 Save
               </Button>
-              <Button onClick={handleCancelEditDesc} size="small" variant="outlined">
+              <Button
+                onClick={handleCancelEditDesc}
+                size="small"
+                variant="outlined"
+              >
                 Cancel
               </Button>
             </>
