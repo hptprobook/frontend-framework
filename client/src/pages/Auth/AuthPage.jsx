@@ -56,6 +56,7 @@ export default function AuthPage() {
         sx={{
           mt: 2,
         }}
+        disabled
       />
       <Button
         variant="contained"
@@ -64,6 +65,7 @@ export default function AuthPage() {
         sx={{
           mt: 2,
         }}
+        disabled
       >
         Continue
       </Button>
@@ -89,6 +91,7 @@ export default function AuthPage() {
         fullWidth
         sx={{ mb: 1 }}
         startIcon={<MicrosoftIcon />}
+        disabled
       >
         Login With Microsoft
       </Button>
@@ -105,6 +108,7 @@ export default function AuthPage() {
         fullWidth
         sx={{ mb: 1 }}
         startIcon={<AppleIcon />}
+        disabled
       >
         Login With Apple
       </Button>
