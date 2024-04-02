@@ -1,14 +1,7 @@
-import Board from './pages/Boards/_id';
+import Routes from '~/routes';
 
 function App() {
-  return (
-    <>
-      {/* React router dom */}
-
-      {/* Board Detail */}
-      <Board />
-    </>
-  );
+  return <Routes />;
 }
 
 export default App;

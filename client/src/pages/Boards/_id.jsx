@@ -1,5 +1,3 @@
-import Container from '@mui/material/Container';
-import AppBar from '~/components/AppBar/AppBar';
 import BoardBar from './BoardBar/BoardBar';
 import BoardContent from './BoardContent/BoardContent';
 // import { mockData } from '~/apis/mock-data';
@@ -20,7 +18,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { toast } from 'react-toastify';
 
-function Board() {
+function BoardDetails() {
   const [board, setBoard] = useState(null);
 
   useEffect(() => {
@@ -65,7 +63,9 @@ function Board() {
     });
 
     const newBoard = { ...board };
-    const columnToUpdate = newBoard.columns.find((column) => column._id === createdCard.columnId);
+    const columnToUpdate = newBoard.columns.find(
+      (column) => column._id === createdCard.columnId
+    );
 
     if (columnToUpdate) {
       if (columnToUpdate.cards.some((card) => card.FE_PlaceholderCard)) {
@@ -94,7 +94,9 @@ function Board() {
   /* Khi di chuyển card trên một column */
   const moveCardSameColumn = (dndOrderedCards, dndOrderedCardIds, columnId) => {
     const newBoard = { ...board };
-    const columnToUpdate = newBoard.columns.find((column) => column._id === columnId);
+    const columnToUpdate = newBoard.columns.find(
+      (column) => column._id === columnId
+    );
 
     if (columnToUpdate) {
       columnToUpdate.cards = dndOrderedCards;
@@ -104,7 +106,12 @@ function Board() {
     updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds });
   };
 
-  const moveCardDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
+  const moveCardDifferentColumn = (
+    currentCardId,
+    prevColumnId,
+    nextColumnId,
+    dndOrderedColumns
+  ) => {
     const dndOrderedColumnIds = dndOrderedColumns.map((c) => c._id);
 
     const newBoard = { ...board };
@@ -112,22 +119,29 @@ function Board() {
     newBoard.columnOrderIds = dndOrderedColumnIds;
     setBoard(newBoard);
 
-    let prevCardOrderIds = dndOrderedColumns.find((col) => col._id === prevColumnId)?.cardOrderIds;
-    if (prevCardOrderIds[0].includes('-placeholder-card')) prevCardOrderIds = [];
+    let prevCardOrderIds = dndOrderedColumns.find(
+      (col) => col._id === prevColumnId
+    )?.cardOrderIds;
+    if (prevCardOrderIds[0].includes('-placeholder-card'))
+      prevCardOrderIds = [];
 
     moveCardDifferentColumnAPI({
       currentCardId,
       prevColumnId,
       prevCardOrderIds,
       nextColumnId,
-      nextCardOrderIds: dndOrderedColumns.find((col) => col._id === nextColumnId)?.cardOrderIds,
+      nextCardOrderIds: dndOrderedColumns.find(
+        (col) => col._id === nextColumnId
+      )?.cardOrderIds,
     });
   };
 
   const handleDeleteColumn = (columnId) => {
     const newBoard = { ...board };
     newBoard.columns = newBoard.columns.filter((c) => c._id !== columnId);
-    newBoard.columnOrderIds = newBoard.columnOrderIds.filter((_id) => _id !== columnId);
+    newBoard.columnOrderIds = newBoard.columnOrderIds.filter(
+      (_id) => _id !== columnId
+    );
     setBoard(newBoard);
 
     deleteColumnDetailsAPI(columnId).then((res) => {
@@ -137,21 +151,22 @@ function Board() {
 
   if (!board) {
     return (
-      <Box sx={{ display: 'flex', width: '100%', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',
+          height: '100vh',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Container
-      disableGutters
-      maxWidth={false}
-      sx={{
-        height: '100vh',
-      }}
-    >
-      <AppBar />
+    <>
       <BoardBar board={board} />
       <BoardContent
         board={board}
@@ -162,8 +177,8 @@ function Board() {
         moveCardDifferentColumn={moveCardDifferentColumn}
         handleDeleteColumn={handleDeleteColumn}
       />
-    </Container>
+    </>
   );
 }
 
-export default Board;
+export default BoardDetails;

@@ -109,6 +109,7 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
           },
         })
       );
+      column.title = editCardTitle;
       setEditingTitle(false);
     } else if (e.key === 'Escape') {
       setEditingTitle(false);

@@ -21,21 +21,38 @@ import { deleteCardDetails, updateCardDetails } from '~/redux/slices/cardSlice';
 import { toast } from 'react-toastify';
 import { useConfirm } from 'material-ui-confirm';
 
-export default function CardDetail({ openModal, handleCloseModal, card }) {
+export default function CardDetail({
+  openModal,
+  handleCloseModal,
+  card,
+  setCardTitle,
+}) {
   const [desc, setDesc] = useState(card ? card.description : '');
   const [title, setTitle] = useState(card ? card.title : '');
   const [isEditingTitle, setEditingTitle] = useState(false);
   const [isEditingDesc, setEditingDesc] = useState(false);
+  const [initialDesc, setInitialDesc] = useState(card ? card.description : '');
 
   const dispatch = useDispatch();
   // const updatedCard = useSelector((state) => state.cards.updatedCard);
 
   const handleSaveDesc = () => {
     setEditingDesc(false);
+    // setDesc(e.target.value);
+    dispatch(
+      updateCardDetails({
+        id: card._id,
+        data: {
+          description: desc,
+        },
+      })
+    );
+    setInitialDesc(desc);
   };
 
   const handleCancelEditDesc = () => {
     setEditingDesc(false);
+    setDesc(initialDesc);
   };
 
   const handleSaveTitle = (e) => {
@@ -50,10 +67,12 @@ export default function CardDetail({ openModal, handleCloseModal, card }) {
           },
         })
       );
+      setCardTitle(title);
     }
   };
 
   const handleCancelEditTitle = () => {
+    setDesc(initialDesc);
     setEditingTitle(false);
   };
 

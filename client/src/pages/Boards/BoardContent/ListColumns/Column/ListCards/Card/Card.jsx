@@ -14,12 +14,24 @@ import CardDetail from './_id';
 
 function Card({ card }) {
   const [openModal, setOpenModal] = useState(false);
+  const [cardTitle, setCardTitle] = useState(card ? card.title : '');
 
   const shouldShowCardActions = () => {
-    return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length;
+    return (
+      !!card?.memberIds?.length ||
+      !!card?.comments?.length ||
+      !!card?.attachments?.length
+    );
   };
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: card?._id,
     data: { ...card },
   });
@@ -68,7 +80,7 @@ function Card({ card }) {
             },
           }}
         >
-          <Typography>{card?.title}</Typography>
+          <Typography>{cardTitle}</Typography>
         </CardContent>
 
         {shouldShowCardActions() && (
@@ -97,7 +109,12 @@ function Card({ card }) {
           </CardActions>
         )}
       </MuiCard>
-      <CardDetail card={card} handleCloseModal={handleCloseModal} openModal={openModal} />
+      <CardDetail
+        card={card}
+        handleCloseModal={handleCloseModal}
+        openModal={openModal}
+        setCardTitle={setCardTitle}
+      />
     </>
   );
 }
