@@ -5,6 +5,7 @@ import { boardRoute } from './boardRoute';
 import { columnRoute } from './columnRoute';
 import { cardRoute } from './cardRoute';
 import { authRoute } from './authRoute';
+import { userRoute } from './userRoute';
 
 const Router = express.Router();
 
@@ -16,6 +17,9 @@ Router.get('/status', (req, res) => {
 
 /* Auth APIs */
 Router.use('/auth', authRoute);
+
+/* User APIs */
+Router.use('/user', verifyAccessToken, userRoute);
 
 /* Board APIs */
 Router.use('/boards', verifyAccessToken, boardRoute);

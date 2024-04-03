@@ -1,0 +1,8 @@
+import express from 'express';
+import { userController } from '~/controllers/userController';
+
+const Router = express.Router();
+
+Router.route('/current').get(userController.getCurrent);
+
+export const userRoute = Router;

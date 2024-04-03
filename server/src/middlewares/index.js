@@ -10,7 +10,6 @@ if (!admin.apps.length) {
 
 const verifyAccessToken = async (req, res, next) => {
   const accessToken = req.headers.authorization?.split(' ')[1];
-  console.log('🚀 ~ verifyAccessToken ~ accessToken:', accessToken);
 
   if (!accessToken) {
     return res.status(422).send({ message: 'Unauthenticated' });
