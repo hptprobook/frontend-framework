@@ -8,14 +8,23 @@ import { cardModel } from '~/models/cardModel';
 
 const createNew = async (reqBody) => {
   try {
-    // Gọi tới Model để tạo bản ghi
     const createdBoard = await boardModel.createNew({
       ...reqBody,
       slug: slugify(reqBody.title),
     });
 
-    // Trả về kết quả cho controller, trong Service bắt buộc phải có return
     return await boardModel.findOneById(createdBoard.insertedId);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getAll = async () => {
+  try {
+    const boards = await boardModel.getAll();
+    if (!boards) throw new ApiError(StatusCodes.NOT_FOUND, 'No boards found!');
+
+    return boards;
   } catch (error) {
     throw error;
   }
@@ -28,9 +37,9 @@ const getDetails = async (boardId) => {
 
     const resBoard = cloneDeep(board);
     resBoard.columns.forEach((col) => {
-      col.cards = resBoard.cards.filter((card) => card.columnId.equals(col._id));
-
-      // col.cards = resBoard.cards.filter((card) => card.columnId.toString() === col._id.toString());
+      col.cards = resBoard.cards.filter((card) =>
+        card.columnId.equals(col._id)
+      );
     });
 
     delete resBoard.cards;
@@ -67,7 +76,9 @@ const moveCardDifferentColumn = async (reqBody) => {
       updatedAt: Date.now(),
     });
 
-    await cardModel.update(reqBody.currentCardId, { columnId: reqBody.nextColumnId });
+    await cardModel.update(reqBody.currentCardId, {
+      columnId: reqBody.nextColumnId,
+    });
 
     return { updateResult: 'success' };
   } catch (error) {
@@ -75,9 +86,33 @@ const moveCardDifferentColumn = async (reqBody) => {
   }
 };
 
+const remove = async (boardId) => {
+  try {
+    const targetBoard = await boardModel.findOneById(boardId);
+
+    if (!targetBoard) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!');
+    }
+
+    await boardModel.deleteOneById(boardId);
+
+    await columnModel.deleteManyByBoardId(boardId);
+
+    await cardModel.deleteManyByBoardId(boardId);
+
+    return {
+      deleteResult: 'Board, its Columns and Cards deleted successfully!',
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const boardService = {
   createNew,
+  getAll,
   getDetails,
   update,
   moveCardDifferentColumn,
+  remove,
 };

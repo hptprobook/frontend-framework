@@ -1,12 +1,33 @@
 import { Box, Typography } from '@mui/material';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import { CardActionArea, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { getAllBoards } from '~/redux/slices/boardSlice';
+import CircularLoading from '~/components/Loading/CircularLoading';
+import NewBoardDialog from './NewBoardDialog';
 
 export default function Board() {
+  const dispatch = useDispatch();
+  const { boards, isLoading } = useSelector((state) => state.boards);
+  const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    dispatch(getAllBoards());
+  }, [dispatch]);
+
+  if (isLoading && !boards) {
+    return <CircularLoading />;
+  }
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
   return (
     <Box
       sx={{
@@ -34,53 +55,50 @@ export default function Board() {
         container
         spacing={2}
       >
-        <Grid item xs={3}>
-          <Card sx={{ width: '100%', height: '274px' }}>
-            <CardActionArea>
-              <CardMedia
-                component="img"
-                height="140"
-                image="https://mui.com/static/images/cards/contemplative-reptile.jpg"
-                alt="green iguana"
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  Lizard
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Lizards are a widespread group of squamate reptiles, with over
-                  6,000 species, ranging across all continents except Antarctica
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
-        <Grid item xs={3}>
-          <Card sx={{ width: '100%', height: '274px' }}>
-            <CardActionArea>
-              <CardMedia
-                component="img"
-                height="140"
-                image="https://mui.com/static/images/cards/contemplative-reptile.jpg"
-                alt="green iguana"
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  Lizard
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Lizards are a widespread group of squamate reptiles, with over
-                  6,000 species, ranging across all continents except Antarctica
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
-        <Grid item xs={3}>
+        {boards.map((board) => (
+          <Grid key={board._id} item xs={2}>
+            <Link to={`/boards/${board._id}`}>
+              <Card
+                sx={{
+                  width: '100%',
+                  height: '180px',
+                  m: 0,
+                  '&:hover': {
+                    opacity: '0.8',
+                  },
+                }}
+              >
+                <CardMedia
+                  sx={{
+                    height: '100%',
+                    '& div': {
+                      backgroundSize: 'cover',
+                    },
+                  }}
+                  image="https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhi-1--Nang-Tre.jpg"
+                  title="green iguana"
+                >
+                  <Typography
+                    sx={{
+                      color: '#fff',
+                      px: 2,
+                      py: 1,
+                    }}
+                    variant="h6"
+                  >
+                    {board?.title}
+                  </Typography>
+                </CardMedia>
+              </Card>
+            </Link>
+          </Grid>
+        ))}
+
+        <Grid item xs={2}>
           <Card
             sx={{
               width: '100%',
-              height: '274px',
+              height: '180px',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
@@ -94,12 +112,14 @@ export default function Board() {
                 height: '100%',
               }}
               startIcon={<LibraryAddIcon />}
+              onClick={handleOpenModal}
             >
               New Board
             </Button>
           </Card>
         </Grid>
       </Grid>
+      <NewBoardDialog open={openModal} setOpen={setOpenModal} />
     </Box>
   );
 }

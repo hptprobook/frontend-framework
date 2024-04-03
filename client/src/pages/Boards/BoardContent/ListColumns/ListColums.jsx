@@ -1,17 +1,26 @@
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import Column from './Column/Column';
 import Button from '@mui/material/Button';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
-import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import CloseIcon from '@mui/icons-material/Close';
 import { toast } from 'react-toastify';
 
-function ListColums({ columns, createNewColumn, createNewCard, handleDeleteColumn }) {
+function ListColums({
+  columns,
+  createNewColumn,
+  createNewCard,
+  handleDeleteColumn,
+}) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState('');
-  const toggleOpenNewColumnForm = () => setOpenNewColumnForm(!openNewColumnForm);
+  const toggleOpenNewColumnForm = () =>
+    setOpenNewColumnForm(!openNewColumnForm);
   const addNewColumn = async () => {
     if (!newColumnTitle) {
       toast.error('Please enter Column Title!');
@@ -30,7 +39,10 @@ function ListColums({ columns, createNewColumn, createNewCard, handleDeleteColum
 
   /* SortableContext yêu cầu items là một dạng mảng dữ liệu thông thường chứ không phải dạng mảng object */
   return (
-    <SortableContext items={columns?.map((c) => c._id)} strategy={horizontalListSortingStrategy}>
+    <SortableContext
+      items={columns?.map((c) => c._id)}
+      strategy={horizontalListSortingStrategy}
+    >
       <Box
         sx={{
           bgcolor: 'inherit',
@@ -45,7 +57,12 @@ function ListColums({ columns, createNewColumn, createNewCard, handleDeleteColum
         }}
       >
         {columns?.map((column) => (
-          <Column key={column?._id} column={column} createNewCard={createNewCard} handleDeleteColumn={handleDeleteColumn} />
+          <Column
+            key={column?._id}
+            column={column}
+            createNewCard={createNewCard}
+            handleDeleteColumn={handleDeleteColumn}
+          />
         ))}
 
         {/* Box Add new column */}

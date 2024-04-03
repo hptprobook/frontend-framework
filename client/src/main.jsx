@@ -1,7 +1,7 @@
 // import React from 'react';
+import CssBaseLine from '@mui/material/CssBaseline';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-import CssBaseLine from '@mui/material/CssBaseline';
 import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles';
 import theme from './theme.js';
 import { ToastContainer } from 'react-toastify';
@@ -10,6 +10,8 @@ import { ConfirmProvider } from 'material-ui-confirm';
 import { Provider } from 'react-redux';
 import store from './redux/store.js';
 import { BrowserRouter } from 'react-router-dom';
+import './main.css';
+import '~/config/firebaseConfig';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>

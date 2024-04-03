@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import ModeSelect from '../ModeSelect/ModeSelect';
 import AppsIcon from '@mui/icons-material/Apps';
 import Logo from '~/assets/trello.svg?react';
@@ -36,14 +36,24 @@ function AppBar() {
         gap: 2,
         overflowX: 'auto',
         overflowY: 'hidden',
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0'),
+        bgcolor: (theme) =>
+          theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <AppsIcon sx={{ color: '#fff' }} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <SvgIcon component={Logo} inheritViewBox fontSize="small" sx={{ color: '#fff' }} />
-          <Typography sx={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}>Trello</Typography>
+          <SvgIcon
+            component={Logo}
+            inheritViewBox
+            fontSize="small"
+            sx={{ color: '#fff' }}
+          />
+          <Typography
+            sx={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}
+          >
+            Trello
+          </Typography>
         </Box>
 
         <Box

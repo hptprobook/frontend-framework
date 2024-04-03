@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SyncLockIcon from '@mui/icons-material/SyncLock';
@@ -39,15 +39,41 @@ function BoardBar({ board }) {
         gap: 2,
         overflowX: 'auto',
         overflowY: 'hidden',
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
+        bgcolor: (theme) =>
+          theme.palette.mode === 'dark' ? '#34495e' : '#1976d2',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Chip sx={MENU_STYLES} clickable icon={<DashboardIcon />} label={board?.title} />
-        <Chip sx={MENU_STYLES} clickable icon={<SyncLockIcon />} label={capitalizeFirstLetter(board?.type)} />
-        <Chip sx={MENU_STYLES} clickable icon={<AddToDriveIcon />} label="Add to Google Drive" />
-        <Chip sx={MENU_STYLES} clickable icon={<BoltIcon />} label="Automation" />
-        <Chip sx={MENU_STYLES} clickable icon={<FilterListIcon />} label="Filter" />
+        <Chip
+          sx={MENU_STYLES}
+          clickable
+          icon={<DashboardIcon />}
+          label={board?.title}
+        />
+        <Chip
+          sx={MENU_STYLES}
+          clickable
+          icon={<SyncLockIcon />}
+          label={capitalizeFirstLetter(board?.type)}
+        />
+        <Chip
+          sx={MENU_STYLES}
+          clickable
+          icon={<AddToDriveIcon />}
+          label="Add to Google Drive"
+        />
+        <Chip
+          sx={MENU_STYLES}
+          clickable
+          icon={<BoltIcon />}
+          label="Automation"
+        />
+        <Chip
+          sx={MENU_STYLES}
+          clickable
+          icon={<FilterListIcon />}
+          label="Filter"
+        />
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -87,16 +113,25 @@ function BoardBar({ board }) {
             />
           </Tooltip>
           <Tooltip title="Aphelios">
-            <Avatar alt="Aphelios" src="https://opgg-static.akamaized.net/meta/images/lol/14.5.1/champion/centered/Aphelios_30.jpg" />
+            <Avatar
+              alt="Aphelios"
+              src="https://opgg-static.akamaized.net/meta/images/lol/14.5.1/champion/centered/Aphelios_30.jpg"
+            />
           </Tooltip>
           <Tooltip title="K'Sante">
-            <Avatar alt="K'Sante" src="https://i.pinimg.com/474x/30/23/27/302327800bb906b3bcfe9327a78178f3.jpg" />
+            <Avatar
+              alt="K'Sante"
+              src="https://i.pinimg.com/474x/30/23/27/302327800bb906b3bcfe9327a78178f3.jpg"
+            />
           </Tooltip>
           <Tooltip title="Yone">
             <Avatar alt="Yone" src="https://i.redd.it/qa7lkrmrcawb1.jpg" />
           </Tooltip>
           <Tooltip title="Sett">
-            <Avatar alt="Sett" src="https://prod.api.assets.riotgames.com/public/v1/asset/lol/14.4.1/CHAMPION_SKIN/875056/ICON" />
+            <Avatar
+              alt="Sett"
+              src="https://prod.api.assets.riotgames.com/public/v1/asset/lol/14.4.1/CHAMPION_SKIN/875056/ICON"
+            />
           </Tooltip>
           <Tooltip title="Ezreal">
             <Avatar

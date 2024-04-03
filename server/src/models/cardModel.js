@@ -111,12 +111,26 @@ const deleteManyByColumnId = async (columnId) => {
   }
 };
 
+const deleteManyByBoardId = async (boardId) => {
+  try {
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .deleteMany({ boardId: new ObjectId(boardId) });
+    if (!result)
+      throw new Error(`Column not found for ${CARD_COLLECTION_NAME}`);
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const cardModel = {
   createNew,
   findOneById,
   update,
   deleteManyByColumnId,
   deleteOneById,
+  deleteManyByBoardId,
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
 };

@@ -8,7 +8,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import ListIcon from '@mui/icons-material/List';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AttachFileIcon from '@mui/icons-material/AttachFile';

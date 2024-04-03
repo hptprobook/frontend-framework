@@ -15,16 +15,16 @@ import { generatePlaceholderCard } from '~/utils/formatters';
 import { isEmpty } from 'lodash';
 import { mapOrder } from '~/utils/sorts';
 import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 
 function BoardDetails() {
   const [board, setBoard] = useState(null);
+  const { id } = useParams();
 
   useEffect(() => {
-    const boardId = '65f2628848c8bbbfd5825a80';
-
-    fetchBoardDetailsAPI(boardId).then((board) => {
+    fetchBoardDetailsAPI(id).then((board) => {
       board.columns = mapOrder(board.columns, board.columnOrderIds, '_id');
 
       board.columns.forEach((column) => {
@@ -38,7 +38,7 @@ function BoardDetails() {
 
       setBoard(board);
     });
-  }, []);
+  }, [id]);
 
   const createNewColumn = async (newColumnData) => {
     const createdColumn = await createNewColumnAPI({
@@ -155,7 +155,7 @@ function BoardDetails() {
         sx={{
           display: 'flex',
           width: '100%',
-          height: '100%',
+          height: (theme) => theme.height.boardContentHeight,
           justifyContent: 'center',
           alignItems: 'center',
         }}

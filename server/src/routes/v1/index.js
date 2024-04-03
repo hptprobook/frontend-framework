@@ -1,8 +1,10 @@
 import express from 'express';
+import verifyAccessToken from '~/middlewares';
 import { StatusCodes } from 'http-status-codes';
 import { boardRoute } from './boardRoute';
 import { columnRoute } from './columnRoute';
 import { cardRoute } from './cardRoute';
+import { authRoute } from './authRoute';
 
 const Router = express.Router();
 
@@ -12,13 +14,16 @@ Router.get('/status', (req, res) => {
   });
 });
 
+/* Auth APIs */
+Router.use('/auth', authRoute);
+
 /* Board APIs */
-Router.use('/boards', boardRoute);
+Router.use('/boards', verifyAccessToken, boardRoute);
 
 /* Column APIs */
-Router.use('/columns', columnRoute);
+Router.use('/columns', verifyAccessToken, columnRoute);
 
 /* Card APIs */
-Router.use('/cards', cardRoute);
+Router.use('/cards', verifyAccessToken, cardRoute);
 
 export const APIs_V1 = Router;

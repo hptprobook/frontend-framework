@@ -11,6 +11,16 @@ const createNew = async (req, res, next) => {
   }
 };
 
+const getAll = async (req, res, next) => {
+  try {
+    const boards = await boardService.getAll();
+
+    res.status(StatusCodes.OK).json(boards);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getDetails = async (req, res, next) => {
   try {
     const board = await boardService.getDetails(req.params.id);
@@ -40,9 +50,21 @@ const moveCardDifferentColumn = async (req, res, next) => {
   }
 };
 
+const remove = async (req, res, next) => {
+  try {
+    const result = await boardService.remove(req.params.id);
+
+    res.status(StatusCodes.OK).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const boardController = {
   createNew,
+  getAll,
   getDetails,
   update,
   moveCardDifferentColumn,
+  remove,
 };

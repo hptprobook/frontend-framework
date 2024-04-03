@@ -9,8 +9,53 @@ import MicrosoftIcon from '@mui/icons-material/Microsoft';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import AppleIcon from '@mui/icons-material/Apple';
 import { Link } from 'react-router-dom';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import 'firebase/auth';
+import { toast } from 'react-toastify';
+import useAuthStatus from '~/hooks/useAuthStatus';
+import { loginGoogle } from '~/redux/slices/authSlice';
 
 export default function AuthPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isAuth = useAuthStatus();
+  const provider = new GoogleAuthProvider();
+  const auth = getAuth();
+
+  useEffect(() => {
+    if (isAuth) {
+      navigate('/boards');
+    }
+  }, [isAuth, navigate]);
+
+  const handleLoginGoogle = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('accessToken', user.accessToken);
+        dispatch(
+          loginGoogle({
+            data: {
+              user_id: user.uid,
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              refreshToken: user.refreshToken,
+            },
+          })
+        );
+        navigate('/boards');
+        window.location.reload();
+      })
+      .catch(() => {
+        toast.error('Cannot sign in with Google! Please try again');
+      });
+  };
+
   return (
     <Box
       sx={{
@@ -83,6 +128,7 @@ export default function AuthPage() {
         fullWidth
         sx={{ mb: 1 }}
         startIcon={<GoogleIcon />}
+        onClick={handleLoginGoogle}
       >
         Login With Google
       </Button>

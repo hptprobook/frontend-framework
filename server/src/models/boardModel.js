@@ -17,7 +17,9 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   type: Joi.string()
     .valid(...BOARD_TYPES)
     .required(),
-  columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+  columnOrderIds: Joi.array()
+    .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
+    .default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false),
@@ -26,14 +28,18 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
 const INVALID_UPDATE_FIELDS = ['_id', 'createdAt'];
 
 const validateBeforeCreate = async (data) => {
-  return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false });
+  return await BOARD_COLLECTION_SCHEMA.validateAsync(data, {
+    abortEarly: false,
+  });
 };
 
 const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data);
 
-    return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData);
+    return await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .insertOne(validData);
   } catch (error) {
     throw new Error(error);
   }
@@ -44,8 +50,22 @@ const findOneById = async (id) => {
     const result = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
       .findOne({ _id: new ObjectId(id) });
-    if (!result) throw new Error(`Board not found for ${BOARD_COLLECTION_NAME}`);
+    if (!result)
+      throw new Error(`Board not found for ${BOARD_COLLECTION_NAME}`);
     return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const getAll = async () => {
+  try {
+    const results = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .find({})
+      .toArray();
+
+    return results || [];
   } catch (error) {
     throw new Error(error);
   }
@@ -84,7 +104,11 @@ const getDetails = async (id) => {
       ])
       .toArray();
 
-    if (!result) throw new ApiError(StatusCodes.NOT_FOUND, `Board not found for ${BOARD_COLLECTION_NAME}`);
+    if (!result)
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Board not found for ${BOARD_COLLECTION_NAME}`
+      );
     return result[0] || null;
   } catch (error) {
     throw new Error(error);
@@ -95,7 +119,11 @@ const pushColumnOrderIds = async (col) => {
   try {
     const result = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
-      .findOneAndUpdate({ _id: new ObjectId(col.boardId) }, { $push: { columnOrderIds: col._id } }, { returnDocument: 'after' });
+      .findOneAndUpdate(
+        { _id: new ObjectId(col.boardId) },
+        { $push: { columnOrderIds: col._id } },
+        { returnDocument: 'after' }
+      );
 
     return result || null;
   } catch (error) {
@@ -112,12 +140,18 @@ const update = async (boardId, updateData) => {
     });
 
     if (updateData.columnOrderIds) {
-      updateData.columnOrderIds = updateData.columnOrderIds.map((_id) => new ObjectId(_id));
+      updateData.columnOrderIds = updateData.columnOrderIds.map(
+        (_id) => new ObjectId(_id)
+      );
     }
 
     const result = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
-      .findOneAndUpdate({ _id: new ObjectId(boardId) }, { $set: updateData }, { returnDocument: 'after' });
+      .findOneAndUpdate(
+        { _id: new ObjectId(boardId) },
+        { $set: updateData },
+        { returnDocument: 'after' }
+      );
 
     return result || null;
   } catch (error) {
@@ -141,13 +175,28 @@ const pullColumnOrderIds = async (col) => {
   }
 };
 
+const deleteOneById = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .deleteOne({ _id: new ObjectId(id) });
+    if (!result)
+      throw new Error(`Column not found for ${BOARD_COLLECTION_NAME}`);
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const boardModel = {
   createNew,
   findOneById,
+  getAll,
   getDetails,
   pushColumnOrderIds,
   update,
   pullColumnOrderIds,
+  deleteOneById,
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
 };

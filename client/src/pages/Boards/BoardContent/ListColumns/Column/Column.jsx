@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';

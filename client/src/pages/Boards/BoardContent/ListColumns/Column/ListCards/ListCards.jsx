@@ -1,10 +1,16 @@
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import Card from './Card/Card';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 function ListCards({ cards }) {
   return (
-    <SortableContext items={cards?.map((c) => c._id)} strategy={verticalListSortingStrategy}>
+    <SortableContext
+      items={cards?.map((c) => c._id)}
+      strategy={verticalListSortingStrategy}
+    >
       <Box
         sx={{
           display: 'flex',
@@ -15,9 +21,9 @@ function ListCards({ cards }) {
           overflowX: 'hidden',
           overflowY: 'auto',
           maxHeight: (theme) =>
-            `calc(${theme.height.boardContentHeight} - ${theme.spacing(5)} - ${theme.height.columnHeaderHeight} - ${
-              theme.height.columnFooterHeight
-            })`,
+            `calc(${theme.height.boardContentHeight} - ${theme.spacing(5)} - ${
+              theme.height.columnHeaderHeight
+            } - ${theme.height.columnFooterHeight})`,
           '&::-webkit-scrollbar': {
             width: '8px',
             height: '8px',
