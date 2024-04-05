@@ -27,6 +27,11 @@ function ListColums({
       return;
     }
 
+    if (newColumnTitle.length < 3) {
+      toast.error('Column title must be at least 3 characters');
+      return;
+    }
+
     const newColumnData = {
       title: newColumnTitle,
     };

@@ -13,7 +13,7 @@ export const createNewBoard = createAsyncThunk(
 );
 
 export const getAllBoards = createAsyncThunk(
-  'board/gẻtAll',
+  'board/getAll',
   async (_, { rejectWithValue }) => {
     try {
       return await boardServices.getAllBoardsAPI();

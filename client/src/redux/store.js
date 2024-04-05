@@ -3,6 +3,7 @@ import boardReducer from './slices/boardSlice';
 import columnReducer from './slices/columnSlice';
 import cardReducer from './slices/cardSlice';
 import authReducer from './slices/authSlice';
+import userReducer from './slices/userSlice';
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     columns: columnReducer,
     cards: cardReducer,
     auth: authReducer,
+    users: userReducer,
   },
 });
 

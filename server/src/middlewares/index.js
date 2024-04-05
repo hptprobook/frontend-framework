@@ -12,21 +12,21 @@ const verifyAccessToken = async (req, res, next) => {
   const accessToken = req.headers.authorization?.split(' ')[1];
 
   if (!accessToken) {
-    return res.status(422).send({ message: 'Unauthenticated' });
+    return res.status(401).send({ message: 'Unauthenticated' });
   }
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(accessToken);
     req.user = decodedToken;
     if (!decodedToken) {
-      return res.status(422).send({ message: 'Invalid access token.' });
+      return res.status(401).send({ message: 'Invalid access token.' });
     }
 
     req.user = decodedToken;
 
     next();
   } catch (error) {
-    return res.status(422).send({ message: error.message });
+    return res.status(401).send({ message: error.message });
   }
 };
 

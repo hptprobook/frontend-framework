@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 
 const BoardLayout = lazy(() => import('~/layouts/BoardLayout'));
 const BoardDetails = lazy(() => import('~/pages/Boards/_id'));
-const Board = lazy(() => import('~/pages/Boards/Board'));
+const Board = lazy(() => import('~/pages/Boards/ListBoards'));
 
 const ProtectedLayout = ({ children }) => {
   const isLoggedIn = useAuthStatus();

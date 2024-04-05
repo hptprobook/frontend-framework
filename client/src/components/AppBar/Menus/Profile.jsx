@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -7,13 +7,19 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import PersonAdd from '@mui/icons-material/PersonAdd';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import { deepPurple } from '@mui/material/colors';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCurrent } from '~/redux/slices/userSlice';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function Profile() {
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { current } = useSelector((state) => state.users);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -22,6 +28,17 @@ function Profile() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('isLoggedIn');
+    navigate('/');
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    dispatch(getCurrent());
+  }, [dispatch]);
 
   return (
     <Box>
@@ -36,7 +53,7 @@ function Profile() {
           >
             <Avatar
               sx={{ bgcolor: deepPurple[500], width: 32, height: 32 }}
-              src="https://cdn-prod.medicalnewstoday.com/content/images/articles/322/322868/golden-retriever-puppy.jpg"
+              src={current?.picture}
             />
           </IconButton>
         </Tooltip>
@@ -47,6 +64,9 @@ function Profile() {
         open={open}
         onClose={handleClose}
         onClick={handleClose}
+        sx={{
+          p: 2,
+        }}
         PaperProps={{
           elevation: 0,
           sx: {
@@ -77,25 +97,26 @@ function Profile() {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar /> Profile
+          <Avatar
+            sx={{ bgcolor: deepPurple[500], width: 32, height: 32 }}
+            src={current?.picture}
+          />
+          {current?.name}
         </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Avatar /> My account
-        </MenuItem>
-        <Divider />
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
-            <PersonAdd fontSize="small" />
+            <AccountCircleIcon fontSize="small" />
           </ListItemIcon>
-          Add another account
+          My account
         </MenuItem>
+        <Divider />
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>

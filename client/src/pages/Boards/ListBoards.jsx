@@ -20,7 +20,7 @@ export default function Board() {
     dispatch(getAllBoards());
   }, [dispatch]);
 
-  if (isLoading && !boards) {
+  if (isLoading) {
     return <CircularLoading />;
   }
 
@@ -56,7 +56,7 @@ export default function Board() {
         spacing={2}
       >
         {boards.map((board) => (
-          <Grid key={board._id} item xs={2}>
+          <Grid key={board._id} item lg={2} sm={3} md={6}>
             <Link to={`/boards/${board._id}`}>
               <Card
                 sx={{
@@ -94,7 +94,7 @@ export default function Board() {
           </Grid>
         ))}
 
-        <Grid item xs={2}>
+        <Grid item lg={2} sm={3} md={6}>
           <Card
             sx={{
               width: '100%',

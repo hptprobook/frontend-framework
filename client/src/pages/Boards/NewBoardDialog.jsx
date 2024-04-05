@@ -6,9 +6,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { createNewBoard, getAllBoards } from '~/redux/slices/boardSlice';
 import { toast } from 'react-toastify';
+import { unwrapResult } from '@reduxjs/toolkit';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string()
@@ -23,17 +24,24 @@ const validationSchema = Yup.object().shape({
 
 export default function NewBoardDialog({ open, setOpen }) {
   const dispatch = useDispatch();
-  const newBoard = useSelector((state) => state.boards.newBoard);
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleCreateBoard = () => {
-    if (newBoard) {
-      toast.success('Create board successfully!');
-      dispatch(getAllBoards());
-    } else {
+  const handleCreateBoard = async (values) => {
+    try {
+      const resultAction = await dispatch(
+        createNewBoard({ data: { ...values, type: 'private' } })
+      );
+      const result = unwrapResult(resultAction);
+      if (result) {
+        toast.success('Create board successfully!');
+        dispatch(getAllBoards());
+      } else {
+        toast.error('Create board failed! Please try again!');
+      }
+    } catch (err) {
       toast.error('Create board failed! Please try again!');
     }
   };
@@ -45,15 +53,7 @@ export default function NewBoardDialog({ open, setOpen }) {
         initialValues={{ title: '', description: '' }}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          dispatch(
-            createNewBoard({
-              data: {
-                ...values,
-                type: 'private',
-              },
-            })
-          );
-          handleCreateBoard();
+          handleCreateBoard(values);
           handleClose();
           setSubmitting(false);
         }}

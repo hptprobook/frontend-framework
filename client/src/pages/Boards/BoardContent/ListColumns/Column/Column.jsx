@@ -50,6 +50,12 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
       });
       return;
     }
+    if (newCardTitle.length < 3) {
+      toast.error('Cart title  should be more than 3 characters', {
+        position: 'bottom-right',
+      });
+      return;
+    }
 
     const newCardData = {
       title: newCardTitle,
@@ -101,16 +107,22 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
 
   const handleUpdateColumnTitle = (e) => {
     if (e.key === 'Enter') {
-      dispatch(
-        updateColumnDetails({
-          id: column._id,
-          data: {
-            title: editCardTitle,
-          },
-        })
-      );
-      column.title = editCardTitle;
-      setEditingTitle(false);
+      if (editCardTitle.trim().length > 3) {
+        dispatch(
+          updateColumnDetails({
+            id: column._id,
+            data: {
+              title: editCardTitle.trim(),
+            },
+          })
+        );
+        column.title = editCardTitle;
+        setEditingTitle(false);
+      } else {
+        toast.error('Column title must be longer than 3 characters', {
+          position: 'bottom-right',
+        });
+      }
     } else if (e.key === 'Escape') {
       setEditingTitle(false);
     }
