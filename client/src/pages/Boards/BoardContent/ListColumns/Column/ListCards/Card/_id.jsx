@@ -20,6 +20,10 @@ import { useDispatch /* useSelector */ } from 'react-redux';
 import { deleteCardDetails, updateCardDetails } from '~/redux/slices/cardSlice';
 import { toast } from 'react-toastify';
 import { useConfirm } from 'material-ui-confirm';
+import Avatar from '@mui/material/Avatar';
+import MenuItem from '@mui/material/MenuItem';
+import MenuModal from '~/components/MenuModal';
+import CardAction from './CardAction';
 
 export default function CardDetail({
   openModal,
@@ -91,6 +95,11 @@ export default function CardDetail({
       toast.success('Deleted card successfully!');
       handleCloseModal();
     });
+  };
+
+  const [addMemberMenu, setaddMemberMenu] = useState(null);
+  const handleAddMemberClick = (event) => {
+    setaddMemberMenu(event.currentTarget);
   };
 
   return (
@@ -217,103 +226,78 @@ export default function CardDetail({
             </>
           ) : (
             <Typography variant="body1" onClick={() => setEditingDesc(true)}>
-              {convertHTMLToText(desc)}
+              {desc ? (
+                convertHTMLToText(desc)
+              ) : (
+                <Typography
+                  sx={{ fontStyle: 'italic', color: 'gray', cursor: 'pointer' }}
+                >
+                  Click to add Description
+                </Typography>
+              )}
             </Typography>
           )}
         </Grid>
         <Grid item xs={3.5}>
-          <Box
-            sx={{
-              width: '100%',
-              bgcolor: '#e4e6ea',
-              px: 2,
-              py: 1,
-              borderRadius: '3px',
-              mb: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              fontSize: '14px',
-            }}
-          >
-            <PersonIcon fontSize="small" color="action" />
-            <Typography
-              sx={{
-                mt: '1px',
-              }}
-            >
-              Thành viên
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              width: '100%',
-              bgcolor: '#e4e6ea',
-              px: 2,
-              py: 1,
-              borderRadius: '3px',
-              mb: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              fontSize: '14px',
-            }}
-          >
-            <TaskAltIcon fontSize="small" color="action" />
-            <Typography
-              sx={{
-                mt: '1px',
-              }}
-            >
-              Việc cần làm
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              width: '100%',
-              bgcolor: '#e4e6ea',
-              px: 2,
-              py: 1,
-              borderRadius: '3px',
-              mb: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              fontSize: '14px',
-            }}
-          >
-            <AttachFileIcon fontSize="small" color="action" />
-            <Typography
-              sx={{
-                mt: '1px',
-              }}
-            >
-              Đính kèm
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              width: '100%',
-              bgcolor: '#e4e6ea',
-              px: 2,
-              py: 1,
-              borderRadius: '3px',
-              mb: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              fontSize: '14px',
-            }}
-          >
-            <BadgeIcon fontSize="small" color="action" />
-            <Typography
-              sx={{
-                mt: '1px',
-              }}
-            >
-              Ảnh bìa
-            </Typography>
-          </Box>
+          <CardAction
+            icon={<PersonIcon />}
+            text={'Thành viên'}
+            handleClick={handleAddMemberClick}
+          />
+          <MenuModal
+            anchorEl={addMemberMenu}
+            setAnchorEl={setaddMemberMenu}
+            id={'add-member'}
+            menuChildren={
+              <>
+                <MenuItem>
+                  <Avatar /> Profile
+                </MenuItem>
+              </>
+            }
+          />
+
+          <CardAction icon={<TaskAltIcon />} text={'Việc cần làm'} />
+          <MenuModal
+            anchorEl={''}
+            setAnchorEl={''}
+            id={'add-todo'}
+            menuChildren={
+              <>
+                <MenuItem>
+                  <Avatar /> Todo
+                </MenuItem>
+              </>
+            }
+          />
+
+          <CardAction icon={<AttachFileIcon />} text={'Đính kèm'} />
+          <MenuModal
+            anchorEl={''}
+            setAnchorEl={''}
+            id={'add-todo'}
+            menuChildren={
+              <>
+                <MenuItem>
+                  <Avatar /> Todo
+                </MenuItem>
+              </>
+            }
+          />
+
+          <CardAction icon={<BadgeIcon />} text={'Ảnh bìa'} />
+          <MenuModal
+            anchorEl={''}
+            setAnchorEl={''}
+            id={'add-todo'}
+            menuChildren={
+              <>
+                <MenuItem>
+                  <Avatar /> Todo
+                </MenuItem>
+              </>
+            }
+          />
         </Grid>
       </Grid>
       <Grid
