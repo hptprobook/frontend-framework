@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable indent */
+import { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import Typography from '@mui/material/Typography';
@@ -8,7 +9,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import ListIcon from '@mui/icons-material/List';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Box } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -16,15 +17,21 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import { convertHTMLToText } from '~/utils/formatters';
 import TextField from '@mui/material/TextField';
 import CommentIcon from '@mui/icons-material/Comment';
-import { useDispatch /* useSelector */ } from 'react-redux';
-import { deleteCardDetails, updateCardDetails } from '~/redux/slices/cardSlice';
+import { useDispatch /* useSelector */, useSelector } from 'react-redux';
+import {
+  addTodo,
+  addTodoChild,
+  deleteCardDetails,
+  getDetails,
+  updateCardDetails,
+} from '~/redux/slices/cardSlice';
 import { toast } from 'react-toastify';
 import { useConfirm } from 'material-ui-confirm';
 import Avatar from '@mui/material/Avatar';
 import MenuItem from '@mui/material/MenuItem';
 import MenuModal from '~/components/MenuModal';
 import CardAction from './CardAction';
-
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 export default function CardDetail({
   openModal,
   handleCloseModal,
@@ -36,13 +43,23 @@ export default function CardDetail({
   const [isEditingTitle, setEditingTitle] = useState(false);
   const [isEditingDesc, setEditingDesc] = useState(false);
   const [initialDesc, setInitialDesc] = useState(card ? card.description : '');
-
+  const [todoTitle, setTodoTitle] = useState('');
   const dispatch = useDispatch();
-  // const updatedCard = useSelector((state) => state.cards.updatedCard);
+  const [cardDetail, setCardDetail] = useState(card);
+  const { cards } = useSelector((state) => state.cards);
+  const [showAddChildForm, setShowAddChildForm] = useState(null);
+  const [childText, setChildText] = useState('');
+  const [checkedTodos, setCheckedTodos] = useState({});
 
+  useEffect(() => {
+    dispatch(getDetails({ id: card._id }));
+  }, [dispatch, card]);
+
+  useEffect(() => {
+    setCardDetail(cards);
+  }, [cards]);
   const handleSaveDesc = () => {
     setEditingDesc(false);
-    // setDesc(e.target.value);
     dispatch(
       updateCardDetails({
         id: card._id,
@@ -97,9 +114,49 @@ export default function CardDetail({
     });
   };
 
-  const [addMemberMenu, setaddMemberMenu] = useState(null);
+  const [addMemberMenu, setAddMemberMenu] = useState(null);
   const handleAddMemberClick = (event) => {
-    setaddMemberMenu(event.currentTarget);
+    setAddMemberMenu(event.currentTarget);
+  };
+
+  const [addTodoMenu, setAddTodoMenu] = useState(null);
+  const handleAddTodoClick = (event) => {
+    setAddTodoMenu(event.currentTarget);
+  };
+
+  const handleAddTodo = () => {
+    dispatch(addTodo({ id: card._id, data: { text: todoTitle } }));
+    dispatch(getDetails({ id: card._id }));
+  };
+
+  const handleAddChildFormOpen = (todoId) => {
+    setShowAddChildForm(todoId);
+  };
+
+  const handleAddChildFormClose = () => {
+    setShowAddChildForm(null);
+  };
+
+  const handleAddChild = (todoId) => {
+    dispatch(
+      addTodoChild({ id: cardDetail._id, data: { text: childText, todoId } })
+    );
+    dispatch(getDetails({ id: card._id }));
+    handleAddChildFormClose();
+    setChildText('');
+  };
+
+  const handleToggleTodoChild = (todoId, childId, currentDone) => {
+    const newDoneStatus = !currentDone;
+
+    // dispatch(updateTodoChild({
+    //   cardId: cardDetail._id,
+    //   todoId,
+    //   childId,
+    //   done: newDoneStatus
+    // }));
+
+    dispatch(getDetails({ id: card._id }));
   };
 
   return (
@@ -241,12 +298,12 @@ export default function CardDetail({
         <Grid item xs={3.5}>
           <CardAction
             icon={<PersonIcon />}
-            text={'Thành viên'}
+            text={'Members'}
             handleClick={handleAddMemberClick}
           />
           <MenuModal
             anchorEl={addMemberMenu}
-            setAnchorEl={setaddMemberMenu}
+            setAnchorEl={setAddMemberMenu}
             id={'add-member'}
             menuChildren={
               <>
@@ -257,11 +314,42 @@ export default function CardDetail({
             }
           />
 
-          <CardAction icon={<TaskAltIcon />} text={'Việc cần làm'} />
+          <CardAction
+            icon={<TaskAltIcon />}
+            text={'Todos'}
+            handleClick={handleAddTodoClick}
+          />
+          <MenuModal
+            anchorEl={addTodoMenu}
+            setAnchorEl={setAddTodoMenu}
+            id={'add-todo'}
+            menuChildren={
+              <>
+                <Typography textAlign={'center'} gutterBottom>
+                  Add todo list
+                </Typography>
+                <MenuItem>
+                  <TextField
+                    size="small"
+                    label={'Enter todo title'}
+                    value={todoTitle}
+                    onChange={(e) => setTodoTitle(e.target.value)}
+                  />
+                </MenuItem>
+                <MenuItem onClick={handleAddTodo}>
+                  <Button variant="outlined" fullWidth>
+                    Add
+                  </Button>
+                </MenuItem>
+              </>
+            }
+          />
+
+          <CardAction icon={<AttachFileIcon />} text={'Attachments'} />
           <MenuModal
             anchorEl={''}
             setAnchorEl={''}
-            id={'add-todo'}
+            id={'ad'}
             menuChildren={
               <>
                 <MenuItem>
@@ -271,25 +359,11 @@ export default function CardDetail({
             }
           />
 
-          <CardAction icon={<AttachFileIcon />} text={'Đính kèm'} />
+          <CardAction icon={<BadgeIcon />} text={'Cover Image'} />
           <MenuModal
             anchorEl={''}
             setAnchorEl={''}
-            id={'add-todo'}
-            menuChildren={
-              <>
-                <MenuItem>
-                  <Avatar /> Todo
-                </MenuItem>
-              </>
-            }
-          />
-
-          <CardAction icon={<BadgeIcon />} text={'Ảnh bìa'} />
-          <MenuModal
-            anchorEl={''}
-            setAnchorEl={''}
-            id={'add-todo'}
+            id={'add'}
             menuChildren={
               <>
                 <MenuItem>
@@ -300,6 +374,89 @@ export default function CardDetail({
           />
         </Grid>
       </Grid>
+
+      {cardDetail?.todos.length > 0
+        ? cardDetail?.todos.map((todo) => (
+            <Grid key={todo._id} container spacing={2} sx={{ px: 3, pt: 3 }}>
+              <Grid item xs={1}>
+                <CheckCircleOutlineIcon />
+              </Grid>
+              <Grid item xs={7}>
+                <Typography
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '18px !important',
+                  }}
+                >
+                  {todo.text}
+                </Typography>
+                <FormGroup>
+                  {todo.childs.length
+                    ? todo.childs.map((child) => (
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              size="small"
+                              checked={child.done}
+                              onChange={() =>
+                                handleToggleTodoChild(
+                                  todo._id,
+                                  child._id,
+                                  child.done
+                                )
+                              }
+                            />
+                          }
+                          label={child.text}
+                          key={child._id}
+                        />
+                      ))
+                    : ''}
+                </FormGroup>
+                {showAddChildForm === todo._id ? (
+                  <Box>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Enter child todo text"
+                      value={childText}
+                      onChange={(e) => setChildText(e.target.value)}
+                      autoFocus
+                      sx={{ mb: 1 }}
+                    />
+                    <Box display="flex" justifyContent="space-between">
+                      <Button
+                        onClick={() => handleAddChild(todo._id)}
+                        variant="contained"
+                        size="small"
+                        sx={{ mr: 1 }}
+                      >
+                        Add
+                      </Button>
+                      <Button
+                        onClick={handleAddChildFormClose}
+                        variant="outlined"
+                        size="small"
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{ mt: 1 }}
+                    onClick={() => handleAddChildFormOpen(todo._id)}
+                  >
+                    Add Child
+                  </Button>
+                )}
+              </Grid>
+              <Grid item xs={3}></Grid>
+            </Grid>
+          ))
+        : ''}
       <Grid
         container
         spacing={2}

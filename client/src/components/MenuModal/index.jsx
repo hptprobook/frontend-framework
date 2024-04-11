@@ -8,11 +8,11 @@ export default function MenuModal({ id, anchorEl, setAnchorEl, menuChildren }) {
 
   return (
     <Menu
+      data-no-dnd="true"
       anchorEl={anchorEl}
       id={id}
       open={open}
       onClose={handleClose}
-      onClick={handleClose}
       PaperProps={{
         elevation: 0,
         sx: {

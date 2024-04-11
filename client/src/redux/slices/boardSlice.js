@@ -23,6 +23,17 @@ export const getAllBoards = createAsyncThunk(
   }
 );
 
+export const getOtherBoards = createAsyncThunk(
+  'board/getOther',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await boardServices.getOtherBoard();
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const updateBoardDetails = createAsyncThunk(
   'board/updateDetails',
   async ({ id, data }, { rejectWithValue }) => {
@@ -49,66 +60,80 @@ const boardSlices = createSlice({
   name: 'boards',
   initialState: {
     boards: null,
+    otherBoards: [],
     newBoard: null,
     updatedBoard: null,
     isDeleted: false,
     isLoading: true,
-    isError: false,
+    error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(createNewBoard.pending, (state) => {
         state.isLoading = true;
-        state.isError = false;
+        state.error = null;
       })
       .addCase(createNewBoard.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
+        state.error = null;
         state.newBoard = action.payload;
       })
-      .addCase(createNewBoard.rejected, (state) => {
+      .addCase(createNewBoard.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError = true;
+        state.error = action.payload;
       })
       .addCase(getAllBoards.pending, (state) => {
         state.isLoading = true;
-        state.isError = false;
+        state.error = false;
       })
       .addCase(getAllBoards.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
+        state.error = false;
         state.boards = action.payload;
       })
-      .addCase(getAllBoards.rejected, (state) => {
+      .addCase(getAllBoards.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError = true;
+        state.error = action.payload;
+      })
+      .addCase(getOtherBoards.pending, (state) => {
+        state.isLoading = true;
+        state.error = false;
+      })
+      .addCase(getOtherBoards.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = false;
+        state.otherBoards = action.payload;
+      })
+      .addCase(getOtherBoards.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       })
       .addCase(updateBoardDetails.pending, (state) => {
         state.isLoading = true;
-        state.isError = false;
+        state.error = false;
       })
       .addCase(updateBoardDetails.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
+        state.error = false;
         state.updatedBoard = action.payload;
       })
-      .addCase(updateBoardDetails.rejected, (state) => {
+      .addCase(updateBoardDetails.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError = true;
+        state.error = action.payload.response.data.message;
       })
       .addCase(deleteBoardDetails.pending, (state) => {
         state.isLoading = true;
-        state.isError = false;
+        state.error = false;
       })
       .addCase(deleteBoardDetails.fulfilled, (state) => {
         state.isLoading = false;
-        state.isError = false;
+        state.error = false;
         state.isDeleted = true;
       })
-      .addCase(deleteBoardDetails.rejected, (state) => {
+      .addCase(deleteBoardDetails.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError = true;
+        state.error = action.payload;
       });
   },
 });

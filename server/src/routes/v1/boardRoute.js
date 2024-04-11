@@ -8,6 +8,8 @@ Router.route('/')
   .get(boardController.getAll)
   .post(boardValidation.createNew, boardController.createNew);
 
+Router.route('/invited').get(boardController.getAllBoardInvited);
+
 Router.route('/:id')
   .get(boardController.getDetails)
   .put(boardValidation.update, boardController.update)

@@ -11,6 +11,10 @@ import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { capitalizeFirstLetter } from '~/utils/formatters';
+import { useEffect, useState } from 'react';
+import InviteDialog from './InviteDialog';
+import { useDispatch, useSelector } from 'react-redux';
+import { findUser } from '~/redux/slices/userSlice';
 
 const MENU_STYLES = {
   color: '#fff',
@@ -27,6 +31,29 @@ const MENU_STYLES = {
 };
 
 function BoardBar({ board }) {
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const result = useSelector((state) => state.users.findResults);
+  const [searchResult, setSearchResult] = useState(null);
+  const dispatch = useDispatch();
+
+  const handleInviteMember = () => {
+    setInviteDialogOpen(true);
+  };
+
+  const handleCloseInvite = () => {
+    setInviteDialogOpen(false);
+  };
+
+  const handleSearchEmail = async (email) => {
+    dispatch(findUser({ email }));
+  };
+
+  useEffect(() => {
+    if (result) {
+      setSearchResult(result);
+    }
+  }, [result]);
+
   return (
     <Box
       px={2}
@@ -90,9 +117,17 @@ function BoardBar({ board }) {
               mb: '3px',
             },
           }}
+          onClick={handleInviteMember}
         >
           Invite
         </Button>
+        <InviteDialog
+          open={inviteDialogOpen}
+          onClose={handleCloseInvite}
+          onSearch={handleSearchEmail}
+          result={searchResult}
+          oldBoard={board}
+        />
         <AvatarGroup
           max={8}
           sx={{
@@ -106,57 +141,11 @@ function BoardBar({ board }) {
             },
           }}
         >
-          <Tooltip title="Phan Hoa">
-            <Avatar
-              alt="Phan Hoa"
-              src="https://cdn-prod.medicalnewstoday.com/content/images/articles/322/322868/golden-retriever-puppy.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="Aphelios">
-            <Avatar
-              alt="Aphelios"
-              src="https://opgg-static.akamaized.net/meta/images/lol/14.5.1/champion/centered/Aphelios_30.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="K'Sante">
-            <Avatar
-              alt="K'Sante"
-              src="https://i.pinimg.com/474x/30/23/27/302327800bb906b3bcfe9327a78178f3.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="Yone">
-            <Avatar alt="Yone" src="https://i.redd.it/qa7lkrmrcawb1.jpg" />
-          </Tooltip>
-          <Tooltip title="Sett">
-            <Avatar
-              alt="Sett"
-              src="https://prod.api.assets.riotgames.com/public/v1/asset/lol/14.4.1/CHAMPION_SKIN/875056/ICON"
-            />
-          </Tooltip>
-          <Tooltip title="Ezreal">
-            <Avatar
-              alt="Ezreal"
-              src="https://preview.redd.it/all-new-ezreal-icons-for-heartsteel-release-13-22-nov8th-v0-12ujao0vsfwb1.jpg?width=640&crop=smart&auto=webp&s=0c4a669116182f04273627b338735a676e039786"
-            />
-          </Tooltip>
-          <Tooltip title="Kayn">
-            <Avatar
-              alt="Kayn"
-              src="https://64.media.tumblr.com/e0f32d6034f3ec9abbaa9da78e91f52a/e458cd857c416dd5-e1/s1280x1920/6826a9c8c23b13b620966914d44a1bbdd2a7fadb.png"
-            />
-          </Tooltip>
-          <Tooltip title="Kayn">
-            <Avatar
-              alt="Kayn"
-              src="https://64.media.tumblr.com/e0f32d6034f3ec9abbaa9da78e91f52a/e458cd857c416dd5-e1/s1280x1920/6826a9c8c23b13b620966914d44a1bbdd2a7fadb.png"
-            />
-          </Tooltip>
-          <Tooltip title="Kayn">
-            <Avatar
-              alt="Kayn"
-              src="https://64.media.tumblr.com/e0f32d6034f3ec9abbaa9da78e91f52a/e458cd857c416dd5-e1/s1280x1920/6826a9c8c23b13b620966914d44a1bbdd2a7fadb.png"
-            />
-          </Tooltip>
+          {board?.members.map((member, id) => (
+            <Tooltip key={id} title={member.displayName}>
+              <Avatar alt={member.displayName} src={member.photoURL} />
+            </Tooltip>
+          ))}
         </AvatarGroup>
       </Box>
     </Box>

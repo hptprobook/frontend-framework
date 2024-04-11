@@ -7,9 +7,14 @@ import { env } from '~/config/environment';
 import { APIs_V1 } from '~/routes/v1';
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
 import { corsOptions } from './config/cors';
+import http from 'http';
+import socketConfig from './sockets/notifySocket';
 
 const START_SERVER = () => {
   const app = express();
+
+  const server = http.createServer(app);
+  socketConfig(server);
 
   app.use(cors(corsOptions));
 

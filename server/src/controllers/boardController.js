@@ -3,7 +3,10 @@ import { boardService } from '~/services/boardService';
 
 const createNew = async (req, res, next) => {
   try {
-    const createdBoard = await boardService.createNew(req.body);
+    const createdBoard = await boardService.createNew({
+      ...req.body,
+      userId: req.userId,
+    });
 
     res.status(StatusCodes.CREATED).json(createdBoard);
   } catch (error) {
@@ -13,7 +16,17 @@ const createNew = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   try {
-    const boards = await boardService.getAll();
+    const boards = await boardService.getAll(req.userId);
+
+    res.status(StatusCodes.OK).json(boards);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllBoardInvited = async (req, res, next) => {
+  try {
+    const boards = await boardService.getAllBoardInvited(req.userId);
 
     res.status(StatusCodes.OK).json(boards);
   } catch (error) {
@@ -23,7 +36,7 @@ const getAll = async (req, res, next) => {
 
 const getDetails = async (req, res, next) => {
   try {
-    const board = await boardService.getDetails(req.params.id);
+    const board = await boardService.getDetails(req.params.id, req.userId);
 
     res.status(StatusCodes.OK).json(board);
   } catch (error) {
@@ -63,6 +76,7 @@ const remove = async (req, res, next) => {
 export const boardController = {
   createNew,
   getAll,
+  getAllBoardInvited,
   getDetails,
   update,
   moveCardDifferentColumn,

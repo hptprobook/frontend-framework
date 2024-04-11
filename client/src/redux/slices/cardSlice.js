@@ -12,11 +12,44 @@ export const createNewCard = createAsyncThunk(
   }
 );
 
+export const getDetails = createAsyncThunk(
+  'card/getDetails',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      return await cardServices.getDetails(id);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const updateCardDetails = createAsyncThunk(
   'card/updateDetails',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       return await cardServices.updateCardDetailsAPI(id, data);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const addTodo = createAsyncThunk(
+  'card/addTodo',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      return await cardServices.addTodo(id, data);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const addTodoChild = createAsyncThunk(
+  'card/addTodoChild',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      return await cardServices.addTodoChild(id, data);
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -40,6 +73,7 @@ const cardSlices = createSlice({
     cards: null,
     newCard: null,
     updatedCard: null,
+    todoAdded: false,
     isDeleted: false,
     isLoading: false,
     isError: false,
@@ -60,6 +94,19 @@ const cardSlices = createSlice({
         state.isLoading = false;
         state.isError = true;
       })
+      .addCase(getDetails.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
+      .addCase(getDetails.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.cards = action.payload;
+      })
+      .addCase(getDetails.rejected, (state) => {
+        state.isLoading = false;
+        state.isError = true;
+      })
       .addCase(updateCardDetails.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
@@ -70,6 +117,19 @@ const cardSlices = createSlice({
         state.updatedCard = action.payload;
       })
       .addCase(updateCardDetails.rejected, (state) => {
+        state.isLoading = false;
+        state.isError = true;
+      })
+      .addCase(addTodo.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+      })
+      .addCase(addTodo.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.todoAdded = action.payload;
+      })
+      .addCase(addTodo.rejected, (state) => {
         state.isLoading = false;
         state.isError = true;
       })

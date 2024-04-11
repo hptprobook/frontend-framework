@@ -11,6 +11,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   displayName: Joi.string().required(),
   email: Joi.string().email().required(),
   photoURL: Joi.string().required(),
+  notifies: Joi.array().default([]),
   refreshToken: Joi.string().required(),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -66,7 +67,19 @@ const findOneById = async (userId) => {
   try {
     const result = await GET_DB()
       .collection(USER_COLLECTION_NAME)
-      .findOne({ _id: new ObjectId(userId) });
+      .findOne({ _id: userId });
+    if (!result) throw new Error('User not found!');
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const findOneByEmail = async (email) => {
+  try {
+    const result = await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOne({ email });
     if (!result) throw new Error('User not found!');
     return result;
   } catch (error) {
@@ -91,7 +104,7 @@ const getDetails = async (userId) => {
   try {
     const result = await GET_DB()
       .collection(USER_COLLECTION_NAME)
-      .find({ _id: new ObjectId(userId) });
+      .find({ _id: userId });
 
     if (!result) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!');
     return result[0] || null;
@@ -100,7 +113,7 @@ const getDetails = async (userId) => {
   }
 };
 
-const update = async (firebaseUserId, updateData) => {
+const update = async (userId, updateData) => {
   try {
     const db = await GET_DB();
     const userCollection = db.collection(USER_COLLECTION_NAME);
@@ -111,13 +124,45 @@ const update = async (firebaseUserId, updateData) => {
       }
     });
 
+    if (updateData.notifyId) {
+      const result = await userCollection.updateOne(
+        { _id: userId, 'notifies._id': new ObjectId(updateData.notifyId) },
+        { $set: { 'notifies.$.seen': true } }
+      );
+
+      if (result.modifiedCount === 1) {
+        return { success: true };
+      } else {
+        return { success: false, message: 'No notification was updated.' };
+      }
+    }
+
     const result = await userCollection.findOneAndUpdate(
-      { firebaseUserId },
+      { _id: userId },
       { $set: updateData },
       { returnDocument: 'after' }
     );
 
-    return result.value || null;
+    return result || null;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const addNotify = async (userId, notify) => {
+  try {
+    const db = await GET_DB();
+    const userCollection = db.collection(USER_COLLECTION_NAME);
+
+    notify = { ...notify, _id: new ObjectId() };
+
+    const result = await userCollection.findOneAndUpdate(
+      { _id: userId },
+      { $push: { notifies: notify } },
+      { returnDocument: 'after' }
+    );
+
+    return result || null;
   } catch (error) {
     throw new Error(error);
   }
@@ -138,8 +183,10 @@ const deleteOneById = async (userId) => {
 export const userModal = {
   findOrCreate,
   findOneById,
+  findOneByEmail,
   getAll,
   getDetails,
   update,
+  addNotify,
   deleteOneById,
 };

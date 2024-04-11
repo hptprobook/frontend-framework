@@ -19,6 +19,17 @@ const createNew = async (reqBody) => {
   }
 };
 
+const getDetails = async (cardId) => {
+  try {
+    const card = await cardModel.findOneById(cardId);
+    if (!card) throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found');
+
+    return card;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const update = async (cardId, reqBody) => {
   try {
     const updateData = {
@@ -28,6 +39,30 @@ const update = async (cardId, reqBody) => {
     const updatedCard = await cardModel.update(cardId, updateData);
 
     return updatedCard;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const addTodo = async (cardId, reqBody) => {
+  try {
+    await cardModel.addTodo(cardId, reqBody);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const addTodoChild = async (cardId, reqBody) => {
+  try {
+    await cardModel.addTodoChild(cardId, reqBody);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const childDone = async (cardId, reqBody) => {
+  try {
+    await cardModel.childDone(cardId, reqBody);
   } catch (error) {
     throw error;
   }
@@ -53,6 +88,10 @@ const remove = async (cardId) => {
 
 export const cardService = {
   createNew,
+  getDetails,
   update,
+  addTodo,
+  addTodoChild,
+  childDone,
   remove,
 };

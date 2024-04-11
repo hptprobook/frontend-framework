@@ -19,9 +19,9 @@ const createNew = async (reqBody) => {
   }
 };
 
-const getAll = async () => {
+const getAll = async (userId) => {
   try {
-    const boards = await boardModel.getAll();
+    const boards = await boardModel.getAll(userId);
     if (!boards) throw new ApiError(StatusCodes.NOT_FOUND, 'No boards found!');
 
     return boards;
@@ -30,10 +30,22 @@ const getAll = async () => {
   }
 };
 
-const getDetails = async (boardId) => {
+const getAllBoardInvited = async (userId) => {
+  try {
+    const boards = await boardModel.getAllBoardInvited(userId);
+    if (!boards) throw new ApiError(StatusCodes.NOT_FOUND, 'No boards found!');
+
+    return boards;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getDetails = async (boardId, userId) => {
   try {
     const board = await boardModel.getDetails(boardId);
     if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found');
+    if (!userId) throw new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized');
 
     const resBoard = cloneDeep(board);
     resBoard.columns.forEach((col) => {
@@ -111,6 +123,7 @@ const remove = async (boardId) => {
 export const boardService = {
   createNew,
   getAll,
+  getAllBoardInvited,
   getDetails,
   update,
   moveCardDifferentColumn,

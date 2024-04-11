@@ -7,6 +7,7 @@ import { columnModel } from './columnModel';
 import { cardModel } from './cardModel';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '~/utils/ApiError';
+import { userModal } from './userModal';
 
 // Define collection
 const BOARD_COLLECTION_NAME = 'boards';
@@ -20,6 +21,9 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   columnOrderIds: Joi.array()
     .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
     .default([]),
+  userId: Joi.string(),
+  ownerIds: Joi.array().items(Joi.string()).default([]),
+  members: Joi.array().default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false),
@@ -58,11 +62,27 @@ const findOneById = async (id) => {
   }
 };
 
-const getAll = async () => {
+const getAll = async (userId) => {
   try {
     const results = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
-      .find({})
+      .find({ userId })
+      .toArray();
+
+    return results || [];
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const getAllBoardInvited = async (userId) => {
+  try {
+    const results = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .find({
+        ownerIds: userId,
+        _destroy: false,
+      })
       .toArray();
 
     return results || [];
@@ -73,9 +93,6 @@ const getAll = async () => {
 
 const getDetails = async (id) => {
   try {
-    // const result = await GET_DB()
-    //   .collection(BOARD_COLLECTION_NAME)
-    //   .findOne({ _id: new ObjectId(id) });
     const result = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
       .aggregate([
@@ -139,10 +156,46 @@ const update = async (boardId, updateData) => {
       }
     });
 
+    const board = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(boardId) });
+    if (!board) {
+      throw new Error('Board not found');
+    }
+
     if (updateData.columnOrderIds) {
       updateData.columnOrderIds = updateData.columnOrderIds.map(
         (_id) => new ObjectId(_id)
       );
+    }
+    if (updateData.ownerIds) {
+      const uniqueOwnerIds = new Set(updateData.ownerIds);
+      if (uniqueOwnerIds.size !== updateData.ownerIds.length) {
+        throw new Error('Member is already exists');
+      }
+
+      if (updateData.ownerIds.includes(board.userId)) {
+        throw new Error('Member is already exists');
+      }
+
+      const inviter = await userModal.findOneById(updateData.userId);
+      const invitedId = updateData.ownerIds[updateData.ownerIds.length - 1];
+      const invited = await userModal.findOneById(invitedId);
+
+      updateData.members = [
+        ...board.members,
+        {
+          displayName: invited.displayName,
+          photoURL: invited.photoURL,
+        },
+      ];
+
+      await userModal.addNotify(invitedId, {
+        title: 'You have been added to a board!',
+        content: `You have been added to a board ${updateData.title} by ${inviter.displayName}. Click to see details`,
+        seen: false,
+        boardId,
+      });
     }
 
     const result = await GET_DB()
@@ -195,6 +248,7 @@ export const boardModel = {
   getDetails,
   pushColumnOrderIds,
   update,
+  getAllBoardInvited,
   pullColumnOrderIds,
   deleteOneById,
   BOARD_COLLECTION_NAME,

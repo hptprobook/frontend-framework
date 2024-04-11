@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Avatar, Box, Divider, ListItemIcon } from '@mui/material';
 import ModeSelect from '../ModeSelect/ModeSelect';
 import AppsIcon from '@mui/icons-material/Apps';
 import Logo from '~/assets/trello.svg?react';
@@ -19,10 +19,45 @@ import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  IconButton,
+  Popover,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCurrent, readNotify } from '~/redux/slices/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 function AppBar() {
   const [searchValue, setSearchValue] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
+  const { current } = useSelector((state) => state.users);
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getCurrent());
+  }, [dispatch]);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleReadNotify = (id, boardId) => {
+    setAnchorEl(null);
+    dispatch(readNotify({ notifyId: id }));
+    dispatch(getCurrent());
+    navigate(`/boards/${boardId}`);
+  };
 
   return (
     <Box
@@ -150,7 +185,7 @@ function AppBar() {
           }}
         />
         <ModeSelect />
-        <Tooltip title="Notifications">
+        <IconButton onClick={handleClick} sx={{ cursor: 'pointer' }}>
           <Badge color="warning" variant="dot" sx={{ cursor: 'pointer' }}>
             <NotificationsNoneIcon
               sx={{
@@ -158,13 +193,70 @@ function AppBar() {
               }}
             />
           </Badge>
-        </Tooltip>
+        </IconButton>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          sx={{
+            mt: 1,
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <List>
+            {current?.notifies.length ? (
+              current?.notifies.map((notify) => (
+                <React.Fragment key={notify._id}>
+                  <ListItem
+                    sx={{
+                      bgcolor: !notify.seen && '#fce4ec',
+                      '&:hover': {
+                        bgcolor: '#64b5f6',
+                      },
+                    }}
+                    button
+                    onClick={() => handleReadNotify(notify._id, notify.boardId)}
+                  >
+                    <ListItemIcon>
+                      {!notify.seen && (
+                        <Badge color="secondary" variant="dot" />
+                      )}
+                      <Avatar
+                        src={notify.avatar}
+                        sx={{ width: 24, height: 24 }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="subtitle2">
+                          {notify.title}
+                        </Typography>
+                      }
+                      secondary={notify.content}
+                    />
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              ))
+            ) : (
+              <Typography>No notifications</Typography>
+            )}
+          </List>
+        </Popover>
 
         <Tooltip title="Help">
           <HelpOutlineIcon sx={{ cursor: 'pointer', color: '#fff' }} />
         </Tooltip>
 
-        <Profile />
+        <Profile current={current} />
       </Box>
     </Box>
   );

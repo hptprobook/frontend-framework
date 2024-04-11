@@ -17,7 +17,7 @@ const verifyAccessToken = async (req, res, next) => {
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(accessToken);
-    req.user = decodedToken;
+    req.userId = decodedToken.user_id;
     if (!decodedToken) {
       return res.status(401).send({ message: 'Invalid access token.' });
     }

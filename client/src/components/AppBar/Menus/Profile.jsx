@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box } from '@mui/material';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,15 +11,11 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import { deepPurple } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { getCurrent } from '~/redux/slices/userSlice';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
-function Profile() {
+function Profile({ current }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { current } = useSelector((state) => state.users);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -36,10 +32,6 @@ function Profile() {
     window.location.reload();
   };
 
-  useEffect(() => {
-    dispatch(getCurrent());
-  }, [dispatch]);
-
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
@@ -53,7 +45,7 @@ function Profile() {
           >
             <Avatar
               sx={{ bgcolor: deepPurple[500], width: 32, height: 32 }}
-              src={current?.picture}
+              src={current?.photoURL}
             />
           </IconButton>
         </Tooltip>
@@ -99,9 +91,9 @@ function Profile() {
         <MenuItem onClick={handleClose}>
           <Avatar
             sx={{ bgcolor: deepPurple[500], width: 32, height: 32 }}
-            src={current?.picture}
+            src={current?.photoURL}
           />
-          {current?.name}
+          {current?.displayName}
         </MenuItem>
         <MenuItem onClick={handleClose}>
           <ListItemIcon>

@@ -19,7 +19,7 @@ Router.get('/status', (req, res) => {
 Router.use('/auth', authRoute);
 
 /* User APIs */
-Router.use('/user', verifyAccessToken, userRoute);
+Router.use('/users', verifyAccessToken, userRoute);
 
 /* Board APIs */
 Router.use('/boards', verifyAccessToken, boardRoute);
