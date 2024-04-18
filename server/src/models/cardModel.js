@@ -165,13 +165,6 @@ const addTodoChild = async (cardId, childData) => {
   }
 };
 
-const childDone = async (cardId, childData) => {
-  try {
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
 const deleteOneById = async (id) => {
   try {
     const result = await GET_DB()
@@ -217,7 +210,6 @@ export const cardModel = {
   update,
   addTodo,
   addTodoChild,
-  childDone,
   deleteManyByColumnId,
   deleteOneById,
   deleteManyByBoardId,

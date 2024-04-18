@@ -150,7 +150,7 @@ export default function CardDetail({
     const newDoneStatus = !currentDone;
 
     // dispatch(updateTodoChild({
-    //   cardId: cardDetail._id,
+    //   id: cardDetail._id,
     //   todoId,
     //   childId,
     //   done: newDoneStatus
