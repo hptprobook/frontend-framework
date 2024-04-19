@@ -58,6 +58,7 @@ export default function CardDetail({
   useEffect(() => {
     setCardDetail(cards);
   }, [cards]);
+  console.log('🚀 ~ cards:', cards);
   const handleSaveDesc = () => {
     setEditingDesc(false);
     dispatch(
@@ -375,7 +376,7 @@ export default function CardDetail({
         </Grid>
       </Grid>
 
-      {cardDetail?.todos.length > 0
+      {cardDetail?.todos && cardDetail?.todos.length
         ? cardDetail?.todos.map((todo) => (
             <Grid key={todo._id} container spacing={2} sx={{ px: 3, pt: 3 }}>
               <Grid item xs={1}>
