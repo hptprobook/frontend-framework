@@ -49,7 +49,6 @@ export default function CardDetail({
   const { cards } = useSelector((state) => state.cards);
   const [showAddChildForm, setShowAddChildForm] = useState(null);
   const [childText, setChildText] = useState('');
-  const [checkedTodos, setCheckedTodos] = useState({});
 
   useEffect(() => {
     dispatch(getDetails({ id: card._id }));
@@ -58,7 +57,6 @@ export default function CardDetail({
   useEffect(() => {
     setCardDetail(cards);
   }, [cards]);
-  console.log('🚀 ~ cards:', cards);
   const handleSaveDesc = () => {
     setEditingDesc(false);
     dispatch(
@@ -147,16 +145,7 @@ export default function CardDetail({
     setChildText('');
   };
 
-  const handleToggleTodoChild = (todoId, childId, currentDone) => {
-    const newDoneStatus = !currentDone;
-
-    // dispatch(updateTodoChild({
-    //   id: cardDetail._id,
-    //   todoId,
-    //   childId,
-    //   done: newDoneStatus
-    // }));
-
+  const handleToggleTodoChild = () => {
     dispatch(getDetails({ id: card._id }));
   };
 
