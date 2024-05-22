@@ -6,6 +6,7 @@ import { columnRoute } from './columnRoute';
 import { cardRoute } from './cardRoute';
 import { authRoute } from './authRoute';
 import { userRoute } from './userRoute';
+import { workspaceRoute } from './workspaceRoute';
 
 const Router = express.Router();
 
@@ -20,6 +21,9 @@ Router.use('/auth', authRoute);
 
 /* User APIs */
 Router.use('/users', verifyAccessToken, userRoute);
+
+/* Workspace APIs */
+Router.use('/w', verifyAccessToken, workspaceRoute);
 
 /* Board APIs */
 Router.use('/boards', verifyAccessToken, boardRoute);
