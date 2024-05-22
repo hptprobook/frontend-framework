@@ -11,6 +11,12 @@ const createNew = async (req, res, next) => {
     type: Joi.string()
       .valid(...BOARD_TYPES)
       .required(),
+    userId: Joi.string(),
+    ownerIds: Joi.array().items(Joi.string()),
+    workspaceId: Joi.string()
+      .required()
+      .pattern(OBJECT_ID_RULE)
+      .message(OBJECT_ID_RULE_MESSAGE),
   });
 
   try {
