@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createNewBoard } from '~/redux/slices/boardSlice';
 import { toast } from 'react-toastify';
 import { unwrapResult } from '@reduxjs/toolkit';
-// import { getAllWorkspace } from '~/redux/slices/workspaceSlice';
+import { getAllWorkspace } from '~/redux/slices/workspaceSlice';
 import { useNavigate } from 'react-router-dom';
 
 const validationSchema = Yup.object().shape({
@@ -47,10 +47,8 @@ export default function NewBoardDialog({
       const result = unwrapResult(resultAction);
       if (result) {
         toast.success('Create board successfully!');
-        if (newBoard) {
-          navigate('/boards/' + newBoard._id);
-        }
-        // dispatch(getAllWorkspace());
+        navigate('/boards/' + newBoard._id);
+        dispatch(getAllWorkspace());
       } else {
         toast.error('Create board failed! Please try again!');
       }
