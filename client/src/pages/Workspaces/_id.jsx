@@ -13,20 +13,28 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink, useParams } from 'react-router-dom';
-import { getDetailWorkspace } from '~/redux/slices/workspaceSlice';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import {
+  deleteWorkspace,
+  getAllWorkspace,
+  getDetailWorkspace,
+} from '~/redux/slices/workspaceSlice';
 import { getRandomColor, getRandomGradient } from '~/utils/getRandomColor';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import NewBoardDialog from './NewBoardDialog';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import { useConfirm } from 'material-ui-confirm';
+import { toast } from 'react-toastify';
 
 export default function WorkspaceDetail() {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { workspace } = useSelector((state) => state.workspaces);
   const [openModal, setOpenModal] = useState(false);
   const [workspaceIdActive, setWorkspaceIdActive] = useState(null);
+  const confirmDeleteWorkspace = useConfirm();
 
   useEffect(() => {
     dispatch(getDetailWorkspace(id));
@@ -35,6 +43,21 @@ export default function WorkspaceDetail() {
   const handleOpenModal = (id) => {
     setOpenModal(true);
     setWorkspaceIdActive(id);
+  };
+
+  const handleDeleteWorkspace = (id) => {
+    confirmDeleteWorkspace({
+      title: 'Delete this workspace?',
+      description:
+        'Are you sure you want to delete this workspace? This action will delete all the boards, columns, cards!',
+      confirmationButtonProps: { color: 'error', variant: 'outlined' },
+      confirmationText: 'Confirm',
+    }).then(() => {
+      dispatch(deleteWorkspace(id));
+      dispatch(getAllWorkspace());
+      navigate('/w');
+      toast.success('Deleted card successfully!');
+    });
   };
 
   return (
@@ -257,6 +280,7 @@ export default function WorkspaceDetail() {
           variant="contained"
           color="error"
           startIcon={<DeleteForeverOutlinedIcon />}
+          onClick={() => handleDeleteWorkspace()}
         >
           Delete this workspace
         </Button>

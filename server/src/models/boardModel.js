@@ -258,7 +258,6 @@ const deleteManyByWorkspaceId = async (workspaceId) => {
     const boards = await boardCollection
       .find({ workspaceId: new ObjectId(workspaceId) })
       .toArray();
-    console.log('🚀 ~ deleteManyByWorkspaceId ~ boards:', boards);
     const boardIds = boards.map((board) => board._id);
 
     if (boardIds.length === 0) {
