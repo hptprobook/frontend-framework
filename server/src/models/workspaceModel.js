@@ -39,7 +39,40 @@ const getAll = async (userId) => {
   try {
     const results = await GET_DB()
       .collection(WORKSPACE_COLLECTION_NAME)
-      .find({ members: { $elemMatch: { memberId: userId, rule: 'creator' } } })
+      .aggregate([
+        {
+          $match: {
+            members: { $elemMatch: { memberId: userId, rule: 'creator' } },
+            _destroy: false,
+          },
+        },
+        {
+          $lookup: {
+            from: boardModel.BOARD_COLLECTION_NAME,
+            localField: 'boardIds',
+            foreignField: '_id',
+            as: 'boards',
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            boardIds: 1,
+            members: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            _destroy: 1,
+            boards: {
+              $map: {
+                input: '$boards',
+                as: 'board',
+                in: { _id: '$$board._id', title: '$$board.title' },
+              },
+            },
+          },
+        },
+      ])
       .toArray();
 
     return results || [];
@@ -70,13 +103,11 @@ const findOneById = async (id) => {
       ])
       .toArray();
 
-    console.log(result);
-
     if (!result) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Workspace not found');
     }
 
-    return result;
+    return result[0];
   } catch (error) {
     throw new ApiError(StatusCodes.BAD_REQUEST, error);
   }
@@ -89,6 +120,22 @@ const createNew = async (data) => {
     return await GET_DB()
       .collection(WORKSPACE_COLLECTION_NAME)
       .insertOne(validData);
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const pushBoardIds = async (board) => {
+  try {
+    const result = await GET_DB()
+      .collection(WORKSPACE_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(board.workspaceId) },
+        { $push: { boardIds: board._id } },
+        { returnDocument: 'after' }
+      );
+
+    return result || null;
   } catch (error) {
     throw new Error(error);
   }
@@ -128,6 +175,20 @@ const update = async (id, data) => {
   }
 };
 
+const inviteMember = async (workspaceId, userId) => {
+  try {
+    return await GET_DB()
+      .collection(WORKSPACE_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(workspaceId) },
+        { $push: { members: { memberId: userId, rule: 'member' } } },
+        { returnDocument: 'after' }
+      );
+  } catch (error) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, error);
+  }
+};
+
 const deleteOneById = async (id) => {
   try {
     const result = await GET_DB()
@@ -148,6 +209,8 @@ export const workspaceModel = {
   getAll,
   findOneById,
   createNew,
+  pushBoardIds,
   update,
+  inviteMember,
   deleteOneById,
 };

@@ -50,6 +50,16 @@ const update = async (req, res, next) => {
   }
 };
 
+const inviteMember = async (req, res, next) => {
+  try {
+    const result = await workspaceService.inviteMember(req.params.id, req.body);
+
+    res.status(StatusCodes.OK).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const remove = async (req, res, next) => {
   try {
     const result = await workspaceService.remove(req.params.id);
@@ -65,5 +75,6 @@ export const workspaceController = {
   getDetail,
   createNew,
   update,
+  inviteMember,
   remove,
 };

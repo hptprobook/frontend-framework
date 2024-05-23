@@ -47,7 +47,10 @@ const createNew = async (data) => {
 
     return await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
-      .insertOne(validData);
+      .insertOne({
+        ...validData,
+        workspaceId: new ObjectId(validData.workspaceId),
+      });
   } catch (error) {
     throw new Error(error);
   }
@@ -245,6 +248,35 @@ const deleteOneById = async (id) => {
   }
 };
 
+const deleteManyByWorkspaceId = async (workspaceId) => {
+  const db = GET_DB();
+  const boardCollection = db.collection(BOARD_COLLECTION_NAME);
+  const columnCollection = db.collection(columnModel.COLUMN_COLLECTION_NAME);
+  const cardCollection = db.collection(cardModel.CARD_COLLECTION_NAME);
+
+  try {
+    const boards = await boardCollection
+      .find({ workspaceId: new ObjectId(workspaceId) })
+      .toArray();
+    console.log('🚀 ~ deleteManyByWorkspaceId ~ boards:', boards);
+    const boardIds = boards.map((board) => board._id);
+
+    if (boardIds.length === 0) {
+      throw new Error(`No boards found for workspace ${workspaceId}`);
+    }
+
+    await columnCollection.deleteMany({ boardId: { $in: boardIds } });
+
+    await cardCollection.deleteMany({ boardId: { $in: boardIds } });
+
+    const result = await boardCollection.deleteMany({ _id: { $in: boardIds } });
+
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const boardModel = {
   createNew,
   findOneById,
@@ -255,6 +287,7 @@ export const boardModel = {
   getAllBoardInvited,
   pullColumnOrderIds,
   deleteOneById,
+  deleteManyByWorkspaceId,
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
 };

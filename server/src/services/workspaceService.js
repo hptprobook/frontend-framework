@@ -1,6 +1,8 @@
 import { workspaceModel } from '~/models/workspaceModel';
 import ApiError from '~/utils/ApiError';
 import { StatusCodes } from 'http-status-codes';
+import { userModal } from '~/models/userModal';
+import { boardModel } from '~/models/boardModel';
 
 const getAll = async (userId) => {
   try {
@@ -57,6 +59,20 @@ const update = async (id, reqBody) => {
   }
 };
 
+const inviteMember = async (workspaceId, reqBody) => {
+  try {
+    const user = await userModal.findOneById(reqBody.userId);
+
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!');
+    }
+
+    return await workspaceModel.inviteMember(workspaceId, reqBody.userId);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const remove = async (id) => {
   try {
     const targetBoard = await workspaceModel.findOneById(id);
@@ -66,9 +82,10 @@ const remove = async (id) => {
     }
 
     await workspaceModel.deleteOneById(id);
+    await boardModel.deleteManyByWorkspaceId(id);
 
     return {
-      deleteResult: 'Workspace deleted successfully!',
+      deleteResult: 'Workspace and all items in it deleted successfully!',
     };
   } catch (error) {
     throw error;
@@ -80,5 +97,6 @@ export const workspaceService = {
   getAll,
   getDetail,
   update,
+  inviteMember,
   remove,
 };

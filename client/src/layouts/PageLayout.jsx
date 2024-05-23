@@ -1,9 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import AppBar from '~/components/AppBar/AppBar';
 import Container from '@mui/material/Container';
-import { Box } from '@mui/material';
 
-export default function BoardLayout() {
+export default function PageLayout() {
   return (
     <Container
       disableGutters
@@ -13,9 +12,7 @@ export default function BoardLayout() {
       }}
     >
       <AppBar />
-      <Box>
-        <Outlet />
-      </Box>
+      <Outlet />
     </Container>
   );
 }

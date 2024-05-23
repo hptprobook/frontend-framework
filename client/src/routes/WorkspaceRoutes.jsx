@@ -3,8 +3,9 @@ import CircularLoading from '~/components/Loading/CircularLoading';
 import useAuthStatus from '~/hooks/useAuthStatus';
 import { Navigate } from 'react-router-dom';
 
-const PageLayout = lazy(() => import('~/layouts/PageLayout'));
-const BoardDetails = lazy(() => import('~/pages/Boards/_id'));
+const Workspace = lazy(() => import('~/pages/Workspaces/Workspaces'));
+const WorkspaceLayout = lazy(() => import('~/layouts/WorkspaceLayout'));
+const WorkspaceDetail = lazy(() => import('~/pages/Workspaces/_id'));
 
 const ProtectedLayout = ({ children }) => {
   const isLoggedIn = useAuthStatus();
@@ -16,22 +17,26 @@ const ProtectedLayout = ({ children }) => {
   return <Fragment>{children}</Fragment>;
 };
 
-const MainRoutes = {
-  path: 'boards',
+const WorkspaceRoute = {
+  path: 'w',
   element: (
     <Suspense fallback={<CircularLoading />}>
       <ProtectedLayout>
-        <PageLayout />
+        <WorkspaceLayout />
       </ProtectedLayout>
     </Suspense>
   ),
 
   children: [
     {
+      path: '',
+      element: <Workspace />,
+    },
+    {
       path: ':id',
-      element: <BoardDetails />,
+      element: <WorkspaceDetail />,
     },
   ],
 };
 
-export default MainRoutes;
+export default WorkspaceRoute;

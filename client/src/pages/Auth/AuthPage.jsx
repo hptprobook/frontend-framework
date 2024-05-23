@@ -27,7 +27,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (isAuth) {
-      navigate('/boards');
+      navigate('/w');
     }
   }, [isAuth, navigate]);
 
@@ -48,7 +48,7 @@ export default function AuthPage() {
             },
           })
         );
-        navigate('/boards');
+        navigate('/w');
         window.location.reload();
       })
       .catch(() => {

@@ -36,6 +36,21 @@ const update = async (req, res, next) => {
   }
 };
 
+const inviteMember = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    userId: Joi.string().required(),
+  });
+
+  try {
+    await correctCondition.validateAsync(req.body);
+    next();
+  } catch (error) {
+    next(
+      new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)
+    );
+  }
+};
+
 const remove = async (req, res, next) => {
   const correctCondition = Joi.object({
     id: Joi.string()
@@ -57,5 +72,6 @@ const remove = async (req, res, next) => {
 export const workspaceValidation = {
   createNew,
   update,
+  inviteMember,
   remove,
 };

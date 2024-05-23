@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { cloneDeep } from 'lodash';
 import { columnModel } from '~/models/columnModel';
 import { cardModel } from '~/models/cardModel';
+import { workspaceModel } from '~/models/workspaceModel';
 
 const createNew = async (reqBody) => {
   try {
@@ -12,6 +13,10 @@ const createNew = async (reqBody) => {
       ...reqBody,
       slug: slugify(reqBody.title),
     });
+
+    const getNewBoard = await boardModel.findOneById(createdBoard.insertedId);
+
+    if (getNewBoard) await workspaceModel.pushBoardIds(getNewBoard);
 
     return await boardModel.findOneById(createdBoard.insertedId);
   } catch (error) {

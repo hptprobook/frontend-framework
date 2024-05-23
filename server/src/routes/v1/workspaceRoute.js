@@ -13,4 +13,9 @@ Router.route('/:id')
   .put(workspaceValidation.update, workspaceController.update)
   .delete(workspaceController.remove);
 
+Router.route('/invite/:id').post(
+  workspaceValidation.inviteMember,
+  workspaceController.inviteMember
+);
+
 export const workspaceRoute = Router;
