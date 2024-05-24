@@ -30,6 +30,8 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrent, readNotify } from '~/redux/slices/userSlice';
 import { useNavigate } from 'react-router-dom';
+import NewWorkspaceDialog from '~/pages/Workspaces/NewWorkspaceDialog';
+import { getAllWorkspace } from '~/redux/slices/workspaceSlice';
 
 function AppBar() {
   const [searchValue, setSearchValue] = useState('');
@@ -39,6 +41,16 @@ function AppBar() {
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
   const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
+  const { workspaces } = useSelector((state) => state.workspaces);
+
+  useEffect(() => {
+    dispatch(getAllWorkspace());
+  }, [dispatch]);
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
 
   useEffect(() => {
     dispatch(getCurrent());
@@ -97,7 +109,7 @@ function AppBar() {
             gap: 1,
           }}
         >
-          <Workspaces />
+          <Workspaces workspaces={workspaces} />
           <Recent />
           <Starred />
           <Templates />
@@ -115,9 +127,11 @@ function AppBar() {
               },
             }}
             startIcon={<LibraryAddIcon />}
+            onClick={handleOpenModal}
           >
             Create
           </Button>
+          <NewWorkspaceDialog open={openModal} setOpen={setOpenModal} />
         </Box>
       </Box>
 

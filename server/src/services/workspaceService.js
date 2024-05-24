@@ -38,8 +38,13 @@ const createNew = async (reqBody) => {
       members: [{ memberId: userId, rule: 'creator' }],
     });
 
-    // return await workspaceModel.findOneById(createdWorkspace.insertedId);
-    return createdWorkspace;
+    const getNewWorkspace = await workspaceModel.findOneById(
+      createdWorkspace.insertedId
+    );
+
+    if (getNewWorkspace) await workspaceModel.pushBoardIds(getNewWorkspace);
+
+    return await workspaceModel.findOneById(createdWorkspace.insertedId);
   } catch (error) {
     throw error;
   }

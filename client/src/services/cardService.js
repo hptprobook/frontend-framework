@@ -1,6 +1,6 @@
 import { handleRequest } from '~/utils/request';
 
-const columnServices = {
+const cardServices = {
   createNewCardAPI: (data) => handleRequest('post', '/v1/cards', data),
   getDetails: (id) => handleRequest('get', `/v1/cards/${id}`),
   updateCardDetailsAPI: (id, data) =>
@@ -8,7 +8,13 @@ const columnServices = {
   addTodo: (id, data) => handleRequest('put', `/v1/cards/${id}/addTodo`, data),
   addTodoChild: (id, data) =>
     handleRequest('post', `/v1/cards/${id}/addTodo`, data),
+  addComment: (id, data) =>
+    handleRequest('post', `/v1/cards/${id}/comments`, data),
   deleteCardAPI: (id) => handleRequest('delete', `/v1/cards/${id}`),
+  deleteTodoAPI: (id, todoId) =>
+    handleRequest('delete', `/v1/cards/${id}/todos/${todoId}`),
+  deleteTodoChildAPI: (id, todoId, childId) =>
+    handleRequest('delete', `/v1/cards/${id}/todos/${todoId}/child/${childId}`),
 };
 
-export default columnServices;
+export default cardServices;

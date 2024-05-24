@@ -46,12 +46,38 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false),
 });
 
+const COMMENT_SCHEMA = Joi.object({
+  userId: Joi.string().required(),
+  userName: Joi.string().required().min(3).max(50).trim().strict(),
+  content: Joi.string().required().min(1).max(500).trim().strict(),
+  emotion: Joi.string()
+    .optional()
+    .valid('like', 'love', 'haha', 'wow', 'sad', 'angry')
+    .default(null),
+  replies: Joi.array()
+    .items(
+      Joi.object({
+        userId: Joi.string().required(),
+        userName: Joi.string().required().min(3).max(50).trim().strict(),
+        content: Joi.string().required().min(1).max(500).trim().strict(),
+        createdAt: Joi.date().timestamp('javascript').default(Date.now),
+      })
+    )
+    .default([]),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(null),
+});
+
 const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt'];
 
 const validateBeforeCreate = async (data) => {
   return await CARD_COLLECTION_SCHEMA.validateAsync(data, {
     abortEarly: false,
   });
+};
+
+const validateComment = async (data) => {
+  return await COMMENT_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
 const createNew = async (data) => {
@@ -115,7 +141,7 @@ const addTodo = async (cardId, todoData) => {
         `Validation error: ${error.details.map((x) => x.message).join(', ')}`
       );
 
-    await GET_DB()
+    return await GET_DB()
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(cardId) },
@@ -160,6 +186,136 @@ const addTodoChild = async (cardId, childData) => {
         },
         { returnDocument: 'after' }
       );
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updateTodo = async (cardId, todoId, updateData) => {
+  try {
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(cardId), 'todos._id': new ObjectId(todoId) },
+        { $set: { 'todos.$': updateData } },
+        { returnDocument: 'after' }
+      );
+
+    if (!result.value) throw new Error(`Todo not found in card ${cardId}`);
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updateTodoChild = async (cardId, todoId, childId, updateData) => {
+  try {
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        {
+          _id: new ObjectId(cardId),
+          'todos._id': new ObjectId(todoId),
+          'todos.childs._id': new ObjectId(childId),
+        },
+        { $set: { 'todos.$[i].childs.$[j]': updateData } },
+        {
+          arrayFilters: [
+            { 'i._id': new ObjectId(todoId) },
+            { 'j._id': new ObjectId(childId) },
+          ],
+          returnDocument: 'after',
+        }
+      );
+
+    if (!result.value) throw new Error(`Child not found in todo ${todoId}`);
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const addComment = async (cardId, commentData) => {
+  try {
+    const validCommentData = await validateComment(commentData);
+
+    return await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(cardId) },
+        { $push: { comments: { ...validCommentData, _id: new ObjectId() } } },
+        { returnDocument: 'after' }
+      );
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updateComment = async (cardId, commentId, updateData) => {
+  try {
+    updateData.updatedAt = Date.now();
+
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(cardId), 'comments._id': new ObjectId(commentId) },
+        { $set: { 'comments.$': updateData } },
+        { returnDocument: 'after' }
+      );
+
+    if (!result.value) throw new Error(`Comment not found in card ${cardId}`);
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteComment = async (cardId, commentId) => {
+  try {
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(cardId) },
+        { $pull: { comments: { _id: new ObjectId(commentId) } } },
+        { returnDocument: 'after' }
+      );
+
+    if (!result.value) throw new Error(`Comment not found in card ${cardId}`);
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteTodo = async (cardId, todoId) => {
+  try {
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(cardId) },
+        { $pull: { todos: { _id: new ObjectId(todoId) } } },
+        { returnDocument: 'after' }
+      );
+
+    if (!result) throw new Error(`Todo not found in card ${cardId}`);
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteTodoChild = async (cardId, todoId, childId) => {
+  try {
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(cardId), 'todos._id': new ObjectId(todoId) },
+        { $pull: { 'todos.$.childs': { _id: new ObjectId(childId) } } },
+        { returnDocument: 'after' }
+      );
+
+    if (!result) throw new Error(`Child not found in todo ${todoId}`);
+    return result.value;
   } catch (error) {
     throw new Error(error);
   }
@@ -210,6 +366,13 @@ export const cardModel = {
   update,
   addTodo,
   addTodoChild,
+  updateTodo,
+  updateTodoChild,
+  addComment,
+  updateComment,
+  deleteComment,
+  deleteTodo,
+  deleteTodoChild,
   deleteManyByColumnId,
   deleteOneById,
   deleteManyByBoardId,

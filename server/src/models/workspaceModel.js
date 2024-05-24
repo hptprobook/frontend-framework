@@ -5,12 +5,17 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '~/utils/ApiError';
 import { boardModel } from './boardModel';
+import { BOARD_TYPES } from '~/utils/constants';
 // import { userModal } from './userModal';
 
 // Define collection
 const WORKSPACE_COLLECTION_NAME = 'workspaces';
 const WORKSPACE_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
+  description: Joi.string().required().min(3).max(256).trim().strict(),
+  type: Joi.string()
+    .valid(...BOARD_TYPES)
+    .required(),
   boardIds: Joi.array()
     .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
     .default([]),

@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import Typography from '@mui/material/Typography';
@@ -9,7 +9,14 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import ListIcon from '@mui/icons-material/List';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  IconButton,
+} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -19,12 +26,16 @@ import TextField from '@mui/material/TextField';
 import CommentIcon from '@mui/icons-material/Comment';
 import { useDispatch /* useSelector */, useSelector } from 'react-redux';
 import {
+  addComment,
   addTodo,
   addTodoChild,
   deleteCardDetails,
+  deleteTodo,
+  deleteTodoChild,
   getDetails,
   updateCardDetails,
 } from '~/redux/slices/cardSlice';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { toast } from 'react-toastify';
 import { useConfirm } from 'material-ui-confirm';
 import Avatar from '@mui/material/Avatar';
@@ -32,6 +43,9 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuModal from '~/components/MenuModal';
 import CardAction from './CardAction';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { unwrapResult } from '@reduxjs/toolkit';
+import { getRandomColor } from '~/utils/getRandomColor';
+import { getAllBoards } from '~/redux/slices/boardSlice';
 export default function CardDetail({
   openModal,
   handleCloseModal,
@@ -47,8 +61,11 @@ export default function CardDetail({
   const dispatch = useDispatch();
   const [cardDetail, setCardDetail] = useState(card);
   const { cards } = useSelector((state) => state.cards);
+  const { current } = useSelector((state) => state.users);
   const [showAddChildForm, setShowAddChildForm] = useState(null);
   const [childText, setChildText] = useState('');
+  const [isComment, setComment] = useState(false);
+  const [commentContent, setCommentContent] = useState('');
 
   useEffect(() => {
     dispatch(getDetails({ id: card._id }));
@@ -123,9 +140,23 @@ export default function CardDetail({
     setAddTodoMenu(event.currentTarget);
   };
 
-  const handleAddTodo = () => {
-    dispatch(addTodo({ id: card._id, data: { text: todoTitle } }));
+  const handleAddTodo = async () => {
+    setAddTodoMenu(null);
+    const resultAction = await dispatch(
+      addTodo({ id: card._id, data: { text: todoTitle } })
+    );
+    const result = unwrapResult(resultAction);
+    if (result) {
+      setTodoTitle('');
+      handleAddChildFormOpen(result.todos[result.todos.length - 1]._id);
+    }
     dispatch(getDetails({ id: card._id }));
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleAddTodo();
+    }
   };
 
   const handleAddChildFormOpen = (todoId) => {
@@ -136,17 +167,75 @@ export default function CardDetail({
     setShowAddChildForm(null);
   };
 
+  const addChildRef = useRef(null);
   const handleAddChild = (todoId) => {
     dispatch(
       addTodoChild({ id: cardDetail._id, data: { text: childText, todoId } })
     );
     dispatch(getDetails({ id: card._id }));
-    handleAddChildFormClose();
+    // handleAddChildFormClose();
     setChildText('');
+    addChildRef.current.focus();
+  };
+
+  const handleAddChildKeyPress = (event, todoId) => {
+    if (event.key === 'Enter') {
+      handleAddChild(todoId);
+    } else if (event.key === 'Escape') {
+      handleAddChildFormClose();
+    }
   };
 
   const handleToggleTodoChild = () => {
     dispatch(getDetails({ id: card._id }));
+  };
+
+  const formatTimestamp = (timestamp) => {
+    return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
+  };
+
+  const confirmDeleteTodo = useConfirm();
+  const confirmDeleteTodoChild = useConfirm();
+  const handleDeleteTodo = (todoId) => {
+    confirmDeleteTodoChild({
+      title: 'Delete Todo?',
+      description: 'Are you sure you want to delete this todo?',
+      confirmationButtonProps: { color: 'error', variant: 'outlined' },
+      confirmationText: 'Confirm',
+    }).then(() => {
+      dispatch(deleteTodo({ id: cardDetail._id, todoId }));
+      dispatch(getDetails({ id: card._id }));
+      toast.success('Deleted todo successfully!');
+    });
+  };
+
+  const handleDeleteTodoChild = (todoId, childId) => {
+    confirmDeleteTodo({
+      title: 'Delete this todo?',
+      description: 'Are you sure you want to delete this todo?',
+      confirmationButtonProps: { color: 'error', variant: 'outlined' },
+      confirmationText: 'Confirm',
+    }).then(() => {
+      dispatch(deleteTodoChild({ id: cardDetail._id, todoId, childId }));
+      dispatch(getDetails({ id: card._id }));
+      toast.success('Deleted todo successfully!');
+    });
+  };
+
+  const handleAddComment = () => {
+    dispatch(
+      addComment({
+        id: card._id,
+        data: {
+          content: commentContent,
+          userId: current._id,
+          userName: current.displayName,
+        },
+      })
+    );
+    dispatch(getDetails({ id: card._id }));
+    setComment(false);
+    setCommentContent('');
   };
 
   return (
@@ -314,24 +403,33 @@ export default function CardDetail({
             setAnchorEl={setAddTodoMenu}
             id={'add-todo'}
             menuChildren={
-              <>
+              <Box
+                sx={{
+                  px: 3,
+                  py: 2,
+                  width: '240px',
+                }}
+              >
                 <Typography textAlign={'center'} gutterBottom>
                   Add todo list
                 </Typography>
-                <MenuItem>
-                  <TextField
-                    size="small"
-                    label={'Enter todo title'}
-                    value={todoTitle}
-                    onChange={(e) => setTodoTitle(e.target.value)}
-                  />
-                </MenuItem>
-                <MenuItem onClick={handleAddTodo}>
-                  <Button variant="outlined" fullWidth>
-                    Add
-                  </Button>
-                </MenuItem>
-              </>
+                <TextField
+                  size="small"
+                  label={'Enter todo title'}
+                  autoFocus
+                  required
+                  sx={{
+                    my: 2,
+                  }}
+                  value={todoTitle}
+                  onChange={(e) => setTodoTitle(e.target.value)}
+                  onKeyUp={handleKeyPress}
+                  fullWidth
+                />
+                <Button variant="outlined" fullWidth onClick={handleAddTodo}>
+                  Add
+                </Button>
+              </Box>
             }
           />
 
@@ -372,34 +470,73 @@ export default function CardDetail({
                 <CheckCircleOutlineIcon />
               </Grid>
               <Grid item xs={7}>
-                <Typography
+                <Box
                   sx={{
-                    fontWeight: 'bold',
-                    fontSize: '18px !important',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 1,
                   }}
                 >
-                  {todo.text}
-                </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: 'bold',
+                      fontSize: '18px !important',
+                    }}
+                  >
+                    {todo.text}
+                  </Typography>
+                  <Button
+                    onClick={() => handleDeleteTodo(todo._id)}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      mr: 1,
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Box>
                 <FormGroup>
                   {todo.childs.length
                     ? todo.childs.map((child) => (
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              size="small"
-                              checked={child.done}
-                              onChange={() =>
-                                handleToggleTodoChild(
-                                  todo._id,
-                                  child._id,
-                                  child.done
-                                )
-                              }
-                            />
-                          }
-                          label={child.text}
+                        <Box
                           key={child._id}
-                        />
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={child.done}
+                                onChange={() =>
+                                  handleToggleTodoChild(
+                                    todo._id,
+                                    child._id,
+                                    child.done
+                                  )
+                                }
+                              />
+                            }
+                            label={child.text}
+                          />
+                          <IconButton
+                            aria-label="delete"
+                            onClick={() => {
+                              handleDeleteTodoChild(todo._id, child._id);
+                            }}
+                          >
+                            <DeleteIcon
+                              sx={{
+                                fontSize: '22px',
+                              }}
+                            />
+                          </IconButton>
+                        </Box>
                       ))
                     : ''}
                 </FormGroup>
@@ -412,6 +549,10 @@ export default function CardDetail({
                       value={childText}
                       onChange={(e) => setChildText(e.target.value)}
                       autoFocus
+                      ref={addChildRef}
+                      onKeyUp={(event) =>
+                        handleAddChildKeyPress(event, todo._id)
+                      }
                       sx={{ mb: 1 }}
                     />
                     <Box display="flex" justifyContent="space-between">
@@ -467,6 +608,187 @@ export default function CardDetail({
           >
             Comments
           </Typography>
+        </Grid>
+        <Grid item xs={3}></Grid>
+      </Grid>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          px: 3,
+          pt: 3,
+        }}
+      >
+        <Grid item xs={1}></Grid>
+        <Grid item xs={8}>
+          {cardDetail?.comments.map((comment) => (
+            <>
+              <Box
+                sx={{
+                  my: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      width: '30px',
+                      height: '30px',
+                      fontSize: '16px',
+                      bgcolor: getRandomColor(),
+                    }}
+                  >
+                    H
+                  </Avatar>
+                  <Typography variant="body2">{comment?.userName}</Typography>
+                  <Typography variant="caption">
+                    {formatTimestamp(comment?.createdAt)}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    mt: 1,
+                    px: 3,
+                    borderRadius: '8px',
+                    border: '1px solid #e4e6ea',
+                    bgcolor: '#e4e6ea',
+                  }}
+                >
+                  <Typography
+                    dangerouslySetInnerHTML={{ __html: comment?.content }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    mt: 0.5,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: '12px !important',
+                      color: 'blue',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    React
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '12px !important',
+                      color: 'blue',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Reply
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '12px !important',
+                      color: 'blue',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Edit
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '12px !important',
+                      color: 'blue',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Delete
+                  </Typography>
+                </Box>
+              </Box>
+            </>
+          ))}
+          <Box
+            sx={{
+              mt: 1,
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: '30px',
+                  height: '30px',
+                  fontSize: '16px',
+                  bgcolor: getRandomColor(),
+                }}
+              >
+                You
+              </Avatar>
+              {!isComment ? (
+                <Box
+                  sx={{
+                    py: 1,
+                    px: 3,
+                    borderRadius: '8px',
+                    border: '1px solid #e4e6ea',
+                    bgcolor: '#e4e6ea',
+                    cursor: 'pointer',
+                    width: '100%',
+                  }}
+                  onClick={() => setComment(true)}
+                >
+                  <Typography>Viết bình luận ...</Typography>
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <ReactQuill
+                    value={commentContent}
+                    onChange={setCommentContent}
+                    style={{
+                      marginBottom: '12px',
+                    }}
+                  />
+                  <Box>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        mr: 1,
+                      }}
+                      onClick={handleAddComment}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setComment(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </Box>
         </Grid>
         <Grid item xs={3}></Grid>
       </Grid>

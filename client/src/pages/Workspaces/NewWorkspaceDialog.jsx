@@ -7,10 +7,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch } from 'react-redux';
-import { createNewBoard } from '~/redux/slices/boardSlice';
 import { toast } from 'react-toastify';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { getAllWorkspace } from '~/redux/slices/workspaceSlice';
+import {
+  createNewWorkspace,
+  getAllWorkspace,
+} from '~/redux/slices/workspaceSlice';
 import { useNavigate } from 'react-router-dom';
 
 const validationSchema = Yup.object().shape({
@@ -24,46 +26,40 @@ const validationSchema = Yup.object().shape({
     .max(512, 'Description must be max 512 characters'),
 });
 
-export default function NewBoardDialog({
-  open,
-  setOpen,
-  workspaceId,
-  setWorkspaceIdActive,
-}) {
+export default function NewWorkspaceDialog({ open, setOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleClose = () => {
     setOpen(false);
-    setWorkspaceIdActive(null);
   };
 
-  const handleCreateBoard = async (values) => {
+  const handleCreateWorkspace = async (values) => {
     try {
       const resultAction = await dispatch(
-        createNewBoard({ data: { ...values, type: 'private', workspaceId } })
+        createNewWorkspace({ data: { ...values, type: 'private' } })
       );
       const result = unwrapResult(resultAction);
       if (result) {
-        toast.success('Create board successfully!');
-        navigate('/boards/' + result._id);
+        toast.success('Create workspace successfully!');
         dispatch(getAllWorkspace());
+        navigate('/w/' + result._id);
       } else {
-        toast.error('Create board failed! Please try again!');
+        toast.error('Create workspace failed! Please try again!');
       }
     } catch (err) {
-      toast.error('Create board failed! Please try again!');
+      toast.error('Create workspace failed! Please try again!');
     }
   };
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Create New Board</DialogTitle>
+      <DialogTitle>Create New Workspace</DialogTitle>
       <Formik
         initialValues={{ title: '', description: '' }}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          handleCreateBoard(values);
+          handleCreateWorkspace(values);
           handleClose();
           setSubmitting(false);
         }}

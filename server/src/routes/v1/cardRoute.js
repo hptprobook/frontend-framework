@@ -16,4 +16,14 @@ Router.route('/:id/addTodo')
 
 Router.route('/:id/childDone').put(cardController.childDone);
 
+Router.route('/:id/todos/:todoId')
+  .put(cardController.updateTodo)
+  .delete(cardController.deleteTodo);
+
+Router.route('/:id/todos/:todoId/child/:childId')
+  .put(cardController.updateTodoChild)
+  .delete(cardController.deleteTodoChild);
+
+Router.route('/:id/comments').post(cardController.addComment);
+
 export const cardRoute = Router;

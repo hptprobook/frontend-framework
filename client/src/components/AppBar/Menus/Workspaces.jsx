@@ -1,19 +1,15 @@
-import { useState } from 'react';
-import { Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Avatar, Box } from '@mui/material';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Divider from '@mui/material/Divider';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Typography from '@mui/material/Typography';
-import ContentCut from '@mui/icons-material/ContentCut';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import ContentPaste from '@mui/icons-material/ContentPaste';
-import Cloud from '@mui/icons-material/Cloud';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { getRandomColor } from '~/utils/getRandomColor';
+import { NavLink } from 'react-router-dom';
 
-function Workspaces() {
+function Workspaces({ workspaces }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -49,40 +45,34 @@ function Workspaces() {
           'aria-labelledby': 'basic-button-workspaces',
         }}
       >
-        <MenuItem>
-          <ListItemIcon>
-            <ContentCut fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Cut</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            ⌘X
-          </Typography>
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <ContentCopy fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Copy</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            ⌘C
-          </Typography>
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <ContentPaste fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Paste</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            ⌘V
-          </Typography>
-        </MenuItem>
-        <Divider />
-        <MenuItem>
-          <ListItemIcon>
-            <Cloud fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Web Clipboard</ListItemText>
-        </MenuItem>
+        {workspaces?.map((workspace) => (
+          <React.Fragment key={workspace._id}>
+            <NavLink to={`/w/${workspace._id}`}>
+              <MenuItem onClick={handleClose}>
+                <ListItemIcon>
+                  <Avatar
+                    sx={{
+                      width: '28px',
+                      height: '28px',
+                      bgcolor: getRandomColor(),
+                      fontSize: '12px',
+                      color: '#fff',
+                    }}
+                  >
+                    {workspace?.title[0]}
+                  </Avatar>
+                </ListItemIcon>
+                <ListItemText
+                  sx={{
+                    color: '#333',
+                  }}
+                >
+                  {workspace?.title}
+                </ListItemText>
+              </MenuItem>
+            </NavLink>
+          </React.Fragment>
+        ))}
       </Menu>
     </Box>
   );

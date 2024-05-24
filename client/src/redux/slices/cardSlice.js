@@ -56,11 +56,44 @@ export const addTodoChild = createAsyncThunk(
   }
 );
 
+export const addComment = createAsyncThunk(
+  'card/addComment',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      return await cardServices.addComment(id, data);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const deleteCardDetails = createAsyncThunk(
   'card/delete',
   async ({ id }, { rejectWithValue }) => {
     try {
       return await cardServices.deleteCardAPI(id);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteTodo = createAsyncThunk(
+  'card/deleteTodo',
+  async ({ id, todoId }, { rejectWithValue }) => {
+    try {
+      return await cardServices.deleteTodoAPI(id, todoId);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteTodoChild = createAsyncThunk(
+  'card/deleteTodoChild',
+  async ({ id, todoId, childId }, { rejectWithValue }) => {
+    try {
+      return await cardServices.deleteTodoChildAPI(id, todoId, childId);
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -73,6 +106,7 @@ const cardSlices = createSlice({
     cards: null,
     newCard: null,
     updatedCard: null,
+    newComment: null,
     todoAdded: false,
     isDeleted: false,
     isLoading: false,

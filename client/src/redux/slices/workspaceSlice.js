@@ -63,7 +63,7 @@ export const inviteMember = createAsyncThunk(
 
 export const deleteWorkspace = createAsyncThunk(
   'workspaces/deleteWorkspace',
-  async ({ id }, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const response = await workspaceService.deleteWorkspaceAPI(id);
       return response;
