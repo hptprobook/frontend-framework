@@ -110,6 +110,14 @@ const addComment = async (cardId, commentData) => {
   }
 };
 
+const replyComment = async (cardId, commentId, replyData) => {
+  try {
+    return await cardModel.replyComment(cardId, commentId, replyData);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const deleteTodo = async (cardId, todoId) => {
   try {
     await cardModel.deleteTodo(cardId, todoId);
@@ -154,6 +162,7 @@ export const cardService = {
   updateTodo,
   updateTodoChild,
   addComment,
+  replyComment,
   deleteTodo,
   deleteTodoChild,
   remove,

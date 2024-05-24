@@ -99,6 +99,20 @@ const addComment = async (req, res, next) => {
   }
 };
 
+const replyComment = async (req, res, next) => {
+  try {
+    const comment = await cardService.replyComment(
+      req.params.id,
+      req.params.commentId,
+      req.body
+    );
+
+    res.status(StatusCodes.OK).json(comment);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteTodo = async (req, res, next) => {
   try {
     await cardService.deleteTodo(req.params.id, req.params.todoId);
@@ -143,6 +157,7 @@ export const cardController = {
   updateTodo,
   updateTodoChild,
   addComment,
+  replyComment,
   deleteTodo,
   deleteTodoChild,
   remove,

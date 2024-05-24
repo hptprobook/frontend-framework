@@ -25,5 +25,6 @@ Router.route('/:id/todos/:todoId/child/:childId')
   .delete(cardController.deleteTodoChild);
 
 Router.route('/:id/comments').post(cardController.addComment);
+Router.route('/:id/comments/:commentId').put(cardController.replyComment);
 
 export const cardRoute = Router;

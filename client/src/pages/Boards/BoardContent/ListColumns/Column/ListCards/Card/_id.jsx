@@ -44,14 +44,13 @@ import MenuModal from '~/components/MenuModal';
 import CardAction from './CardAction';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { getRandomColor } from '~/utils/getRandomColor';
-import { getAllBoards } from '~/redux/slices/boardSlice';
 export default function CardDetail({
   openModal,
   handleCloseModal,
   card,
   setCardTitle,
 }) {
+  console.log('🚀 ~ card:', card);
   const [desc, setDesc] = useState(card ? card.description : '');
   const [title, setTitle] = useState(card ? card.title : '');
   const [isEditingTitle, setEditingTitle] = useState(false);
@@ -60,16 +59,18 @@ export default function CardDetail({
   const [todoTitle, setTodoTitle] = useState('');
   const dispatch = useDispatch();
   const [cardDetail, setCardDetail] = useState(card);
-  const { cards } = useSelector((state) => state.cards);
   const { current } = useSelector((state) => state.users);
+  const { cards } = useSelector((state) => state.cards);
   const [showAddChildForm, setShowAddChildForm] = useState(null);
   const [childText, setChildText] = useState('');
   const [isComment, setComment] = useState(false);
   const [commentContent, setCommentContent] = useState('');
 
   useEffect(() => {
-    dispatch(getDetails({ id: card._id }));
-  }, [dispatch, card]);
+    if (card._id) {
+      dispatch(getDetails({ id: card._id }));
+    }
+  }, [card._id, dispatch]);
 
   useEffect(() => {
     setCardDetail(cards);
@@ -234,6 +235,7 @@ export default function CardDetail({
       })
     );
     dispatch(getDetails({ id: card._id }));
+    setCardDetail(card);
     setComment(false);
     setCommentContent('');
   };
@@ -621,100 +623,104 @@ export default function CardDetail({
       >
         <Grid item xs={1}></Grid>
         <Grid item xs={8}>
-          {cardDetail?.comments.map((comment) => (
-            <>
-              <Box
-                sx={{
-                  my: 1,
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                  }}
-                >
-                  <Avatar
+          {cardDetail?.comments
+            ? cardDetail?.comments.map((comment) => (
+                <>
+                  <Box
                     sx={{
-                      width: '30px',
-                      height: '30px',
-                      fontSize: '16px',
-                      bgcolor: getRandomColor(),
+                      my: 1,
                     }}
                   >
-                    H
-                  </Avatar>
-                  <Typography variant="body2">{comment?.userName}</Typography>
-                  <Typography variant="caption">
-                    {formatTimestamp(comment?.createdAt)}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    mt: 1,
-                    px: 3,
-                    borderRadius: '8px',
-                    border: '1px solid #e4e6ea',
-                    bgcolor: '#e4e6ea',
-                  }}
-                >
-                  <Typography
-                    dangerouslySetInnerHTML={{ __html: comment?.content }}
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    mt: 0.5,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: '12px !important',
-                      color: 'blue',
-                      textDecoration: 'underline',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    React
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '12px !important',
-                      color: 'blue',
-                      textDecoration: 'underline',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Reply
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '12px !important',
-                      color: 'blue',
-                      textDecoration: 'underline',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Edit
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '12px !important',
-                      color: 'blue',
-                      textDecoration: 'underline',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Delete
-                  </Typography>
-                </Box>
-              </Box>
-            </>
-          ))}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: '30px',
+                          height: '30px',
+                          fontSize: '16px',
+                          bgcolor: 'red',
+                        }}
+                      >
+                        H
+                      </Avatar>
+                      <Typography variant="body2">
+                        {comment?.userName}
+                      </Typography>
+                      <Typography variant="caption">
+                        {formatTimestamp(comment?.createdAt)}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        mt: 1,
+                        px: 3,
+                        borderRadius: '8px',
+                        border: '1px solid #e4e6ea',
+                        bgcolor: '#e4e6ea',
+                      }}
+                    >
+                      <Typography
+                        dangerouslySetInnerHTML={{ __html: comment?.content }}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        mt: 0.5,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: '12px !important',
+                          color: 'blue',
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        React
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: '12px !important',
+                          color: 'blue',
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Reply
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: '12px !important',
+                          color: 'blue',
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Edit
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: '12px !important',
+                          color: 'blue',
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Delete
+                      </Typography>
+                    </Box>
+                  </Box>
+                </>
+              ))
+            : ''}
           <Box
             sx={{
               mt: 1,
@@ -732,7 +738,7 @@ export default function CardDetail({
                   width: '30px',
                   height: '30px',
                   fontSize: '16px',
-                  bgcolor: getRandomColor(),
+                  bgcolor: 'red',
                 }}
               >
                 You

@@ -68,6 +68,18 @@ const COMMENT_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null),
 });
 
+const REPLY_COMMENT_SCHEMA = Joi.object({
+  userId: Joi.string().required(),
+  userName: Joi.string().required().min(3).max(50).trim().strict(),
+  content: Joi.string().required().min(1).max(500).trim().strict(),
+  emotion: Joi.string()
+    .optional()
+    .valid('like', 'love', 'haha', 'wow', 'sad', 'angry')
+    .default(null),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(null),
+});
+
 const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt'];
 
 const validateBeforeCreate = async (data) => {
@@ -78,6 +90,10 @@ const validateBeforeCreate = async (data) => {
 
 const validateComment = async (data) => {
   return await COMMENT_SCHEMA.validateAsync(data, { abortEarly: false });
+};
+
+const validateReplyComment = async (data) => {
+  return await REPLY_COMMENT_SCHEMA.validateAsync(data, { abortEarly: false });
 };
 
 const createNew = async (data) => {
@@ -287,6 +303,22 @@ const deleteComment = async (cardId, commentId) => {
   }
 };
 
+const replyComment = async (cardId, commentId, replyData) => {
+  try {
+    const validReplyCommentData = await validateReplyComment(replyData);
+
+    return await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(cardId), 'comments._id': new ObjectId(commentId) },
+        { $push: { 'comments.$.replies': validReplyCommentData } },
+        { returnDocument: 'after' }
+      );
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const deleteTodo = async (cardId, todoId) => {
   try {
     const result = await GET_DB()
@@ -370,6 +402,7 @@ export const cardModel = {
   updateTodoChild,
   addComment,
   updateComment,
+  replyComment,
   deleteComment,
   deleteTodo,
   deleteTodoChild,
