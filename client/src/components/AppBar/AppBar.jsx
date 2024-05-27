@@ -29,7 +29,7 @@ import {
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrent, readNotify } from '~/redux/slices/userSlice';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import NewWorkspaceDialog from '~/pages/Workspaces/NewWorkspaceDialog';
 import { getAllWorkspace } from '~/redux/slices/workspaceSlice';
 
@@ -89,19 +89,21 @@ function AppBar() {
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <AppsIcon sx={{ color: '#fff' }} />
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <SvgIcon
-            component={Logo}
-            inheritViewBox
-            fontSize="small"
-            sx={{ color: '#fff' }}
-          />
-          <Typography
-            sx={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}
-          >
-            Trello
-          </Typography>
-        </Box>
+        <NavLink to="/w">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <SvgIcon
+              component={Logo}
+              inheritViewBox
+              fontSize="small"
+              sx={{ color: '#fff' }}
+            />
+            <Typography
+              sx={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}
+            >
+              Trello
+            </Typography>
+          </Box>
+        </NavLink>
 
         <Box
           sx={{

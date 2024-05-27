@@ -44,6 +44,7 @@ import MenuModal from '~/components/MenuModal';
 import CardAction from './CardAction';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { unwrapResult } from '@reduxjs/toolkit';
+import { getAllBoards } from '~/redux/slices/boardSlice';
 
 export default function CardDetail({
   openModal,
