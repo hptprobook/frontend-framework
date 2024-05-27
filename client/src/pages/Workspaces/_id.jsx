@@ -18,6 +18,7 @@ import {
   deleteWorkspace,
   getAllWorkspace,
   getDetailWorkspace,
+  inviteMember,
   updateWorkspace,
 } from '~/redux/slices/workspaceSlice';
 import { getRandomColor, getRandomGradient } from '~/utils/getRandomColor';
@@ -30,6 +31,7 @@ import { toast } from 'react-toastify';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { unwrapResult } from '@reduxjs/toolkit';
+import InviteToWorkspaceDialog from './InviteDialog';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string()
@@ -47,10 +49,16 @@ export default function WorkspaceDetail() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { workspace } = useSelector((state) => state.workspaces);
+  const { current } = useSelector((state) => state.users);
   const [openModal, setOpenModal] = useState(false);
   const [workspaceIdActive, setWorkspaceIdActive] = useState(null);
+  const [openInviteDialog, setOpenInviteDialog] = useState(false);
+  const [inviteResult, setInviteResult] = useState(null);
   const confirmDeleteWorkspace = useConfirm();
   const [isEditWorkspace, setEditWorkspace] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [order, setOrder] = useState('');
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
     dispatch(getDetailWorkspace(id));
@@ -97,6 +105,45 @@ export default function WorkspaceDetail() {
       toast.error('Update workspace failed! Please try again!');
     }
   };
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleOrderChange = (event) => {
+    setOrder(event.target.value);
+  };
+
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value);
+  };
+
+  const handleInvite = async () => {
+    try {
+      const resultAction = await dispatch(
+        inviteMember({ id, data: { userId: current._id } })
+      );
+      const result = unwrapResult(resultAction);
+      if (result) {
+        toast.success('Member invited successfully!');
+        setOpenInviteDialog(false);
+      } else {
+        toast.error('Invite member failed! Please try again!');
+      }
+    } catch (err) {
+      toast.error('Invite member failed! Please try again!');
+    }
+  };
+
+  const filteredBoards = workspace?.boards
+    ?.filter((board) =>
+      board.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (order === 'A to Z') return a.title.localeCompare(b.title);
+      if (order === 'Z to A') return b.title.localeCompare(a.title);
+      return 0; // Default order
+    });
 
   return (
     <React.Fragment>
@@ -198,13 +245,12 @@ export default function WorkspaceDetail() {
                       required
                       size="small"
                       label="Description"
-                      error={touched.title && Boolean(errors.title)}
-                      helperText={touched.title && errors.title}
+                      error={touched.description && Boolean(errors.description)}
+                      helperText={touched.description && errors.description}
                     />
                     <Box>
                       <Button
                         variant="contained"
-                        // onClick={() => setEditWorkspace(false)}
                         size="small"
                         sx={{
                           mr: 1,
@@ -228,7 +274,11 @@ export default function WorkspaceDetail() {
               </Formik>
             </Box>
           )}
-          <Button startIcon={<PersonAddAlt1Icon />} variant="contained">
+          <Button
+            startIcon={<PersonAddAlt1Icon />}
+            variant="contained"
+            onClick={() => setOpenInviteDialog(true)}
+          >
             Invite member
           </Button>
         </Box>
@@ -269,14 +319,16 @@ export default function WorkspaceDetail() {
               <Select
                 labelId="demo-select-small-label"
                 id="demo-select-small"
-                label="Age"
+                label="Order by"
                 size="small"
+                value={order}
+                onChange={handleOrderChange}
               >
                 <MenuItem value="">
                   <em>Recent</em>
                 </MenuItem>
-                <MenuItem value={10}>A to Z</MenuItem>
-                <MenuItem value={20}>Z to A</MenuItem>
+                <MenuItem value="A to Z">A to Z</MenuItem>
+                <MenuItem value="Z to A">Z to A</MenuItem>
               </Select>
             </FormControl>
             <FormControl sx={{ minWidth: 200 }} size="small">
@@ -285,13 +337,15 @@ export default function WorkspaceDetail() {
                 size="small"
                 labelId="demo-select-small-label"
                 id="demo-select-small"
-                label="Age"
+                label="Filter by"
+                value={filter}
+                onChange={handleFilterChange}
               >
                 <MenuItem value="">
                   <em>Recent</em>
                 </MenuItem>
-                <MenuItem value={10}>A to Z</MenuItem>
-                <MenuItem value={20}>Z to A</MenuItem>
+                <MenuItem value="A to Z">A to Z</MenuItem>
+                <MenuItem value="Z to A">Z to A</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -301,6 +355,8 @@ export default function WorkspaceDetail() {
               label="Search ..."
               variant="outlined"
               size="small"
+              value={searchQuery}
+              onChange={handleSearch}
             />
           </Box>
         </Box>
@@ -314,7 +370,7 @@ export default function WorkspaceDetail() {
         />
         <Grid container spacing={2}>
           {/* Board item */}
-          {workspace?.boards?.map((board) => (
+          {filteredBoards?.map((board) => (
             <React.Fragment key={board._id}>
               <Grid item xs={3}>
                 <NavLink to={`/boards/${board._id}`}>
@@ -395,6 +451,12 @@ export default function WorkspaceDetail() {
           Delete this workspace
         </Button>
       </Box>
+      <InviteToWorkspaceDialog
+        open={openInviteDialog}
+        onClose={() => setOpenInviteDialog(false)}
+        result={inviteResult}
+        onInvite={handleInvite}
+      />
     </React.Fragment>
   );
 }

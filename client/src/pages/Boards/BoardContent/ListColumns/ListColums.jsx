@@ -1,15 +1,13 @@
-import { Box } from '@mui/material';
-import Column from './Column/Column';
-import Button from '@mui/material/Button';
+import { Box, Button, TextField } from '@mui/material';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   SortableContext,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useState } from 'react';
-import TextField from '@mui/material/TextField';
-import CloseIcon from '@mui/icons-material/Close';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import Column from './Column/Column';
 
 function ListColums({
   columns,
@@ -19,8 +17,12 @@ function ListColums({
 }) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState('');
-  const toggleOpenNewColumnForm = () =>
+  const inputRef = useRef(null);
+
+  const toggleOpenNewColumnForm = () => {
     setOpenNewColumnForm(!openNewColumnForm);
+  };
+
   const addNewColumn = async () => {
     if (!newColumnTitle) {
       toast.error('Please enter Column Title!');
@@ -37,10 +39,16 @@ function ListColums({
     };
 
     await createNewColumn(newColumnData);
-
-    toggleOpenNewColumnForm();
     setNewColumnTitle('');
+    // Keep the form open and set focus back to the input field
+    inputRef.current.focus();
   };
+
+  useEffect(() => {
+    if (openNewColumnForm) {
+      inputRef.current?.focus();
+    }
+  }, [openNewColumnForm]);
 
   /* SortableContext yêu cầu items là một dạng mảng dữ liệu thông thường chứ không phải dạng mảng object */
   return (
@@ -123,6 +131,7 @@ function ListColums({
                 if (e.key === 'Enter') addNewColumn();
                 if (e.key === 'Escape') toggleOpenNewColumnForm();
               }}
+              inputRef={inputRef}
               sx={{
                 '& label': {
                   color: '#fff',

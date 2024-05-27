@@ -1,30 +1,32 @@
-import { useState } from 'react';
-import { Box } from '@mui/material';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Divider from '@mui/material/Divider';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Typography from '@mui/material/Typography';
+import { useState, useRef, useEffect } from 'react';
+import {
+  Box,
+  Button,
+  TextField,
+  IconButton,
+  Tooltip,
+  Typography,
+  Menu,
+  MenuItem,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
+import { useDispatch } from 'react-redux';
+import { useConfirm } from 'material-ui-confirm';
+import { toast } from 'react-toastify';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import ContentCut from '@mui/icons-material/ContentCut';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import ListItemText from '@mui/material/ListItemText';
 import Cloud from '@mui/icons-material/Cloud';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import AddCardIcon from '@mui/icons-material/AddCard';
-import Button from '@mui/material/Button';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
-import ListCards from './ListCards/ListCards';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import TextField from '@mui/material/TextField';
 import CloseIcon from '@mui/icons-material/Close';
-import { toast } from 'react-toastify';
-import { useConfirm } from 'material-ui-confirm';
-import { useDispatch /* useSelector */ } from 'react-redux';
+import ListCards from './ListCards/ListCards';
 import { updateColumnDetails } from '~/redux/slices/columnSlice';
 
 function Column({ column, createNewCard, handleDeleteColumn }) {
@@ -42,7 +44,10 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
   const [editCardTitle, setEditCardTitle] = useState(
     column ? column.title : ''
   );
+  const inputRef = useRef(null);
+
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm);
+
   const addNewCard = async () => {
     if (!newCardTitle) {
       toast.error('Please enter Card Title', {
@@ -51,7 +56,7 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
       return;
     }
     if (newCardTitle.length < 3) {
-      toast.error('Cart title  should be more than 3 characters', {
+      toast.error('Card title should be more than 3 characters', {
         position: 'bottom-right',
       });
       return;
@@ -64,9 +69,15 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
 
     await createNewCard(newCardData);
 
-    toggleOpenNewCardForm();
     setNewCardTitle('');
+    inputRef.current.focus(); // Keep the form open and set focus back to the input field
   };
+
+  useEffect(() => {
+    if (openNewCardForm) {
+      inputRef.current?.focus();
+    }
+  }, [openNewCardForm]);
 
   const {
     attributes,
@@ -81,7 +92,6 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
   });
 
   const dndKitColumnStyles = {
-    // touchAction: 'none',
     transform: CSS.Translate.toString(transform),
     transition,
     height: '100%',
@@ -101,7 +111,7 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
         handleDeleteColumn(column._id);
       })
       .catch(() => {
-        //
+        // Handle cancellation
       });
   };
 
@@ -350,6 +360,7 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
                   if (e.key === 'Enter') addNewCard();
                   if (e.key === 'Escape') toggleOpenNewCardForm();
                 }}
+                inputRef={inputRef}
                 data-no-dnd="true"
                 sx={{
                   '& label': {

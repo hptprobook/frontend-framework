@@ -53,7 +53,10 @@ export const inviteMember = createAsyncThunk(
   'workspaces/inviteMember',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await workspaceService.inviteMember(id, data);
+      const response = await workspaceService.inviteMemberToWorkspaceAPI(
+        id,
+        data
+      );
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

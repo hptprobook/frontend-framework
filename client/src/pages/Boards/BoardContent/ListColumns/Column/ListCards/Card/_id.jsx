@@ -24,7 +24,7 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import { convertHTMLToText } from '~/utils/formatters';
 import TextField from '@mui/material/TextField';
 import CommentIcon from '@mui/icons-material/Comment';
-import { useDispatch /* useSelector */, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   addComment,
   addTodo,
@@ -44,13 +44,13 @@ import MenuModal from '~/components/MenuModal';
 import CardAction from './CardAction';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { unwrapResult } from '@reduxjs/toolkit';
+
 export default function CardDetail({
   openModal,
   handleCloseModal,
   card,
   setCardTitle,
 }) {
-  console.log('🚀 ~ card:', card);
   const [desc, setDesc] = useState(card ? card.description : '');
   const [title, setTitle] = useState(card ? card.title : '');
   const [isEditingTitle, setEditingTitle] = useState(false);
@@ -60,7 +60,6 @@ export default function CardDetail({
   const dispatch = useDispatch();
   const [cardDetail, setCardDetail] = useState(card);
   const { current } = useSelector((state) => state.users);
-  const { cards } = useSelector((state) => state.cards);
   const [showAddChildForm, setShowAddChildForm] = useState(null);
   const [childText, setChildText] = useState('');
   const [isComment, setComment] = useState(false);
@@ -73,18 +72,14 @@ export default function CardDetail({
   }, [card._id, dispatch]);
 
   useEffect(() => {
-    setCardDetail(cards);
-  }, [cards]);
+    setCardDetail(card);
+  }, [card]);
+
   const handleSaveDesc = () => {
     setEditingDesc(false);
-    dispatch(
-      updateCardDetails({
-        id: card._id,
-        data: {
-          description: desc,
-        },
-      })
-    );
+    const updatedCard = { ...cardDetail, description: desc };
+    setCardDetail(updatedCard);
+    dispatch(updateCardDetails({ id: card._id, data: { description: desc } }));
     setInitialDesc(desc);
   };
 
@@ -96,21 +91,16 @@ export default function CardDetail({
   const handleSaveTitle = (e) => {
     if (e.key === 'Enter') {
       setEditingTitle(false);
-      setTitle(e.target.value);
+      const updatedCard = { ...cardDetail, title: e.target.value };
+      setCardDetail(updatedCard);
       dispatch(
-        updateCardDetails({
-          id: card._id,
-          data: {
-            title,
-          },
-        })
+        updateCardDetails({ id: card._id, data: { title: e.target.value } })
       );
-      setCardTitle(title);
+      setCardTitle(e.target.value);
     }
   };
 
   const handleCancelEditTitle = () => {
-    setDesc(initialDesc);
     setEditingTitle(false);
   };
 
@@ -125,7 +115,6 @@ export default function CardDetail({
       confirmationText: 'Confirm',
     }).then(() => {
       dispatch(deleteCardDetails({ id: card._id }));
-
       toast.success('Deleted card successfully!');
       handleCloseModal();
     });
@@ -143,6 +132,13 @@ export default function CardDetail({
 
   const handleAddTodo = async () => {
     setAddTodoMenu(null);
+    const newTodo = { text: todoTitle, childs: [] };
+    const updatedCard = {
+      ...cardDetail,
+      todos: [...cardDetail.todos, newTodo],
+    };
+    setCardDetail(updatedCard);
+
     const resultAction = await dispatch(
       addTodo({ id: card._id, data: { text: todoTitle } })
     );
@@ -151,7 +147,6 @@ export default function CardDetail({
       setTodoTitle('');
       handleAddChildFormOpen(result.todos[result.todos.length - 1]._id);
     }
-    dispatch(getDetails({ id: card._id }));
   };
 
   const handleKeyPress = (event) => {
@@ -170,11 +165,22 @@ export default function CardDetail({
 
   const addChildRef = useRef(null);
   const handleAddChild = (todoId) => {
+    const updatedCard = {
+      ...cardDetail,
+      todos: cardDetail.todos.map((todo) =>
+        todo._id === todoId
+          ? {
+              ...todo,
+              childs: [...todo.childs, { text: childText, done: false }],
+            }
+          : todo
+      ),
+    };
+    setCardDetail(updatedCard);
+
     dispatch(
       addTodoChild({ id: cardDetail._id, data: { text: childText, todoId } })
     );
-    dispatch(getDetails({ id: card._id }));
-    // handleAddChildFormClose();
     setChildText('');
     addChildRef.current.focus();
   };
@@ -187,7 +193,21 @@ export default function CardDetail({
     }
   };
 
-  const handleToggleTodoChild = () => {
+  const handleToggleTodoChild = (todoId, childId, done) => {
+    const updatedCard = {
+      ...cardDetail,
+      todos: cardDetail.todos.map((todo) =>
+        todo._id === todoId
+          ? {
+              ...todo,
+              childs: todo.childs.map((child) =>
+                child._id === childId ? { ...child, done: !done } : child
+              ),
+            }
+          : todo
+      ),
+    };
+    setCardDetail(updatedCard);
     dispatch(getDetails({ id: card._id }));
   };
 
@@ -204,8 +224,13 @@ export default function CardDetail({
       confirmationButtonProps: { color: 'error', variant: 'outlined' },
       confirmationText: 'Confirm',
     }).then(() => {
+      const updatedCard = {
+        ...cardDetail,
+        todos: cardDetail.todos.filter((todo) => todo._id !== todoId),
+      };
+      setCardDetail(updatedCard);
+
       dispatch(deleteTodo({ id: cardDetail._id, todoId }));
-      dispatch(getDetails({ id: card._id }));
       toast.success('Deleted todo successfully!');
     });
   };
@@ -217,25 +242,40 @@ export default function CardDetail({
       confirmationButtonProps: { color: 'error', variant: 'outlined' },
       confirmationText: 'Confirm',
     }).then(() => {
+      const updatedCard = {
+        ...cardDetail,
+        todos: cardDetail.todos.map((todo) =>
+          todo._id === todoId
+            ? {
+                ...todo,
+                childs: todo.childs.filter((child) => child._id !== childId),
+              }
+            : todo
+        ),
+      };
+      setCardDetail(updatedCard);
+
       dispatch(deleteTodoChild({ id: cardDetail._id, todoId, childId }));
-      dispatch(getDetails({ id: card._id }));
       toast.success('Deleted todo successfully!');
     });
   };
 
   const handleAddComment = () => {
-    dispatch(
-      addComment({
-        id: card._id,
-        data: {
-          content: commentContent,
-          userId: current._id,
-          userName: current.displayName,
-        },
-      })
-    );
-    dispatch(getDetails({ id: card._id }));
-    setCardDetail(card);
+    const newComment = {
+      content: commentContent,
+      userId: current._id,
+      userName: current.displayName,
+      createdAt: new Date().toISOString(),
+    };
+    const updatedCard = {
+      ...cardDetail,
+      comments: [...cardDetail.comments, newComment],
+    };
+    setCardDetail(updatedCard);
+
+    const { createdAt, ...commentWithoutCreatedAt } = newComment;
+
+    dispatch(addComment({ id: card._id, data: commentWithoutCreatedAt }));
     setComment(false);
     setCommentContent('');
   };
@@ -254,14 +294,7 @@ export default function CardDetail({
       open={openModal}
       onClose={handleCloseModal}
     >
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          px: 3,
-          pt: 3,
-        }}
-      >
+      <Grid container spacing={2} sx={{ px: 3, pt: 3 }}>
         <Grid item xs={1}>
           <CreditCardIcon />
         </Grid>
@@ -314,14 +347,7 @@ export default function CardDetail({
           <Button onClick={handleDeleteCard}>Delete</Button>
         </Grid>
       </Grid>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          px: 3,
-          pt: 3,
-        }}
-      >
+      <Grid container spacing={2} sx={{ px: 3, pt: 3 }}>
         <Grid item xs={1}>
           <ListIcon />
         </Grid>
@@ -340,17 +366,13 @@ export default function CardDetail({
               <ReactQuill
                 value={desc}
                 onChange={setDesc}
-                style={{
-                  marginBottom: '12px',
-                }}
+                style={{ marginBottom: '12px' }}
               />
               <Button
                 onClick={handleSaveDesc}
                 size="small"
                 variant="outlined"
-                sx={{
-                  mr: 1,
-                }}
+                sx={{ mr: 1 }}
               >
                 Save
               </Button>
@@ -405,13 +427,7 @@ export default function CardDetail({
             setAnchorEl={setAddTodoMenu}
             id={'add-todo'}
             menuChildren={
-              <Box
-                sx={{
-                  px: 3,
-                  py: 2,
-                  width: '240px',
-                }}
-              >
+              <Box sx={{ px: 3, py: 2, width: '240px' }}>
                 <Typography textAlign={'center'} gutterBottom>
                   Add todo list
                 </Typography>
@@ -420,9 +436,7 @@ export default function CardDetail({
                   label={'Enter todo title'}
                   autoFocus
                   required
-                  sx={{
-                    my: 2,
-                  }}
+                  sx={{ my: 2 }}
                   value={todoTitle}
                   onChange={(e) => setTodoTitle(e.target.value)}
                   onKeyUp={handleKeyPress}
@@ -481,10 +495,7 @@ export default function CardDetail({
                   }}
                 >
                   <Typography
-                    sx={{
-                      fontWeight: 'bold',
-                      fontSize: '18px !important',
-                    }}
+                    sx={{ fontWeight: 'bold', fontSize: '18px !important' }}
                   >
                     {todo.text}
                   </Typography>
@@ -492,9 +503,7 @@ export default function CardDetail({
                     onClick={() => handleDeleteTodo(todo._id)}
                     size="small"
                     variant="outlined"
-                    sx={{
-                      mr: 1,
-                    }}
+                    sx={{ mr: 1 }}
                   >
                     Delete
                   </Button>
@@ -532,11 +541,7 @@ export default function CardDetail({
                               handleDeleteTodoChild(todo._id, child._id);
                             }}
                           >
-                            <DeleteIcon
-                              sx={{
-                                fontSize: '22px',
-                              }}
-                            />
+                            <DeleteIcon sx={{ fontSize: '22px' }} />
                           </IconButton>
                         </Box>
                       ))
@@ -590,54 +595,25 @@ export default function CardDetail({
             </Grid>
           ))
         : ''}
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          px: 3,
-          pt: 3,
-        }}
-      >
+      <Grid container spacing={2} sx={{ px: 3, pt: 3 }}>
         <Grid item xs={1}>
           <CommentIcon />
         </Grid>
         <Grid item xs={8}>
-          <Typography
-            sx={{
-              fontWeight: 'bold',
-              fontSize: '18px !important',
-            }}
-          >
+          <Typography sx={{ fontWeight: 'bold', fontSize: '18px !important' }}>
             Comments
           </Typography>
         </Grid>
         <Grid item xs={3}></Grid>
       </Grid>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          px: 3,
-          pt: 3,
-        }}
-      >
+      <Grid container spacing={2} sx={{ px: 3, pt: 3 }}>
         <Grid item xs={1}></Grid>
         <Grid item xs={8}>
           {cardDetail?.comments
             ? cardDetail?.comments.map((comment) => (
                 <>
-                  <Box
-                    sx={{
-                      my: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2,
-                      }}
-                    >
+                  <Box sx={{ my: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Avatar
                         sx={{
                           width: '30px',
@@ -721,18 +697,8 @@ export default function CardDetail({
                 </>
               ))
             : ''}
-          <Box
-            sx={{
-              mt: 1,
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-              }}
-            >
+          <Box sx={{ mt: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Avatar
                 sx={{
                   width: '30px',
@@ -759,26 +725,17 @@ export default function CardDetail({
                   <Typography>Viết bình luận ...</Typography>
                 </Box>
               ) : (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <ReactQuill
                     value={commentContent}
                     onChange={setCommentContent}
-                    style={{
-                      marginBottom: '12px',
-                    }}
+                    style={{ marginBottom: '12px' }}
                   />
                   <Box>
                     <Button
                       size="small"
                       variant="outlined"
-                      sx={{
-                        mr: 1,
-                      }}
+                      sx={{ mr: 1 }}
                       onClick={handleAddComment}
                     >
                       Save
