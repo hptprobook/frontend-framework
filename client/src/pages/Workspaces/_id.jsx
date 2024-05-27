@@ -53,7 +53,6 @@ export default function WorkspaceDetail() {
   const [openModal, setOpenModal] = useState(false);
   const [workspaceIdActive, setWorkspaceIdActive] = useState(null);
   const [openInviteDialog, setOpenInviteDialog] = useState(false);
-  const [inviteResult, setInviteResult] = useState(null);
   const confirmDeleteWorkspace = useConfirm();
   const [isEditWorkspace, setEditWorkspace] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -454,7 +453,6 @@ export default function WorkspaceDetail() {
       <InviteToWorkspaceDialog
         open={openInviteDialog}
         onClose={() => setOpenInviteDialog(false)}
-        result={inviteResult}
         onInvite={handleInvite}
       />
     </React.Fragment>

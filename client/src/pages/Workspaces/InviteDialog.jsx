@@ -12,17 +12,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { findUser } from '~/redux/slices/userSlice';
 import { unwrapResult } from '@reduxjs/toolkit';
 
-export default function InviteToWorkspaceDialog({
-  open,
-  onClose,
-  result,
-  onInvite,
-}) {
+export default function InviteToWorkspaceDialog({ open, onClose, onInvite }) {
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [searchResult, setSearchResult] = useState(null);
