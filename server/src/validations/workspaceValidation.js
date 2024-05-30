@@ -46,6 +46,7 @@ const update = async (req, res, next) => {
 const inviteMember = async (req, res, next) => {
   const correctCondition = Joi.object({
     userId: Joi.string().required(),
+    targetId: Joi.string().required(),
   });
 
   try {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Avatar, Box } from '@mui/material';
+import { Avatar, Box, Divider, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -45,7 +45,15 @@ function Workspaces({ workspaces }) {
           'aria-labelledby': 'basic-button-workspaces',
         }}
       >
-        {workspaces?.map((workspace) => (
+        <Typography
+          sx={{
+            mx: 2,
+            my: 1,
+          }}
+        >
+          Your workspace
+        </Typography>
+        {workspaces?.created?.map((workspace) => (
           <React.Fragment key={workspace._id}>
             <NavLink to={`/w/${workspace._id}`}>
               <MenuItem onClick={handleClose}>
@@ -72,6 +80,47 @@ function Workspaces({ workspaces }) {
               </MenuItem>
             </NavLink>
           </React.Fragment>
+        ))}
+        <Divider
+          sx={{
+            m: 1,
+          }}
+        />
+        <Typography
+          sx={{
+            mx: 2,
+            my: 1,
+          }}
+        >
+          Client workspace
+        </Typography>
+        {workspaces?.clienter?.map((workspace) => (
+          <Box key={workspace._id}>
+            <NavLink to={`/w/${workspace._id}`}>
+              <MenuItem onClick={handleClose}>
+                <ListItemIcon>
+                  <Avatar
+                    sx={{
+                      width: '28px',
+                      height: '28px',
+                      bgcolor: getRandomColor(),
+                      fontSize: '12px',
+                      color: '#fff',
+                    }}
+                  >
+                    {workspace?.title[0]}
+                  </Avatar>
+                </ListItemIcon>
+                <ListItemText
+                  sx={{
+                    color: '#333',
+                  }}
+                >
+                  {workspace?.title}
+                </ListItemText>
+              </MenuItem>
+            </NavLink>
+          </Box>
         ))}
       </Menu>
     </Box>

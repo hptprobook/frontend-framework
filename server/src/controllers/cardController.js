@@ -89,9 +89,24 @@ const updateTodoChild = async (req, res, next) => {
   }
 };
 
+// const addComment = async (req, res, next) => {
+//   console.log('post comment');
+//   try {
+//     const addedComment = await cardService.addComment(req.params.id, req.body);
+
+//     res.status(StatusCodes.OK).json(addedComment);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 const addComment = async (req, res, next) => {
   try {
     const addedComment = await cardService.addComment(req.params.id, req.body);
+
+    if (addedComment) {
+      req.io.emit('comment', addedComment);
+    }
 
     res.status(StatusCodes.OK).json(addedComment);
   } catch (error) {

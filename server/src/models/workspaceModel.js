@@ -6,6 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '~/utils/ApiError';
 import { boardModel } from './boardModel';
 import { BOARD_TYPES } from '~/utils/constants';
+import { userModal } from './userModal';
 // import { userModal } from './userModal';
 
 // Define collection
@@ -42,7 +43,7 @@ const validateBeforeCreate = async (data) => {
 
 const getAll = async (userId) => {
   try {
-    const results = await GET_DB()
+    const creatorResults = await GET_DB()
       .collection(WORKSPACE_COLLECTION_NAME)
       .aggregate([
         {
@@ -80,7 +81,48 @@ const getAll = async (userId) => {
       ])
       .toArray();
 
-    return results || [];
+    const memberResults = await GET_DB()
+      .collection(WORKSPACE_COLLECTION_NAME)
+      .aggregate([
+        {
+          $match: {
+            members: { $elemMatch: { memberId: userId, rule: 'member' } },
+            _destroy: false,
+          },
+        },
+        {
+          $lookup: {
+            from: boardModel.BOARD_COLLECTION_NAME,
+            localField: 'boardIds',
+            foreignField: '_id',
+            as: 'boards',
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            boardIds: 1,
+            members: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            _destroy: 1,
+            boards: {
+              $map: {
+                input: '$boards',
+                as: 'board',
+                in: { _id: '$$board._id', title: '$$board.title' },
+              },
+            },
+          },
+        },
+      ])
+      .toArray();
+
+    return {
+      created: creatorResults || [],
+      clienter: memberResults || [],
+    };
   } catch (error) {
     throw new Error(error);
   }
@@ -180,13 +222,26 @@ const update = async (id, data) => {
   }
 };
 
-const inviteMember = async (workspaceId, userId) => {
+const inviteMember = async (workspaceId, userId, targetId) => {
   try {
+    const workspace = await GET_DB()
+      .collection(WORKSPACE_COLLECTION_NAME)
+      .findOne({ _id: new ObjectId(workspaceId) });
+
+    const inviter = await userModal.findOneById(userId);
+
+    await userModal.addNotify(targetId, {
+      title: 'You have been added to a workspace!',
+      content: `You have been added to a workspace ${workspace.title} by ${inviter.displayName}. Click to see details`,
+      seen: false,
+      workspaceId,
+    });
+
     return await GET_DB()
       .collection(WORKSPACE_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(workspaceId) },
-        { $push: { members: { memberId: userId, rule: 'member' } } },
+        { $push: { members: { memberId: targetId, rule: 'member' } } },
         { returnDocument: 'after' }
       );
   } catch (error) {

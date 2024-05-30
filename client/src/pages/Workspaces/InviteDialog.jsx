@@ -37,7 +37,7 @@ export default function InviteToWorkspaceDialog({ open, onClose, onInvite }) {
 
   const handleInvite = () => {
     if (searchResult) {
-      onInvite(searchResult.email);
+      onInvite(searchResult);
     }
   };
 

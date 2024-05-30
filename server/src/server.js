@@ -8,17 +8,37 @@ import { APIs_V1 } from '~/routes/v1';
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
 import { corsOptions } from './config/cors';
 import http from 'http';
-import socketConfig from './sockets/notifySocket';
+import { Server } from 'socket.io';
 
 const START_SERVER = () => {
   const app = express();
 
   const server = http.createServer(app);
-  socketConfig(server);
+  const io = new Server(server, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type'],
+      credentials: true,
+    },
+  });
+
+  io.on('connection', (socket) => {
+    console.log('A user connected!');
+
+    socket.on('disconnect', () => {
+      console.log('A user disconnected!');
+    });
+  });
 
   app.use(cors(corsOptions));
 
   app.use(express.json());
+
+  app.use((req, res, next) => {
+    req.io = io;
+    next();
+  });
 
   // Use APIs v1
   app.use('/v1', APIs_V1);
@@ -27,11 +47,11 @@ const START_SERVER = () => {
   app.use(errorHandlingMiddleware);
 
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log(`Server is running at ${process.env.PORT}`);
     });
   } else {
-    app.listen(env.APP_PORT, env.APP_HOST, () => {
+    server.listen(env.APP_PORT, env.APP_HOST, () => {
       console.log(
         `Server is running at http://${env.APP_HOST}:${env.APP_PORT}/`
       );

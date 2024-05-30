@@ -117,10 +117,10 @@ export default function WorkspaceDetail() {
     setFilter(event.target.value);
   };
 
-  const handleInvite = async () => {
+  const handleInvite = async (data) => {
     try {
       const resultAction = await dispatch(
-        inviteMember({ id, data: { userId: current._id } })
+        inviteMember({ id, data: { userId: current._id, targetId: data._id } })
       );
       const result = unwrapResult(resultAction);
       if (result) {

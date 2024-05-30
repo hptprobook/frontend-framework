@@ -43,6 +43,8 @@ function AppBar() {
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const { workspaces } = useSelector((state) => state.workspaces);
+  const hasUnseenNotifies =
+    current?.notifies && current?.notifies.some((notify) => !notify.seen);
 
   useEffect(() => {
     dispatch(getAllWorkspace());
@@ -64,11 +66,12 @@ function AppBar() {
     setAnchorEl(null);
   };
 
-  const handleReadNotify = (id, boardId) => {
+  const handleReadNotify = (id, boardId, workspaceId) => {
     setAnchorEl(null);
     dispatch(readNotify({ notifyId: id }));
     dispatch(getCurrent());
-    navigate(`/boards/${boardId}`);
+    if (boardId) navigate(`/boards/${boardId}`);
+    if (workspaceId) navigate(`/w/${workspaceId}`);
   };
 
   return (
@@ -202,13 +205,21 @@ function AppBar() {
         />
         <ModeSelect />
         <IconButton onClick={handleClick} sx={{ cursor: 'pointer' }}>
-          <Badge color="warning" variant="dot" sx={{ cursor: 'pointer' }}>
+          {hasUnseenNotifies ? (
+            <Badge color="warning" variant="dot" sx={{ cursor: 'pointer' }}>
+              <NotificationsNoneIcon
+                sx={{
+                  color: '#fff',
+                }}
+              />
+            </Badge>
+          ) : (
             <NotificationsNoneIcon
               sx={{
                 color: '#fff',
               }}
             />
-          </Badge>
+          )}
         </IconButton>
         <Popover
           id={id}
@@ -239,7 +250,13 @@ function AppBar() {
                       },
                     }}
                     button
-                    onClick={() => handleReadNotify(notify._id, notify.boardId)}
+                    onClick={() =>
+                      handleReadNotify(
+                        notify._id,
+                        notify?.boardId,
+                        notify?.workspaceId
+                      )
+                    }
                   >
                     <ListItemIcon>
                       {!notify.seen && (
@@ -263,7 +280,14 @@ function AppBar() {
                 </React.Fragment>
               ))
             ) : (
-              <Typography>No notifications</Typography>
+              <Typography
+                sx={{
+                  px: 10,
+                  py: 1,
+                }}
+              >
+                No notifications
+              </Typography>
             )}
           </List>
         </Popover>

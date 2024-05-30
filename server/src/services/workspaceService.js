@@ -72,7 +72,11 @@ const inviteMember = async (workspaceId, reqBody) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!');
     }
 
-    return await workspaceModel.inviteMember(workspaceId, reqBody.userId);
+    return await workspaceModel.inviteMember(
+      workspaceId,
+      reqBody.userId,
+      reqBody.targetId
+    );
   } catch (error) {
     throw error;
   }
