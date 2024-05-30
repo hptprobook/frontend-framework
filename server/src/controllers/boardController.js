@@ -48,6 +48,8 @@ const update = async (req, res, next) => {
   try {
     const updatedBoard = await boardService.update(req.params.id, req.body);
 
+    if (updatedBoard) req.io.emit('moveColumn', updatedBoard);
+
     res.status(StatusCodes.OK).json(updatedBoard);
   } catch (error) {
     next(error);

@@ -289,6 +289,7 @@ export default function CardDetail({
     };
     setCardDetail(updatedCard);
 
+    // eslint-disable-next-line no-unused-vars
     const { createdAt, ...commentWithoutCreatedAt } = newComment;
 
     dispatch(addComment({ id: card._id, data: commentWithoutCreatedAt }));
