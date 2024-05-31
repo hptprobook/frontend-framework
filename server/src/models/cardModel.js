@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb';
 
 const todoSchema = Joi.object({
   text: Joi.string().required(),
+  childOrderIds: Joi.array().default([]),
   childs: Joi.array()
     .items(
       Joi.object({
@@ -26,10 +27,12 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
     .required()
     .pattern(OBJECT_ID_RULE)
     .message(OBJECT_ID_RULE_MESSAGE),
-
   title: Joi.string().required().min(3).max(50).trim().strict(),
   description: Joi.string().optional(),
   todos: Joi.array().items(todoSchema).default([]),
+  todoOrderIds: Joi.array()
+    .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
+    .default([]),
   imgCover: Joi.string().default(null),
   members: Joi.array().items(Joi.string()).default([]),
   attachments: Joi.array().items(Joi.string()).default([]),
@@ -157,13 +160,21 @@ const addTodo = async (cardId, todoData) => {
         `Validation error: ${error.details.map((x) => x.message).join(', ')}`
       );
 
-    return await GET_DB()
+    const newTodoId = new ObjectId();
+    const result = await GET_DB()
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(cardId) },
-        { $push: { todos: { ...value, _id: new ObjectId() } } },
+        {
+          $push: {
+            todos: { ...value, _id: newTodoId },
+            todoOrderIds: newTodoId,
+          },
+        },
         { returnDocument: 'after' }
       );
+
+    return result.value;
   } catch (error) {
     throw new Error(error);
   }
@@ -187,17 +198,15 @@ const addTodoChild = async (cardId, childData) => {
       );
     }
 
+    const newChildId = new ObjectId();
     await GET_DB()
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(cardId), 'todos._id': new ObjectId(value.todoId) },
         {
           $push: {
-            'todos.$.childs': {
-              ...value,
-              _id: new ObjectId(),
-              done: value.done || false,
-            },
+            'todos.$.childs': { ...value, _id: newChildId },
+            'todos.$.childOrderIds': newChildId,
           },
         },
         { returnDocument: 'after' }
@@ -325,11 +334,15 @@ const deleteTodo = async (cardId, todoId) => {
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(cardId) },
-        { $pull: { todos: { _id: new ObjectId(todoId) } } },
+        {
+          $pull: {
+            todos: { _id: new ObjectId(todoId) },
+            todoOrderIds: new ObjectId(todoId),
+          },
+        },
         { returnDocument: 'after' }
       );
-
-    if (!result) throw new Error(`Todo not found in card ${cardId}`);
+    if (!result.value) throw new Error(`Todo not found in card ${cardId}`);
     return result.value;
   } catch (error) {
     throw new Error(error);
@@ -342,11 +355,15 @@ const deleteTodoChild = async (cardId, todoId, childId) => {
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(cardId), 'todos._id': new ObjectId(todoId) },
-        { $pull: { 'todos.$.childs': { _id: new ObjectId(childId) } } },
+        {
+          $pull: {
+            'todos.$.childs': { _id: new ObjectId(childId) },
+            'todos.$.childOrderIds': new ObjectId(childId),
+          },
+        },
         { returnDocument: 'after' }
       );
-
-    if (!result) throw new Error(`Child not found in todo ${todoId}`);
+    if (!result.value) throw new Error(`Child not found in todo ${todoId}`);
     return result.value;
   } catch (error) {
     throw new Error(error);

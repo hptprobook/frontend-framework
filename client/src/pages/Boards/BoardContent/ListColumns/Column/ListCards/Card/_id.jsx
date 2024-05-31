@@ -67,16 +67,7 @@ export default function CardDetail({
   const [childText, setChildText] = useState('');
   const [isComment, setComment] = useState(false);
   const [commentContent, setCommentContent] = useState('');
-
-  // useEffect(() => {
-  //   if (card._id) {
-  //     dispatch(getDetails({ id: card._id }));
-  //   }
-  // }, [card._id, dispatch]);
-
-  // useEffect(() => {
-  //   setCardDetail(card);
-  // }, [card]);
+  const [replyCommentId, setReplyCommentId] = useState(null); // New state for reply comment
 
   useEffect(() => {
     socket.on('comment', (newComment) => {
@@ -121,19 +112,6 @@ export default function CardDetail({
   const handleCancelEditTitle = () => {
     setEditingTitle(false);
   };
-
-  // const handleDeleteCard = () => {
-  //   confirmDeleteCard({
-  //     title: 'Delete Card?',
-  //     description:
-  //       'Are you sure you want to delete this card? This action will delete the currently selected card',
-  //     confirmationButtonProps: { color: 'error', variant: 'outlined' },
-  //     confirmationText: 'Confirm',
-  //   }).then(() => {
-  //     dispatch(deleteCardDetails({ id: card._id }));
-  //     toast.success('Deleted card successfully!');
-  //   });
-  // };
 
   const [addMemberMenu, setAddMemberMenu] = useState(null);
   const handleAddMemberClick = (event) => {
@@ -288,11 +266,11 @@ export default function CardDetail({
     };
     setCardDetail(updatedCard);
 
-    // eslint-disable-next-line no-unused-vars
     const { createdAt, ...commentWithoutCreatedAt } = newComment;
 
     dispatch(addComment({ id: card._id, data: commentWithoutCreatedAt }));
     setComment(false);
+    setReplyCommentId(null); // Reset reply comment ID
     setCommentContent('');
   };
 
@@ -648,7 +626,7 @@ export default function CardDetail({
                             bgcolor: 'red',
                           }}
                         >
-                          H
+                          {comment?.userName.charAt(0)}
                         </Avatar>
                         <Typography variant="body2">
                           {comment?.userName}
@@ -685,6 +663,10 @@ export default function CardDetail({
                             textDecoration: 'underline',
                             cursor: 'pointer',
                           }}
+                          onClick={() => {
+                            setReplyCommentId(comment._id);
+                            setComment(false);
+                          }}
                         >
                           React
                         </Typography>
@@ -695,31 +677,127 @@ export default function CardDetail({
                             textDecoration: 'underline',
                             cursor: 'pointer',
                           }}
+                          onClick={() => {
+                            setReplyCommentId(comment._id);
+                            setComment(false);
+                          }}
                         >
                           Reply
                         </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '12px !important',
-                            color: 'blue',
-                            textDecoration: 'underline',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Edit
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '12px !important',
-                            color: 'blue',
-                            textDecoration: 'underline',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Delete
-                        </Typography>
                       </Box>
                     </Box>
+                    {comment.replies?.map((reply) => (
+                      <Box
+                        key={reply._id}
+                        sx={{
+                          ml: 6,
+                        }}
+                      >
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: '30px',
+                              height: '30px',
+                              fontSize: '14px',
+                              bgcolor: 'red',
+                            }}
+                          >
+                            {reply?.userName.charAt(0)}
+                          </Avatar>
+                          <Typography variant="body2">
+                            {reply?.userName}
+                          </Typography>
+                          <Typography variant="caption">
+                            {formatTimestamp(reply?.createdAt)}
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            mt: 1,
+                            py: 2,
+                            px: 3,
+                            borderRadius: '8px',
+                            border: '1px solid #e4e6ea',
+                            bgcolor: '#f0f0f0',
+                          }}
+                        >
+                          <Box
+                            dangerouslySetInnerHTML={{ __html: reply?.content }}
+                          />
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            mt: 0.5,
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: '12px !important',
+                              color: 'blue',
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => {
+                              setReplyCommentId(comment._id);
+                              setComment(false);
+                            }}
+                          >
+                            React
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+
+                    {replyCommentId === comment._id && (
+                      <Box sx={{ mt: 1, ml: 9 }}>
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: '30px',
+                              height: '30px',
+                              fontSize: '16px',
+                              bgcolor: 'red',
+                            }}
+                          >
+                            You
+                          </Avatar>
+
+                          <Box
+                            sx={{ display: 'flex', flexDirection: 'column' }}
+                          >
+                            <ReactQuill
+                              value={commentContent}
+                              onChange={setCommentContent}
+                              style={{ marginBottom: '12px' }}
+                            />
+                            <Box>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                sx={{ mr: 1 }}
+                                onClick={handleAddComment}
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => setReplyCommentId(null)}
+                              >
+                                Cancel
+                              </Button>
+                            </Box>
+                          </Box>
+                        </Box>
+                      </Box>
+                    )}
                   </React.Fragment>
                 ))
               : ''}
@@ -746,9 +824,12 @@ export default function CardDetail({
                       cursor: 'pointer',
                       width: '100%',
                     }}
-                    onClick={() => setComment(true)}
+                    onClick={() => {
+                      setComment(true);
+                      setReplyCommentId(null); // Reset reply comment ID
+                    }}
                   >
-                    <Typography>Viết bình luận ...</Typography>
+                    <Typography>Type comment here ...</Typography>
                   </Box>
                 ) : (
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
