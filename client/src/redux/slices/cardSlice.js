@@ -67,6 +67,17 @@ export const addComment = createAsyncThunk(
   }
 );
 
+export const replyComment = createAsyncThunk(
+  'card/replyComment',
+  async ({ id, commentId, data }, { rejectWithValue }) => {
+    try {
+      return await cardServices.replyComment(id, commentId, data);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const deleteCardDetails = createAsyncThunk(
   'card/delete',
   async ({ id }, { rejectWithValue }) => {

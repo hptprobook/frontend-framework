@@ -124,6 +124,10 @@ const replyComment = async (req, res, next) => {
       req.body
     );
 
+    if (comment) {
+      req.io.emit('replyComment', comment);
+    }
+
     res.status(StatusCodes.OK).json(comment);
   } catch (error) {
     next(error);

@@ -32,6 +32,7 @@ import {
   deleteTodo,
   deleteTodoChild,
   getDetails,
+  replyComment,
   updateCardDetails,
 } from '~/redux/slices/cardSlice';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -45,6 +46,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { unwrapResult } from '@reduxjs/toolkit';
 import socket from '~/socket/socket';
 import { Link } from 'react-router-dom';
+import EmojiPicker from 'emoji-picker-react';
 
 export default function CardDetail({
   openModal,
@@ -67,7 +69,15 @@ export default function CardDetail({
   const [childText, setChildText] = useState('');
   const [isComment, setComment] = useState(false);
   const [commentContent, setCommentContent] = useState('');
-  const [replyCommentId, setReplyCommentId] = useState(null); // New state for reply comment
+  const [replyCommentId, setReplyCommentId] = useState(null);
+  const [addMemberMenu, setAddMemberMenu] = useState(null);
+  const [addTodoMenu, setAddTodoMenu] = useState(null);
+  const addChildRef = useRef(null);
+  const [openEmoji, setOpenEmoji] = useState(false);
+  const confirmDeleteTodo = useConfirm();
+  const confirmDeleteTodoChild = useConfirm();
+
+  const [replyCommentContent, setReplyCommentContent] = useState('');
 
   useEffect(() => {
     socket.on('comment', (newComment) => {
@@ -79,8 +89,13 @@ export default function CardDetail({
       }
     });
 
+    socket.on('replyComment', (newReplyComment) => {
+      setCardDetail(newReplyComment);
+    });
+
     return () => {
       socket.off('comment');
+      socket.off('replyComment');
     };
   }, [card._id]);
 
@@ -113,12 +128,10 @@ export default function CardDetail({
     setEditingTitle(false);
   };
 
-  const [addMemberMenu, setAddMemberMenu] = useState(null);
   const handleAddMemberClick = (event) => {
     setAddMemberMenu(event.currentTarget);
   };
 
-  const [addTodoMenu, setAddTodoMenu] = useState(null);
   const handleAddTodoClick = (event) => {
     setAddTodoMenu(event.currentTarget);
   };
@@ -156,7 +169,6 @@ export default function CardDetail({
     setShowAddChildForm(null);
   };
 
-  const addChildRef = useRef(null);
   const handleAddChild = (todoId) => {
     const updatedCard = {
       ...cardDetail,
@@ -208,8 +220,6 @@ export default function CardDetail({
     return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
   };
 
-  const confirmDeleteTodo = useConfirm();
-  const confirmDeleteTodoChild = useConfirm();
   const handleDeleteTodo = (todoId) => {
     confirmDeleteTodoChild({
       title: 'Delete Todo?',
@@ -266,12 +276,48 @@ export default function CardDetail({
     };
     setCardDetail(updatedCard);
 
+    // eslint-disable-next-line no-unused-vars
     const { createdAt, ...commentWithoutCreatedAt } = newComment;
 
     dispatch(addComment({ id: card._id, data: commentWithoutCreatedAt }));
     setComment(false);
     setReplyCommentId(null); // Reset reply comment ID
     setCommentContent('');
+  };
+
+  const handleReplyComment = () => {
+    const newReplyComment = {
+      content: replyCommentContent,
+      userId: current._id,
+      userName: current.displayName,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedCard = {
+      ...cardDetail,
+      comments: cardDetail.comments.map((comment) =>
+        comment._id === replyCommentId
+          ? {
+              ...comment,
+              replies: [...comment.replies, newReplyComment],
+            }
+          : comment
+      ),
+    };
+
+    // eslint-disable-next-line no-unused-vars
+    const { createdAt, ...replyWithoutCreatedAt } = newReplyComment;
+    dispatch(
+      replyComment({
+        id: card._id,
+        commentId: replyCommentId,
+        data: replyWithoutCreatedAt,
+      })
+    );
+
+    setCardDetail(updatedCard);
+    setReplyCommentId(null);
+    setReplyCommentContent('');
   };
 
   return (
@@ -638,15 +684,14 @@ export default function CardDetail({
                       <Box
                         sx={{
                           mt: 1,
+                          py: 2,
                           px: 3,
                           borderRadius: '8px',
                           border: '1px solid #e4e6ea',
-                          bgcolor: '#e4e6ea',
+                          bgcolor: '#f0f0f0',
                         }}
                       >
-                        <Box
-                          dangerouslySetInnerHTML={{ __html: comment?.content }}
-                        />
+                        <Box>{convertHTMLToText(comment?.content)}</Box>
                       </Box>
                       <Box
                         sx={{
@@ -656,20 +701,42 @@ export default function CardDetail({
                           mt: 0.5,
                         }}
                       >
-                        <Typography
+                        <Box
                           sx={{
                             fontSize: '12px !important',
                             color: 'blue',
                             textDecoration: 'underline',
                             cursor: 'pointer',
+                            position: 'relative',
                           }}
-                          onClick={() => {
-                            setReplyCommentId(comment._id);
-                            setComment(false);
-                          }}
+                          onMouseEnter={() => setOpenEmoji(true)}
+                          onMouseLeave={() => setOpenEmoji(false)}
                         >
+                          {openEmoji && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: '-60px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                              }}
+                            >
+                              <EmojiPicker
+                                reactionsDefaultOpen={true}
+                                emojiStyle="facebook"
+                                allowExpandReactions={false}
+                                reactions={[
+                                  '1f44d',
+                                  '2764-fe0f',
+                                  '1f603',
+                                  '1f622',
+                                  '1f621',
+                                ]}
+                              />
+                            </Box>
+                          )}
                           React
-                        </Typography>
+                        </Box>
                         <Typography
                           sx={{
                             fontSize: '12px !important',
@@ -691,6 +758,7 @@ export default function CardDetail({
                         key={reply._id}
                         sx={{
                           ml: 6,
+                          mt: 1,
                         }}
                       >
                         <Box
@@ -723,9 +791,7 @@ export default function CardDetail({
                             bgcolor: '#f0f0f0',
                           }}
                         >
-                          <Box
-                            dangerouslySetInnerHTML={{ __html: reply?.content }}
-                          />
+                          <Box>{convertHTMLToText(reply?.content)}</Box>
                         </Box>
                         <Box
                           sx={{
@@ -773,8 +839,8 @@ export default function CardDetail({
                             sx={{ display: 'flex', flexDirection: 'column' }}
                           >
                             <ReactQuill
-                              value={commentContent}
-                              onChange={setCommentContent}
+                              value={replyCommentContent}
+                              onChange={setReplyCommentContent}
                               style={{ marginBottom: '12px' }}
                             />
                             <Box>
@@ -782,7 +848,7 @@ export default function CardDetail({
                                 size="small"
                                 variant="outlined"
                                 sx={{ mr: 1 }}
-                                onClick={handleAddComment}
+                                onClick={handleReplyComment}
                               >
                                 Save
                               </Button>
