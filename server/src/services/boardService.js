@@ -97,7 +97,15 @@ const moveCardDifferentColumn = async (reqBody) => {
       columnId: reqBody.nextColumnId,
     });
 
-    return { updateResult: 'success' };
+    const result = {
+      updateResult: 'success',
+      currentCardId: reqBody.currentCardId,
+      prevColumnId: reqBody.prevColumnId,
+      nextColumnId: reqBody.nextColumnId,
+      dndOrderedColumns: reqBody.dndOrderedColumns,
+    };
+
+    return result;
   } catch (error) {
     throw error;
   }

@@ -5,7 +5,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-function ListCards({ cards }) {
+function ListCards({ cards, columnName, handleDeleteCard }) {
   return (
     <SortableContext
       items={cards?.map((c) => c._id)}
@@ -39,7 +39,12 @@ function ListCards({ cards }) {
         }}
       >
         {cards.map((card) => (
-          <Card key={card?._id} card={card} />
+          <Card
+            key={card?._id}
+            card={card}
+            columnName={columnName}
+            handleDeleteCard={handleDeleteCard}
+          />
         ))}
       </Box>
     </SortableContext>

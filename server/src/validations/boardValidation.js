@@ -76,6 +76,7 @@ const moveCardDifferentColumn = async (req, res, next) => {
       .items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
       ),
+    dndOrderedColumns: Joi.array().required(),
   });
 
   try {

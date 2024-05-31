@@ -17,6 +17,8 @@ const update = async (req, res, next) => {
   try {
     const updatedColumn = await columnService.update(req.params.id, req.body);
 
+    if (updatedColumn) req.io.emit('moveCardSameColumn', updatedColumn);
+
     res.status(StatusCodes.OK).json(updatedColumn);
   } catch (error) {
     next(error);
@@ -26,6 +28,8 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   try {
     const result = await columnService.remove(req.params.id);
+
+    if (result) req.io.emit('deleteColumn', result.columnId);
 
     res.status(StatusCodes.OK).json(result);
   } catch (error) {

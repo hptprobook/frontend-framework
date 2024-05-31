@@ -175,6 +175,7 @@ const update = async (boardId, updateData) => {
         (_id) => new ObjectId(_id)
       );
     }
+
     if (updateData.ownerIds) {
       const uniqueOwnerIds = new Set(updateData.ownerIds);
       if (uniqueOwnerIds.size !== updateData.ownerIds.length) {

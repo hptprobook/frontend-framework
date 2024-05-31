@@ -14,6 +14,7 @@ function ListColums({
   createNewColumn,
   createNewCard,
   handleDeleteColumn,
+  handleDeleteCard,
 }) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState('');
@@ -75,6 +76,7 @@ function ListColums({
             column={column}
             createNewCard={createNewCard}
             handleDeleteColumn={handleDeleteColumn}
+            handleDeleteCard={handleDeleteCard}
           />
         ))}
 

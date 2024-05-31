@@ -29,7 +29,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import ListCards from './ListCards/ListCards';
 import { updateColumnDetails } from '~/redux/slices/columnSlice';
 
-function Column({ column, createNewCard, handleDeleteColumn }) {
+function Column({
+  column,
+  createNewCard,
+  handleDeleteColumn,
+  handleDeleteCard,
+}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -295,7 +300,11 @@ function Column({ column, createNewCard, handleDeleteColumn }) {
         </Box>
 
         {/* List Cards */}
-        <ListCards cards={orderedCards} />
+        <ListCards
+          cards={orderedCards}
+          handleDeleteCard={handleDeleteCard}
+          columnName={column?.title}
+        />
 
         {/* Box Column Footer */}
         <Box

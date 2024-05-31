@@ -23,6 +23,17 @@ export const getAllBoards = createAsyncThunk(
   }
 );
 
+export const getBoardDetails = createAsyncThunk(
+  'board/getDetails',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      return await boardServices.getBoardDetailAPI(id);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const getOtherBoards = createAsyncThunk(
   'board/getOther',
   async (_, { rejectWithValue }) => {
@@ -61,6 +72,7 @@ const boardSlices = createSlice({
   initialState: {
     boards: null,
     otherBoards: [],
+    boardDetail: null,
     newBoard: null,
     updatedBoard: null,
     isDeleted: false,
@@ -93,6 +105,19 @@ const boardSlices = createSlice({
         state.boards = action.payload;
       })
       .addCase(getAllBoards.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(getBoardDetails.pending, (state) => {
+        state.isLoading = true;
+        state.error = false;
+      })
+      .addCase(getBoardDetails.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = false;
+        state.boardDetail = action.payload;
+      })
+      .addCase(getBoardDetails.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useState } from 'react';
 import CardDetail from './_id';
 
-function Card({ card }) {
+function Card({ card, columnName, handleDeleteCard }) {
   const [openModal, setOpenModal] = useState(false);
   const [cardTitle, setCardTitle] = useState(card ? card.title : '');
 
@@ -111,9 +111,11 @@ function Card({ card }) {
       </MuiCard>
       <CardDetail
         card={card}
+        columnName={columnName}
         handleCloseModal={handleCloseModal}
         openModal={openModal}
         setCardTitle={setCardTitle}
+        handleDeleteCard={handleDeleteCard}
       />
     </>
   );

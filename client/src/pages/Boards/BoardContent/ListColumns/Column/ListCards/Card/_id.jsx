@@ -29,7 +29,6 @@ import {
   addComment,
   addTodo,
   addTodoChild,
-  deleteCardDetails,
   deleteTodo,
   deleteTodoChild,
   getDetails,
@@ -45,12 +44,15 @@ import CardAction from './CardAction';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { unwrapResult } from '@reduxjs/toolkit';
 import socket from '~/socket/socket';
+import { Link } from 'react-router-dom';
 
 export default function CardDetail({
   openModal,
   handleCloseModal,
   card,
+  columnName,
   setCardTitle,
+  handleDeleteCard,
 }) {
   const [desc, setDesc] = useState(card ? card.description : '');
   const [title, setTitle] = useState(card ? card.title : '');
@@ -120,21 +122,18 @@ export default function CardDetail({
     setEditingTitle(false);
   };
 
-  const confirmDeleteCard = useConfirm();
-
-  const handleDeleteCard = () => {
-    confirmDeleteCard({
-      title: 'Delete Card?',
-      description:
-        'Are you sure you want to delete this card? This action will delete the currently selected card',
-      confirmationButtonProps: { color: 'error', variant: 'outlined' },
-      confirmationText: 'Confirm',
-    }).then(() => {
-      dispatch(deleteCardDetails({ id: card._id }));
-      toast.success('Deleted card successfully!');
-      handleCloseModal();
-    });
-  };
+  // const handleDeleteCard = () => {
+  //   confirmDeleteCard({
+  //     title: 'Delete Card?',
+  //     description:
+  //       'Are you sure you want to delete this card? This action will delete the currently selected card',
+  //     confirmationButtonProps: { color: 'error', variant: 'outlined' },
+  //     confirmationText: 'Confirm',
+  //   }).then(() => {
+  //     dispatch(deleteCardDetails({ id: card._id }));
+  //     toast.success('Deleted card successfully!');
+  //   });
+  // };
 
   const [addMemberMenu, setAddMemberMenu] = useState(null);
   const handleAddMemberClick = (event) => {
@@ -350,7 +349,7 @@ export default function CardDetail({
               </Typography>
             )}
             <Typography gutterBottom>
-              owned by <a href="#">{card?.columnId}</a>
+              owned by <Link onClick={handleCloseModal}>{columnName}</Link>
             </Typography>
           </Grid>
           <Grid
@@ -362,7 +361,14 @@ export default function CardDetail({
               alignItems: 'flex-end',
             }}
           >
-            <Button onClick={handleDeleteCard}>Delete</Button>
+            <Button
+              onClick={() => {
+                handleDeleteCard(card._id);
+                handleCloseModal();
+              }}
+            >
+              Delete
+            </Button>
           </Grid>
         </Grid>
         <Grid container spacing={2} sx={{ px: 3, pt: 3 }}>

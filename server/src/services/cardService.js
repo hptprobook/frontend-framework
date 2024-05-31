@@ -22,9 +22,15 @@ const createNew = async (reqBody) => {
 const getDetails = async (cardId) => {
   try {
     const card = await cardModel.findOneById(cardId);
+    const column = await columnModel.findOneById(card.columnId);
     if (!card) throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found');
 
-    return card;
+    const result = {
+      ...card,
+      columnName: column.title,
+    };
+
+    return result;
   } catch (error) {
     throw error;
   }

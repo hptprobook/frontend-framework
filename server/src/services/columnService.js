@@ -10,7 +10,9 @@ const createNew = async (reqBody) => {
       ...reqBody,
     });
 
-    const getNewColumn = await columnModel.findOneById(createdColumn.insertedId);
+    const getNewColumn = await columnModel.findOneById(
+      createdColumn.insertedId
+    );
 
     if (getNewColumn) {
       getNewColumn.cards = [];
@@ -52,7 +54,10 @@ const remove = async (columnId) => {
 
     await boardModel.pullColumnOrderIds(targetCol);
 
-    return { deleteResult: 'Column and its Cards deleted successfully!' };
+    return {
+      deleteResult: 'Column and its Cards deleted successfully!',
+      columnId,
+    };
   } catch (error) {
     throw error;
   }

@@ -158,6 +158,8 @@ const remove = async (req, res, next) => {
   try {
     const result = await cardService.remove(req.params.id);
 
+    if (result) req.io.emit('deleteCard', req.params.id);
+
     res.status(StatusCodes.OK).json(result);
   } catch (error) {
     next(error);
