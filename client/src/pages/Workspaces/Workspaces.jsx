@@ -7,7 +7,7 @@ import { getRandomColor, getRandomGradient } from '~/utils/getRandomColor';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useState } from 'react';
 import { getAllWorkspace } from '~/redux/slices/workspaceSlice';
-import NewBoardDialog from './NewBoardDialog';
+import NewBoardDialog from './sections/NewBoardDialog';
 
 export default function WorkspacePage() {
   const dispatch = useDispatch();

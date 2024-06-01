@@ -1,28 +1,9 @@
-import Joi from 'joi';
 import { GET_DB } from '~/config/mongodb';
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 import { ObjectId } from 'mongodb';
-
-// Define Collection (name & schema)
-const COLUMN_COLLECTION_NAME = 'columns';
-const COLUMN_COLLECTION_SCHEMA = Joi.object({
-  boardId: Joi.string()
-    .required()
-    .pattern(OBJECT_ID_RULE)
-    .message(OBJECT_ID_RULE_MESSAGE),
-  title: Joi.string().required().min(3).max(50).trim().strict(),
-
-  cardOrderIds: Joi.array()
-    .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
-    .default([]),
-
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false),
-});
+import { columnSchema } from './schema/columnSchema';
 
 const validateBeforeCreate = async (data) => {
-  return await COLUMN_COLLECTION_SCHEMA.validateAsync(data, {
+  return await columnSchema.COLUMN_COLLECTION_SCHEMA.validateAsync(data, {
     abortEarly: false,
   });
 };
@@ -34,7 +15,7 @@ const createNew = async (data) => {
     const validData = await validateBeforeCreate(data);
 
     return await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
+      .collection(columnSchema.COLUMN_COLLECTION_NAME)
       .insertOne({ ...validData, boardId: new ObjectId(validData.boardId) });
   } catch (error) {
     throw new Error(error);
@@ -44,10 +25,12 @@ const createNew = async (data) => {
 const findOneById = async (id) => {
   try {
     const result = await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
+      .collection(columnSchema.COLUMN_COLLECTION_NAME)
       .findOne({ _id: new ObjectId(id) });
     if (!result)
-      throw new Error(`Column not found for ${COLUMN_COLLECTION_NAME}`);
+      throw new Error(
+        `Column not found for ${columnSchema.COLUMN_COLLECTION_NAME}`
+      );
     return result;
   } catch (error) {
     throw new Error(error);
@@ -57,7 +40,7 @@ const findOneById = async (id) => {
 const pushCardOrderIds = async (card) => {
   try {
     const result = await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
+      .collection(columnSchema.COLUMN_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(card.columnId) },
         { $push: { cardOrderIds: card._id } },
@@ -73,7 +56,7 @@ const pushCardOrderIds = async (card) => {
 const pullCardOrderIds = async (card) => {
   try {
     const result = await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
+      .collection(columnSchema.COLUMN_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(card.columnId) },
         { $pull: { cardOrderIds: new ObjectId(card._id) } },
@@ -101,7 +84,7 @@ const update = async (columnId, updateData) => {
     }
 
     const result = await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
+      .collection(columnSchema.COLUMN_COLLECTION_NAME)
       .findOneAndUpdate(
         { _id: new ObjectId(columnId) },
         { $set: updateData },
@@ -117,10 +100,12 @@ const update = async (columnId, updateData) => {
 const deleteOneById = async (id) => {
   try {
     const result = await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
+      .collection(columnSchema.COLUMN_COLLECTION_NAME)
       .deleteOne({ _id: new ObjectId(id) });
     if (!result)
-      throw new Error(`Column not found for ${COLUMN_COLLECTION_NAME}`);
+      throw new Error(
+        `Column not found for ${columnSchema.COLUMN_COLLECTION_NAME}`
+      );
     return result;
   } catch (error) {
     throw new Error(error);
@@ -130,10 +115,12 @@ const deleteOneById = async (id) => {
 const deleteManyByBoardId = async (boardId) => {
   try {
     const result = await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
+      .collection(columnSchema.COLUMN_COLLECTION_NAME)
       .deleteMany({ boardId: new ObjectId(boardId) });
     if (!result)
-      throw new Error(`Column not found for ${COLUMN_COLLECTION_NAME}`);
+      throw new Error(
+        `Column not found for ${columnSchema.COLUMN_COLLECTION_NAME}`
+      );
     return result;
   } catch (error) {
     throw new Error(error);
@@ -148,6 +135,4 @@ export const columnModel = {
   deleteOneById,
   pullCardOrderIds,
   deleteManyByBoardId,
-  COLUMN_COLLECTION_NAME,
-  COLUMN_COLLECTION_SCHEMA,
 };

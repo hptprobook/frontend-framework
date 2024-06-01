@@ -1,5 +1,4 @@
 import { Box } from '@mui/material';
-import ListColums from './ListColumns/ListColums';
 import {
   DndContext,
   useSensor,
@@ -13,10 +12,11 @@ import {
 import { MouseSensor, TouchSensor } from '~/customLibs/DndKitSensors';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
-import Column from './ListColumns/Column/Column';
-import Card from './ListColumns/Column/ListCards/Card/Card';
 import { cloneDeep, isEmpty } from 'lodash';
 import { generatePlaceholderCard } from '~/utils/formatters';
+import ListColums from './Columns/ListColums';
+import Column from './Columns/Column';
+import Card from './Cards/Card';
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',

@@ -6,8 +6,17 @@ const emojiToReactionMap = {
   '1f621': 'angry', // 😡
 };
 
+const reactionToIconMap = {
+  like: '👍',
+  love: '❤️',
+  haha: '😂',
+  wow: '😮',
+  sad: '😢',
+  angry: '😡',
+};
+
 export function convertReaction(emojiId) {
-  return emojiToReactionMap[emojiId] || 'unknown';
+  return emojiToReactionMap[emojiId] || '👍';
 }
 
 const reactionToEmojiMap = Object.entries(emojiToReactionMap).reduce(
@@ -18,6 +27,22 @@ const reactionToEmojiMap = Object.entries(emojiToReactionMap).reduce(
   {}
 );
 
-export function convertToEmoji(reaction) {
-  return reactionToEmojiMap[reaction] || 'unknown';
+const reactionToIcon = Object.entries(reactionToIconMap).reduce(
+  (acc, [reaction, icon]) => {
+    acc[reaction] = icon;
+    return acc;
+  },
+  {}
+);
+
+export function convertToIcon(reaction) {
+  return reactionToIcon[reaction] || '👍';
 }
+
+export function convertToEmoji(reaction) {
+  return reactionToEmojiMap[reaction] || '👍';
+}
+
+export const reactionEmojis = reactionToIconMap;
+
+export const REACTION_TYPES = Object.keys(reactionToIconMap);

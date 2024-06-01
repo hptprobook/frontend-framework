@@ -1,27 +1,15 @@
-import Joi from 'joi';
 import { ObjectId } from 'mongodb';
 import { GET_DB } from '~/config/mongodb';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '~/utils/ApiError';
+import { userSchema } from './schema/userSchema';
 
 // Define collection
-const USER_COLLECTION_NAME = 'users';
-const USER_COLLECTION_SCHEMA = Joi.object({
-  user_id: Joi.string().required(),
-  displayName: Joi.string().required(),
-  email: Joi.string().email().required(),
-  photoURL: Joi.string().required(),
-  notifies: Joi.array().default([]),
-  refreshToken: Joi.string().required(),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false),
-});
 
 const INVALID_UPDATE_FIELDS = ['_id', 'createdAt'];
 
 const validateBeforeCreate = async (data) => {
-  return await USER_COLLECTION_SCHEMA.validateAsync(data, {
+  return await userSchema.USER_COLLECTION_SCHEMA.validateAsync(data, {
     abortEarly: false,
   });
 };
@@ -29,7 +17,7 @@ const validateBeforeCreate = async (data) => {
 const findOrCreate = async (reqBody) => {
   try {
     const db = await GET_DB();
-    const userCollection = db.collection(USER_COLLECTION_NAME);
+    const userCollection = db.collection(userSchema.USER_COLLECTION_NAME);
 
     let user = await userCollection.findOne({
       _id: reqBody.user_id,
@@ -66,7 +54,7 @@ const findOrCreate = async (reqBody) => {
 const findOneById = async (userId) => {
   try {
     const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
+      .collection(userSchema.USER_COLLECTION_NAME)
       .findOne({ _id: userId });
     if (!result) throw new Error('User not found!');
     return result;
@@ -78,7 +66,7 @@ const findOneById = async (userId) => {
 const findOneByEmail = async (email) => {
   try {
     const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
+      .collection(userSchema.USER_COLLECTION_NAME)
       .findOne({ email });
     if (!result) throw new Error('User not found!');
     return result;
@@ -90,7 +78,7 @@ const findOneByEmail = async (email) => {
 const getAll = async () => {
   try {
     const results = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
+      .collection(userSchema.USER_COLLECTION_NAME)
       .find({})
       .toArray();
 
@@ -103,7 +91,7 @@ const getAll = async () => {
 const getDetails = async (userId) => {
   try {
     const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
+      .collection(userSchema.USER_COLLECTION_NAME)
       .find({ _id: userId });
 
     if (!result) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!');
@@ -116,7 +104,7 @@ const getDetails = async (userId) => {
 const update = async (userId, updateData) => {
   try {
     const db = await GET_DB();
-    const userCollection = db.collection(USER_COLLECTION_NAME);
+    const userCollection = db.collection(userSchema.USER_COLLECTION_NAME);
 
     Object.keys(updateData).forEach((fieldName) => {
       if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
@@ -152,7 +140,7 @@ const update = async (userId, updateData) => {
 const addNotify = async (userId, notify) => {
   try {
     const db = await GET_DB();
-    const userCollection = db.collection(USER_COLLECTION_NAME);
+    const userCollection = db.collection(userSchema.USER_COLLECTION_NAME);
 
     notify = { ...notify, _id: new ObjectId() };
 
@@ -171,7 +159,7 @@ const addNotify = async (userId, notify) => {
 const deleteOneById = async (userId) => {
   try {
     const result = await GET_DB()
-      .collection(USER_COLLECTION_NAME)
+      .collection(userSchema.USER_COLLECTION_NAME)
       .deleteOne({ _id: new ObjectId(userId) });
     if (!result) throw new Error('User not found!');
     return result;

@@ -10,6 +10,12 @@ const cardServices = {
     handleRequest('post', `/v1/cards/${id}/addTodo`, data),
   addComment: (id, data) =>
     handleRequest('post', `/v1/cards/${id}/comments`, data),
+  updateCommentReaction: (cardId, commentId, data) =>
+    handleRequest(
+      'put',
+      `/v1/cards/${cardId}/comments/${commentId}/reactions`,
+      data
+    ),
   replyComment: (id, commentId, replyData) =>
     handleRequest('put', `/v1/cards/${id}/comments/${commentId}`, replyData),
   deleteCardAPI: (id) => handleRequest('delete', `/v1/cards/${id}`),

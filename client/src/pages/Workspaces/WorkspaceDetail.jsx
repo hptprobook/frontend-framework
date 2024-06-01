@@ -23,7 +23,7 @@ import {
 } from '~/redux/slices/workspaceSlice';
 import { getRandomColor, getRandomGradient } from '~/utils/getRandomColor';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
-import NewBoardDialog from './NewBoardDialog';
+import NewBoardDialog from './sections/NewBoardDialog';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import { useConfirm } from 'material-ui-confirm';
@@ -31,7 +31,7 @@ import { toast } from 'react-toastify';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { unwrapResult } from '@reduxjs/toolkit';
-import InviteToWorkspaceDialog from './InviteDialog';
+import InviteToWorkspaceDialog from './sections/InviteDialog';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string()

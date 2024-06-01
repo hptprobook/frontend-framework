@@ -1,9 +1,9 @@
 import { Box } from '@mui/material';
-import Card from './Card/Card';
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import Card from './Card';
 
 function ListCards({ cards, columnName, handleDeleteCard }) {
   return (

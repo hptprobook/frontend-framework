@@ -6,3 +6,5 @@ export const WHITELIST_DOMAINS = [
 ];
 
 export const BOARD_TYPES = ['public', 'private'];
+
+export const REACTION_TYPES = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];

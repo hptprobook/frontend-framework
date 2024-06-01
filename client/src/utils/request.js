@@ -1,4 +1,4 @@
-import request from './axiosConfig';
+import request from '~/config/axiosConfig';
 
 export const handleRequest = async (method, url, data) => {
   try {

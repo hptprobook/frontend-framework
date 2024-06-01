@@ -1,5 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
+import { cardCommentServices } from '~/services/cardCommentService';
 import { cardService } from '~/services/cardService';
+import { cardTodoServices } from '~/services/cardTodoService';
 
 const createNew = async (req, res, next) => {
   try {
@@ -34,7 +36,7 @@ const update = async (req, res, next) => {
 
 const addTodo = async (req, res, next) => {
   try {
-    const todoAdded = await cardService.addTodo(req.params.id, req.body);
+    const todoAdded = await cardTodoServices.addTodo(req.params.id, req.body);
 
     res.status(StatusCodes.OK).json(todoAdded);
   } catch (error) {
@@ -44,7 +46,7 @@ const addTodo = async (req, res, next) => {
 
 const addTodoChild = async (req, res, next) => {
   try {
-    await cardService.addTodoChild(req.params.id, req.body);
+    await cardTodoServices.addTodoChild(req.params.id, req.body);
 
     res.status(StatusCodes.OK).json({ success: true });
   } catch (error) {
@@ -52,19 +54,19 @@ const addTodoChild = async (req, res, next) => {
   }
 };
 
-const childDone = async (req, res, next) => {
-  try {
-    await cardService.childDone(req.params.id, req.body);
+// const childDone = async (req, res, next) => {
+//   try {
+//     await cardTodoServices.childDone(req.params.id, req.body);
 
-    res.status(StatusCodes.OK).json({ success: true });
-  } catch (error) {
-    next(error);
-  }
-};
+//     res.status(StatusCodes.OK).json({ success: true });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 const updateTodo = async (req, res, next) => {
   try {
-    const updatedCard = await cardService.updateTodo(
+    const updatedCard = await cardTodoServices.updateTodo(
       req.params.id,
       req.params.todoId,
       req.body
@@ -78,7 +80,7 @@ const updateTodo = async (req, res, next) => {
 
 const updateTodoChild = async (req, res, next) => {
   try {
-    const updatedCard = await cardService.updateTodoChild(
+    const updatedCard = await cardTodoServices.updateTodoChild(
       req.params.id,
       req.params.todoId,
       req.params.childId,
@@ -91,20 +93,12 @@ const updateTodoChild = async (req, res, next) => {
   }
 };
 
-// const addComment = async (req, res, next) => {
-//   console.log('post comment');
-//   try {
-//     const addedComment = await cardService.addComment(req.params.id, req.body);
-
-//     res.status(StatusCodes.OK).json(addedComment);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 const addComment = async (req, res, next) => {
   try {
-    const addedComment = await cardService.addComment(req.params.id, req.body);
+    const addedComment = await cardCommentServices.addComment(
+      req.params.id,
+      req.body
+    );
 
     if (addedComment) {
       req.io.emit('comment', addedComment);
@@ -116,9 +110,24 @@ const addComment = async (req, res, next) => {
   }
 };
 
+const updateCommentReaction = async (req, res, next) => {
+  try {
+    const updatedComment = await cardCommentServices.updateCommentReaction(
+      req.params.id,
+      req.params.commentId,
+      req.userId,
+      req.body.reactionType
+    );
+
+    res.status(StatusCodes.OK).json(updatedComment);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const replyComment = async (req, res, next) => {
   try {
-    const comment = await cardService.replyComment(
+    const comment = await cardCommentServices.replyComment(
       req.params.id,
       req.params.commentId,
       req.body
@@ -136,7 +145,7 @@ const replyComment = async (req, res, next) => {
 
 const deleteTodo = async (req, res, next) => {
   try {
-    await cardService.deleteTodo(req.params.id, req.params.todoId);
+    await cardTodoServices.deleteTodo(req.params.id, req.params.todoId);
 
     res.status(StatusCodes.NO_CONTENT).json({ success: true });
   } catch (error) {
@@ -146,7 +155,7 @@ const deleteTodo = async (req, res, next) => {
 
 const deleteTodoChild = async (req, res, next) => {
   try {
-    await cardService.deleteTodoChild(
+    await cardTodoServices.deleteTodoChild(
       req.params.id,
       req.params.todoId,
       req.params.childId
@@ -176,10 +185,10 @@ export const cardController = {
   update,
   addTodo,
   addTodoChild,
-  childDone,
   updateTodo,
   updateTodoChild,
   addComment,
+  updateCommentReaction,
   replyComment,
   deleteTodo,
   deleteTodoChild,

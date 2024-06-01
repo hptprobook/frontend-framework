@@ -10,7 +10,7 @@ import AttachmentIcon from '@mui/icons-material/Attachment';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useState } from 'react';
-import CardDetail from './_id';
+import CardDetail from './CardDetail';
 
 function Card({ card, columnName, handleDeleteCard }) {
   const [openModal, setOpenModal] = useState(false);

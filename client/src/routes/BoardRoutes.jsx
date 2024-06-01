@@ -4,7 +4,7 @@ import useAuthStatus from '~/hooks/useAuthStatus';
 import { Navigate } from 'react-router-dom';
 
 const PageLayout = lazy(() => import('~/layouts/PageLayout'));
-const BoardDetails = lazy(() => import('~/pages/Boards/_id'));
+const BoardDetails = lazy(() => import('~/pages/Boards/BoardDetail'));
 
 const ProtectedLayout = ({ children }) => {
   const isLoggedIn = useAuthStatus();

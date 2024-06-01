@@ -5,7 +5,9 @@ import { Navigate } from 'react-router-dom';
 
 const Workspace = lazy(() => import('~/pages/Workspaces/Workspaces'));
 const WorkspaceLayout = lazy(() => import('~/layouts/WorkspaceLayout'));
-const WorkspaceDetail = lazy(() => import('~/pages/Workspaces/_id'));
+const WorkspaceDetail = lazy(() =>
+  import('~/pages/Workspaces/WorkspaceDetail')
+);
 
 const ProtectedLayout = ({ children }) => {
   const isLoggedIn = useAuthStatus();

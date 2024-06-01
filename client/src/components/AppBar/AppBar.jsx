@@ -30,7 +30,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrent, readNotify } from '~/redux/slices/userSlice';
 import { NavLink, useNavigate } from 'react-router-dom';
-import NewWorkspaceDialog from '~/pages/Workspaces/NewWorkspaceDialog';
+import NewWorkspaceDialog from '~/pages/Workspaces/sections/NewWorkspaceDialog';
 import { getAllWorkspace } from '~/redux/slices/workspaceSlice';
 
 function AppBar() {

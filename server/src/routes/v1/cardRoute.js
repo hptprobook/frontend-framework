@@ -14,7 +14,7 @@ Router.route('/:id/addTodo')
   .put(cardController.addTodo)
   .post(cardController.addTodoChild);
 
-Router.route('/:id/childDone').put(cardController.childDone);
+// Router.route('/:id/childDone').put(cardController.childDone);
 
 Router.route('/:id/todos/:todoId')
   .put(cardController.updateTodo)
@@ -26,5 +26,9 @@ Router.route('/:id/todos/:todoId/child/:childId')
 
 Router.route('/:id/comments').post(cardController.addComment);
 Router.route('/:id/comments/:commentId').put(cardController.replyComment);
+
+Router.route('/:id/comments/:commentId/reactions').put(
+  cardController.updateCommentReaction
+);
 
 export const cardRoute = Router;

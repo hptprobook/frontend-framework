@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Avatar, Box, Divider, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
@@ -54,7 +54,7 @@ function Workspaces({ workspaces }) {
           Your workspace
         </Typography>
         {workspaces?.created?.map((workspace) => (
-          <React.Fragment key={workspace._id}>
+          <Box key={workspace._id}>
             <NavLink to={`/w/${workspace._id}`}>
               <MenuItem onClick={handleClose}>
                 <ListItemIcon>
@@ -79,7 +79,7 @@ function Workspaces({ workspaces }) {
                 </ListItemText>
               </MenuItem>
             </NavLink>
-          </React.Fragment>
+          </Box>
         ))}
         <Divider
           sx={{

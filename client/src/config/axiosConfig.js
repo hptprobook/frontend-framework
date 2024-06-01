@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_ROOT } from './constants';
+import { API_ROOT } from '../utils/constants';
 
 const accessToken = localStorage.getItem('accessToken');
 

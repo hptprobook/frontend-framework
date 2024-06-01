@@ -1,42 +1,20 @@
-import Joi from 'joi';
 import { ObjectId } from 'mongodb';
 import { GET_DB } from '~/config/mongodb';
-import { BOARD_TYPES } from '~/utils/constants';
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 import { columnModel } from './columnModel';
 import { cardModel } from './cardModel';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '~/utils/ApiError';
 import { userModal } from './userModal';
+import { boardSchema } from './schema/boardSchema';
+import { cardSchema } from './schema/cardSchema';
+import { columnSchema } from './schema/columnSchema';
 
 // Define collection
 const BOARD_COLLECTION_NAME = 'boards';
-const BOARD_COLLECTION_SCHEMA = Joi.object({
-  title: Joi.string().required().min(3).max(50).trim().strict(),
-  slug: Joi.string().required().min(3).trim().strict(),
-  description: Joi.string().required().min(3).max(256).trim().strict(),
-  workspaceId: Joi.string()
-    .required()
-    .pattern(OBJECT_ID_RULE)
-    .message(OBJECT_ID_RULE_MESSAGE),
-  type: Joi.string()
-    .valid(...BOARD_TYPES)
-    .required(),
-  columnOrderIds: Joi.array()
-    .items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
-    .default([]),
-  userId: Joi.string(),
-  ownerIds: Joi.array().items(Joi.string()).default([]),
-  members: Joi.array().default([]),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false),
-});
-
 const INVALID_UPDATE_FIELDS = ['_id', 'createdAt'];
 
 const validateBeforeCreate = async (data) => {
-  return await BOARD_COLLECTION_SCHEMA.validateAsync(data, {
+  return await boardSchema.BOARD_COLLECTION_SCHEMA.validateAsync(data, {
     abortEarly: false,
   });
 };
@@ -111,7 +89,7 @@ const getDetails = async (id) => {
         },
         {
           $lookup: {
-            from: columnModel.COLUMN_COLLECTION_NAME,
+            from: columnSchema.COLUMN_COLLECTION_NAME,
             localField: '_id',
             foreignField: 'boardId',
             as: 'columns',
@@ -119,7 +97,7 @@ const getDetails = async (id) => {
         },
         {
           $lookup: {
-            from: cardModel.CARD_COLLECTION_NAME,
+            from: cardSchema.CARD_COLLECTION_NAME,
             localField: '_id',
             foreignField: 'boardId',
             as: 'cards',
@@ -289,5 +267,4 @@ export const boardModel = {
   deleteOneById,
   deleteManyByWorkspaceId,
   BOARD_COLLECTION_NAME,
-  BOARD_COLLECTION_SCHEMA,
 };

@@ -1,5 +1,5 @@
+import { Box } from '@mui/material';
 import Menu from '@mui/material/Menu';
-import React from 'react';
 
 export default function MenuModal({ id, anchorEl, setAnchorEl, menuChildren }) {
   const open = Boolean(anchorEl);
@@ -8,7 +8,7 @@ export default function MenuModal({ id, anchorEl, setAnchorEl, menuChildren }) {
   };
 
   return (
-    <React.Fragment>
+    <Box>
       <Menu
         data-no-dnd="true"
         anchorEl={anchorEl}
@@ -34,6 +34,6 @@ export default function MenuModal({ id, anchorEl, setAnchorEl, menuChildren }) {
       >
         {menuChildren}
       </Menu>
-    </React.Fragment>
+    </Box>
   );
 }
