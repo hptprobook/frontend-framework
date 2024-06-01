@@ -2,8 +2,17 @@ import { Avatar, Box, Typography } from '@mui/material';
 import EmojiPicker from 'emoji-picker-react';
 import { useState } from 'react';
 import { convertHTMLToText, formatTimestamp } from '~/utils/formatters';
+import ReactionReplyComment from './ReactionReplyComment';
 
-export default function ListReplyComments({ comment, showEmojiPicker }) {
+export default function ListReplyComments({
+  comment,
+  cardDetail,
+  setCardDetail,
+  isShowListUser,
+  setShowEmojiPicker,
+  showEmojiPicker,
+  renderReactions,
+}) {
   const [hoveredReplyCommentId, setHoveredReplyCommentId] = useState(null);
 
   const handleReplyMouseEnter = (replyId) => {
@@ -51,6 +60,16 @@ export default function ListReplyComments({ comment, showEmojiPicker }) {
             }}
           >
             <Box>{convertHTMLToText(reply?.content)}</Box>
+            <Box
+              sx={{
+                pb: 0.5,
+                mt: 0.2,
+                display: 'flex',
+                gap: 1,
+              }}
+            >
+              {renderReactions(reply._id, reply.emotions)}
+            </Box>
           </Box>
           <Box
             sx={{
@@ -60,52 +79,14 @@ export default function ListReplyComments({ comment, showEmojiPicker }) {
               mt: 0.5,
             }}
           >
-            <Box
-              sx={{
-                fontSize: '12px !important',
-                color: 'red',
-                cursor: 'pointer',
-                position: 'relative',
-              }}
-              onMouseEnter={() => handleReplyMouseEnter(reply._id)}
-              onMouseLeave={handleReplyMouseLeave}
-            >
-              Like
-              {showEmojiPicker && hoveredReplyCommentId === reply._id && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: '-60px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 1000,
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      width: '100px',
-                      height: '15px',
-                      bgcolor: 'transparent',
-                      top: '100%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                    },
-                  }}
-                >
-                  <EmojiPicker
-                    reactionsDefaultOpen={true}
-                    emojiStyle="facebook"
-                    allowExpandReactions={false}
-                    reactions={[
-                      '1f44d',
-                      '2764-fe0f',
-                      '1f603',
-                      '1f622',
-                      '1f621',
-                    ]}
-                  />
-                </Box>
-              )}
-            </Box>
+            <ReactionReplyComment
+              comment={comment}
+              cardDetail={cardDetail}
+              setCardDetail={setCardDetail}
+              isShowListUser={isShowListUser}
+              showEmojiPicker={showEmojiPicker}
+              setShowEmojiPicker={setShowEmojiPicker}
+            />
           </Box>
         </Box>
       ))}

@@ -25,6 +25,18 @@ const update = async (req, res, next) => {
   }
 };
 
+const changeTitle = async (req, res, next) => {
+  try {
+    const result = await columnService.changeTitle(req.params.id, req.body);
+
+    if (result) req.io.emit('changeTitle', result);
+
+    res.status(StatusCodes.OK).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const remove = async (req, res, next) => {
   try {
     const result = await columnService.remove(req.params.id);
@@ -40,5 +52,6 @@ const remove = async (req, res, next) => {
 export const columnController = {
   createNew,
   update,
+  changeTitle,
   remove,
 };

@@ -220,6 +220,7 @@ export default function ListComments({
                 comment={comment}
                 cardDetail={cardDetail}
                 setCardDetail={setCardDetail}
+                renderReactions={renderReactions}
                 showEmojiPicker={showEmojiPicker}
               />
 
@@ -247,6 +248,7 @@ export default function ListComments({
                       <TextField
                         fullWidth
                         value={replyCommentContent}
+                        autoFocus
                         onChange={(event) =>
                           setReplyCommentContent(event.target.value)
                         }

@@ -16,10 +16,10 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import AddCardIcon from '@mui/icons-material/AddCard';
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useConfirm } from 'material-ui-confirm';
 import { toast } from 'react-toastify';
-import { updateColumnDetails } from '~/redux/slices/columnSlice';
+import { changeColumnTitleAPI } from '~/apis';
+import socket from '~/socket/socket';
 
 const ColumnHeader = ({
   column,
@@ -27,19 +27,27 @@ const ColumnHeader = ({
   openNewCardForm,
   toggleOpenNewCardForm,
 }) => {
+  const inputRef = useRef();
+  const confirmDelete = useConfirm();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isEditingTitle, setEditingTitle] = useState(false);
+  const [editCardTitle, setEditCardTitle] = useState(column?.title);
   const open = Boolean(anchorEl);
+
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
-  const [isEditingTitle, setEditingTitle] = useState(false);
-  const [editCardTitle, setEditCardTitle] = useState(
-    column ? column.title : ''
-  );
-  // const [openNewCardForm, setOpenNewCardForm] = useState(false);
-  const dispatch = useDispatch();
-  const confirmDelete = useConfirm();
-  // const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm);
-  const inputRef = useRef();
+
+  useEffect(() => {
+    socket.on('changeTitle', (skColumn) => {
+      if (skColumn._id === column._id) {
+        setEditCardTitle(skColumn.title);
+      }
+    });
+
+    return () => {
+      socket.off('changeTitle');
+    };
+  }, [column._id]);
 
   const handleDelete = () => {
     confirmDelete({
@@ -66,16 +74,8 @@ const ColumnHeader = ({
   const handleUpdateColumnTitle = (e) => {
     if (e.key === 'Enter') {
       if (editCardTitle.trim().length > 3) {
-        dispatch(
-          updateColumnDetails({
-            id: column._id,
-            data: {
-              title: editCardTitle.trim(),
-            },
-          })
-        );
-        column.title = editCardTitle;
         setEditingTitle(false);
+        changeColumnTitleAPI(column._id, { title: editCardTitle.trim() });
       } else {
         toast.error('Column title must be longer than 3 characters', {
           position: 'bottom-right',
@@ -124,7 +124,7 @@ const ColumnHeader = ({
             pl: 1,
           }}
         >
-          {column?.title}
+          {editCardTitle}
         </Typography>
       )}
 

@@ -40,6 +40,20 @@ const update = async (columnId, reqBody) => {
   }
 };
 
+const changeTitle = async (columnId, reqBody) => {
+  try {
+    const updateData = {
+      ...reqBody,
+      updatedAt: Date.now(),
+    };
+    const updatedColumn = await columnModel.update(columnId, updateData);
+
+    return updatedColumn;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const remove = async (columnId) => {
   try {
     const targetCol = await columnModel.findOneById(columnId);
@@ -66,5 +80,6 @@ const remove = async (columnId) => {
 export const columnService = {
   createNew,
   update,
+  changeTitle,
   remove,
 };

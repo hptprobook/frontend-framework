@@ -38,7 +38,7 @@ function ListCards({ cards, columnName, handleDeleteCard }) {
           },
         }}
       >
-        {cards.map((card) => (
+        {cards?.map((card) => (
           <Card
             key={card?._id}
             card={card}

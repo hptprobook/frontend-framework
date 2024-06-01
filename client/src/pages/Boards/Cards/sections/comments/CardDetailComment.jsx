@@ -47,8 +47,18 @@ export default function CardDetailComment({ card, cardDetail, setCardDetail }) {
 
     dispatch(addComment({ id: card._id, data: commentWithoutCreatedAt }));
     setComment(false);
-    setReplyCommentId(null); // Reset reply comment ID
+    setReplyCommentId(null);
     setCommentContent('');
+  };
+
+  const handleAddCommentKeyUp = (e) => {
+    if (e.key === 'Enter') {
+      handleAddComment();
+    } else if (e.key === 'Escape') {
+      setComment(false);
+      setReplyCommentId(null);
+      setCommentContent('');
+    }
   };
 
   return (
@@ -119,6 +129,7 @@ export default function CardDetailComment({ card, cardDetail, setCardDetail }) {
                     autoFocus
                     value={commentContent}
                     onChange={(event) => setCommentContent(event.target.value)}
+                    onKeyUp={handleAddCommentKeyUp}
                     style={{ marginBottom: '12px' }}
                   />
                   <Box>

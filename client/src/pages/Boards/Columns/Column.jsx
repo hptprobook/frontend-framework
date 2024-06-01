@@ -14,9 +14,7 @@ function Column({
   handleDeleteCard,
 }) {
   const orderedCards = column.cards;
-
   const [openNewCardForm, setOpenNewCardForm] = useState(false);
-
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm);
 
   const {

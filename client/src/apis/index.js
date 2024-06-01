@@ -8,12 +8,18 @@ export const fetchBoardDetailsAPI = async (boardId) => {
 };
 
 export const updateBoardDetailsAPI = async (boardId, updateData) => {
-  const response = await axios.put(`${API_ROOT}/v1/boards/${boardId}`, updateData);
+  const response = await axios.put(
+    `${API_ROOT}/v1/boards/${boardId}`,
+    updateData
+  );
   return response.data;
 };
 
 export const moveCardDifferentColumnAPI = async (updateData) => {
-  const response = await axios.put(`${API_ROOT}/v1/boards/supports/moving_card`, updateData);
+  const response = await axios.put(
+    `${API_ROOT}/v1/boards/supports/moving_card`,
+    updateData
+  );
   return response.data;
 };
 
@@ -24,7 +30,18 @@ export const createNewColumnAPI = async (newColumnData) => {
 };
 
 export const updateColumnDetailsAPI = async (columnId, updateData) => {
-  const response = await axios.put(`${API_ROOT}/v1/columns/${columnId}`, updateData);
+  const response = await axios.put(
+    `${API_ROOT}/v1/columns/${columnId}`,
+    updateData
+  );
+  return response.data;
+};
+
+export const changeColumnTitleAPI = async (columnId, updateData) => {
+  const response = await axios.put(
+    `${API_ROOT}/v1/columns/${columnId}/title`,
+    updateData
+  );
   return response.data;
 };
 
