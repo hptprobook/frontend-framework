@@ -62,7 +62,11 @@ export default function CardDetailComment({ card, cardDetail, setCardDetail }) {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        mt: 4,
+      }}
+    >
       <Grid container spacing={2} sx={{ px: 3, pt: 3 }}>
         <Grid item xs={1}>
           <CommentIcon />

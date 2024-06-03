@@ -46,9 +46,12 @@ const addTodo = async (req, res, next) => {
 
 const addTodoChild = async (req, res, next) => {
   try {
-    await cardTodoServices.addTodoChild(req.params.id, req.body);
+    const createdTodoChild = await cardTodoServices.addTodoChild(
+      req.params.id,
+      req.body
+    );
 
-    res.status(StatusCodes.OK).json({ success: true });
+    res.status(StatusCodes.OK).json(createdTodoChild);
   } catch (error) {
     next(error);
   }

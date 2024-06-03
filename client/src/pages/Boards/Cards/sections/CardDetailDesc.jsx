@@ -2,7 +2,6 @@
 import 'react-quill/dist/quill.snow.css';
 import { useState } from 'react';
 import ReactQuill from 'react-quill';
-import { convertHTMLToText } from '~/utils/formatters';
 import { useDispatch } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
 
@@ -130,7 +129,7 @@ export default function CardDetailDesc({
         ) : (
           <Box onClick={() => setEditingDesc(true)}>
             {desc ? (
-              convertHTMLToText(desc)
+              <Typography dangerouslySetInnerHTML={{ __html: desc }} />
             ) : (
               <Typography
                 sx={{

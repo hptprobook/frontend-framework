@@ -1,22 +1,41 @@
 /* eslint-disable indent */
 import {
   Box,
-  Checkbox,
-  FormControlLabel,
+  Button,
   FormGroup,
-  IconButton,
   LinearProgress,
   Typography,
 } from '@mui/material';
 import { useConfirm } from 'material-ui-confirm';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
-import { deleteTodoChild } from '~/apis/cardApi';
+import { deleteTodoChild, deleteTodo } from '~/apis/cardApi';
 import { toast } from 'react-toastify';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import TodoChildList from './TodoChildList';
 
 export default function CardTodoList({ todo, cardDetail, setCardDetail }) {
   const confirmDeleteTodo = useConfirm();
   const dispatch = useDispatch();
+  const confirmDeleteTodoChild = useConfirm();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: todo?._id,
+    data: { ...todo },
+  });
+
+  const dndKitColumnStyles = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    height: '100%',
+    opacity: isDragging ? 0.4 : undefined,
+  };
 
   const handleToggleTodoChild = (todoId, childId, done) => {
     const updatedCard = {
@@ -33,7 +52,6 @@ export default function CardTodoList({ todo, cardDetail, setCardDetail }) {
       ),
     };
     setCardDetail(updatedCard);
-    // dispatch(getDetails({ id: card._id }));
   };
 
   const handleDeleteTodoChild = (todoId, childId) => {
@@ -67,66 +85,90 @@ export default function CardTodoList({ todo, cardDetail, setCardDetail }) {
     return total === 0 ? 0 : Math.round((completed / total) * 100);
   };
 
+  const handleSaveEdit = (todoId, childId, newText) => {
+    const updatedCard = {
+      ...cardDetail,
+      todos: cardDetail.todos.map((todo) =>
+        todo._id === todoId
+          ? {
+              ...todo,
+              childs: todo.childs.map((child) =>
+                child._id === childId ? { ...child, text: newText } : child
+              ),
+            }
+          : todo
+      ),
+    };
+    setCardDetail(updatedCard);
+  };
+
+  const handleDeleteTodo = (todoId) => {
+    confirmDeleteTodoChild({
+      title: 'Delete Todo?',
+      description: 'Are you sure you want to delete this todo?',
+      confirmationButtonProps: { color: 'error', variant: 'outlined' },
+      confirmationText: 'Confirm',
+    }).then(() => {
+      const updatedCard = {
+        ...cardDetail,
+        todos: cardDetail.todos.filter((todo) => todo._id !== todoId),
+      };
+      setCardDetail(updatedCard);
+
+      dispatch(deleteTodo({ id: cardDetail._id, todoId }));
+      toast.success('Deleted todo successfully!');
+    });
+  };
+
   return (
-    <FormGroup>
-      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-        <Box sx={{ flexGrow: 1, mr: 2 }}>
-          <LinearProgress
-            variant="determinate"
-            value={calculateCompletionPercentage()}
-          />
+    <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
+      <Box {...listeners}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 1,
+          }}
+        >
+          <Typography sx={{ fontWeight: 'bold', fontSize: '18px !important' }}>
+            {todo.text}
+          </Typography>
+          <Button
+            onClick={() => handleDeleteTodo(todo._id)}
+            size="small"
+            variant="outlined"
+            sx={{ mr: 1 }}
+          >
+            Delete
+          </Button>
         </Box>
-        <Typography variant="body1">
-          {calculateCompletionPercentage()}%
-        </Typography>
-      </Box>
-      {todo.childs.length
-        ? todo.childs.map((child, id) => (
-            <Box
-              key={id}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                mt: 1,
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={child.done}
-                      onChange={() =>
-                        handleToggleTodoChild(todo._id, child._id, child.done)
-                      }
-                    />
-                  }
-                />
-                <Typography
-                  sx={{
-                    textDecoration: child.done ? 'line-through' : 'none',
-                  }}
-                >
-                  {child.text}
-                </Typography>
-              </Box>
-              <IconButton
-                aria-label="delete"
-                onClick={() => {
-                  handleDeleteTodoChild(todo._id, child._id);
-                }}
-              >
-                <DeleteIcon sx={{ fontSize: '22px' }} />
-              </IconButton>
+        <FormGroup>
+          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ flexGrow: 1, mr: 2 }}>
+              <LinearProgress
+                variant="determinate"
+                value={calculateCompletionPercentage()}
+              />
             </Box>
-          ))
-        : ''}
-    </FormGroup>
+            <Typography variant="body1">
+              {calculateCompletionPercentage()}%
+            </Typography>
+          </Box>
+          {todo.childs.length
+            ? todo.childs.map((child) => (
+                <TodoChildList
+                  key={child._id}
+                  child={child}
+                  todoId={todo._id}
+                  handleToggleTodoChild={handleToggleTodoChild}
+                  handleDeleteTodoChild={handleDeleteTodoChild}
+                  handleSaveEdit={handleSaveEdit}
+                />
+              ))
+            : ''}
+        </FormGroup>
+      </Box>
+    </div>
   );
 }

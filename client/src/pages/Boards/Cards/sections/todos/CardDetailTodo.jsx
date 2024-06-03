@@ -1,31 +1,19 @@
 /* eslint-disable indent */
 
 /* Config */
-import { toast } from 'react-toastify';
 import { useRef, useState } from 'react';
-import { useConfirm } from 'material-ui-confirm';
-import { useDispatch } from 'react-redux';
 
 /* MUI components */
-import {
-  Box,
-  Button,
-  FormGroup,
-  Grid,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Grid, TextField } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 /* API endpoint */
-import { addTodoChild, deleteTodo } from '~/redux/slices/cardSlice';
+
 import CardTodoList from './TodoList';
+import { addTodoChild } from '~/apis/cardApi';
 
 export default function CardDetailTodo({ cardDetail, setCardDetail }) {
-  const dispatch = useDispatch();
   const addChildRef = useRef(null);
-
-  const confirmDeleteTodoChild = useConfirm();
 
   const [childText, setChildText] = useState('');
   const [showAddChildForm, setShowAddChildForm] = useState(null);
@@ -46,43 +34,28 @@ export default function CardDetailTodo({ cardDetail, setCardDetail }) {
     setShowAddChildForm(null);
   };
 
-  const handleAddChild = (todoId) => {
+  const handleAddChild = async (todoId) => {
+    const childAdded = await addTodoChild({
+      id: cardDetail._id,
+      data: { text: childText, todoId },
+    });
+
     const updatedCard = {
       ...cardDetail,
       todos: cardDetail.todos.map((todo) =>
         todo._id === todoId
           ? {
               ...todo,
-              childs: [...todo.childs, { text: childText, done: false }],
+              childs: [...todo.childs, childAdded],
             }
           : todo
       ),
     };
+
     setCardDetail(updatedCard);
 
-    dispatch(
-      addTodoChild({ id: cardDetail._id, data: { text: childText, todoId } })
-    );
     setChildText('');
     addChildRef.current.focus();
-  };
-
-  const handleDeleteTodo = (todoId) => {
-    confirmDeleteTodoChild({
-      title: 'Delete Todo?',
-      description: 'Are you sure you want to delete this todo?',
-      confirmationButtonProps: { color: 'error', variant: 'outlined' },
-      confirmationText: 'Confirm',
-    }).then(() => {
-      const updatedCard = {
-        ...cardDetail,
-        todos: cardDetail.todos.filter((todo) => todo._id !== todoId),
-      };
-      setCardDetail(updatedCard);
-
-      dispatch(deleteTodo({ id: cardDetail._id, todoId }));
-      toast.success('Deleted todo successfully!');
-    });
   };
 
   return (
@@ -93,30 +66,13 @@ export default function CardDetailTodo({ cardDetail, setCardDetail }) {
               <Grid item xs={1}>
                 <CheckCircleOutlineIcon />
               </Grid>
-              <Grid item xs={7}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    mb: 1,
-                  }}
-                >
-                  <Typography
-                    sx={{ fontWeight: 'bold', fontSize: '18px !important' }}
-                  >
-                    {todo.text}
-                  </Typography>
-                  <Button
-                    onClick={() => handleDeleteTodo(todo._id)}
-                    size="small"
-                    variant="outlined"
-                    sx={{ mr: 1 }}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-
+              <Grid
+                item
+                xs={7}
+                sx={{
+                  mb: 4,
+                }}
+              >
                 <CardTodoList
                   todo={todo}
                   cardDetail={cardDetail}

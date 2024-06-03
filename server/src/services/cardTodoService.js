@@ -51,10 +51,14 @@ const addTodoChild = async (cardId, childData) => {
       throw new Error(`Todo not found in card ${cardId}`);
     }
 
-    todo.childs.push({ ...value, _id: newChildId });
+    const todoChildData = { ...value, _id: newChildId };
+
+    todo.childs.push(todoChildData);
     todo.childOrderIds.push(newChildId);
 
-    return await cardModel.update(cardId, { todos: card.todos });
+    await cardModel.update(cardId, { todos: card.todos });
+
+    return todoChildData;
   } catch (error) {
     throw new Error(error);
   }

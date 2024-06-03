@@ -335,7 +335,6 @@ function BoardContent({
   return (
     <DndContext
       sensors={sensors}
-      // collisionDetection={closestCorners}
       collisionDetection={collisionDetectionStrategy}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}

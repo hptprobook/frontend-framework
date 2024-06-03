@@ -172,6 +172,7 @@ const cardSlices = createSlice({
     updatedCard: null,
     newComment: null,
     todoAdded: false,
+    todoChildAdded: null,
     isDeleted: false,
     isLoading: false,
     isError: false,
@@ -230,6 +231,11 @@ const cardSlices = createSlice({
       .addCase(addTodo.rejected, (state) => {
         state.isLoading = false;
         state.isError = true;
+      })
+      .addCase(addTodoChild.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.todoChildAdded = action.payload;
       })
       .addCase(deleteCardDetails.pending, (state) => {
         state.isLoading = true;

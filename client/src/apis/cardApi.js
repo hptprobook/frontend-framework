@@ -14,9 +14,7 @@ export const addTodo = async ({ id, data }) => {
 };
 
 export const addTodoChild = async ({ id, data }) => {
-  const response = await axios.post(`${API_URL}/cards/${id}/addTodo`, {
-    text: data.text,
-  });
+  const response = await axios.post(`${API_URL}/cards/${id}/addTodo`, data);
   return response.data;
 };
 
