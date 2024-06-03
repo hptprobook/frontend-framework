@@ -2,7 +2,11 @@ import { Box } from '@mui/material';
 import EmojiPicker from 'emoji-picker-react';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCommentReaction } from '~/redux/slices/cardSlice';
+import {
+  removeCommentReaction,
+  updateCommentReaction,
+} from '~/redux/slices/cardSlice';
+import socket from '~/socket/socket';
 import {
   REACTION_TYPES,
   convertReaction,
@@ -13,11 +17,10 @@ export default function ReactionComment({
   comment,
   cardDetail,
   setCardDetail,
-  showEmojiPicker,
-  setShowEmojiPicker,
 }) {
   const dispatch = useDispatch();
   const { current } = useSelector((state) => state.users);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [currentCommentId, setCurrentCommentId] = useState(null);
   const [isReply, setIsReply] = useState(false);
   const [userReaction, setUserReaction] = useState('');
@@ -33,6 +36,24 @@ export default function ReactionComment({
         setUserReaction(reaction);
       }
     });
+
+    socket.on('commentReaction', (data) => {
+      if (data && data._id === cardDetail._id) {
+        setCardDetail(data);
+      }
+    });
+
+    socket.on('removeCommentReaction', (data) => {
+      if (data && data._id === cardDetail._id) {
+        setCardDetail(data);
+      }
+    });
+
+    return () => {
+      socket.off('commentReaction');
+      socket.off('removeCommentReaction');
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comment.emotions, current._id]);
 
   const handleMouseEnter = (commentId, isReplyComment = false) => {
@@ -87,6 +108,36 @@ export default function ReactionComment({
     setIsReply(false);
   };
 
+  const handleRemoveReaction = () => {
+    if (!userReaction) return;
+
+    dispatch(
+      removeCommentReaction({
+        id: cardDetail._id,
+        commentId: comment._id,
+      })
+    );
+
+    const updatedComments = cardDetail?.comments.map((c) => {
+      if (c._id === comment._id) {
+        // Remove the current user's reaction
+        const userIndex = c.emotions[userReaction].findIndex(
+          (reactionUser) => reactionUser.userId === current._id
+        );
+        if (userIndex !== -1) {
+          c.emotions[userReaction].splice(userIndex, 1);
+        }
+      }
+      return c;
+    });
+
+    setCardDetail({ ...cardDetail, comments: updatedComments });
+    setUserReaction(''); // Reset the user's current reaction
+    setShowEmojiPicker(false);
+    setCurrentCommentId(null);
+    setIsReply(false);
+  };
+
   return (
     <Box>
       <Box
@@ -99,7 +150,9 @@ export default function ReactionComment({
         onMouseEnter={() => handleMouseEnter(comment._id)}
         onMouseLeave={handleMouseLeave}
       >
-        {userReaction ? convertToIcon(userReaction) : 'Like'}{' '}
+        <Box onClick={handleRemoveReaction}>
+          {userReaction ? convertToIcon(userReaction) : 'Like'}{' '}
+        </Box>
         {showEmojiPicker && currentCommentId === comment._id && !isReply && (
           <Box
             sx={{

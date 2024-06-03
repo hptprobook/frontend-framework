@@ -11,7 +11,7 @@ import DialogActions from '@mui/material/DialogActions';
 
 /* Sections */
 import CardDetailDesc from './sections/CardDetailDesc';
-import CardDetailTodo from './sections/CardDetailTodo';
+import CardDetailTodo from './sections/todos/CardDetailTodo';
 import CardDetailHeader from './sections/CardDetailHeader';
 import CardDetailComment from './sections/comments/CardDetailComment';
 

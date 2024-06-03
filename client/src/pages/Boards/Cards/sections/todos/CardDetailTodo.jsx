@@ -10,28 +10,21 @@ import { useDispatch } from 'react-redux';
 import {
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
   FormGroup,
   Grid,
-  IconButton,
   TextField,
   Typography,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 /* API endpoint */
-import {
-  addTodoChild,
-  deleteTodo,
-  deleteTodoChild,
-} from '~/redux/slices/cardSlice';
+import { addTodoChild, deleteTodo } from '~/redux/slices/cardSlice';
+import CardTodoList from './TodoList';
 
 export default function CardDetailTodo({ cardDetail, setCardDetail }) {
   const dispatch = useDispatch();
   const addChildRef = useRef(null);
-  const confirmDeleteTodo = useConfirm();
+
   const confirmDeleteTodoChild = useConfirm();
 
   const [childText, setChildText] = useState('');
@@ -47,24 +40,6 @@ export default function CardDetailTodo({ cardDetail, setCardDetail }) {
 
   const handleAddChildFormOpen = (todoId) => {
     setShowAddChildForm(todoId);
-  };
-
-  const handleToggleTodoChild = (todoId, childId, done) => {
-    const updatedCard = {
-      ...cardDetail,
-      todos: cardDetail.todos.map((todo) =>
-        todo._id === todoId
-          ? {
-              ...todo,
-              childs: todo.childs.map((child) =>
-                child._id === childId ? { ...child, done: !done } : child
-              ),
-            }
-          : todo
-      ),
-    };
-    setCardDetail(updatedCard);
-    // dispatch(getDetails({ id: card._id }));
   };
 
   const handleAddChildFormClose = () => {
@@ -110,31 +85,6 @@ export default function CardDetailTodo({ cardDetail, setCardDetail }) {
     });
   };
 
-  const handleDeleteTodoChild = (todoId, childId) => {
-    confirmDeleteTodo({
-      title: 'Delete this todo?',
-      description: 'Are you sure you want to delete this todo?',
-      confirmationButtonProps: { color: 'error', variant: 'outlined' },
-      confirmationText: 'Confirm',
-    }).then(() => {
-      const updatedCard = {
-        ...cardDetail,
-        todos: cardDetail.todos.map((todo) =>
-          todo._id === todoId
-            ? {
-                ...todo,
-                childs: todo.childs.filter((child) => child._id !== childId),
-              }
-            : todo
-        ),
-      };
-      setCardDetail(updatedCard);
-
-      dispatch(deleteTodoChild({ id: cardDetail._id, todoId, childId }));
-      toast.success('Deleted todo successfully!');
-    });
-  };
-
   return (
     <Box>
       {cardDetail?.todos && cardDetail?.todos.length
@@ -166,45 +116,13 @@ export default function CardDetailTodo({ cardDetail, setCardDetail }) {
                     Delete
                   </Button>
                 </Box>
-                <FormGroup>
-                  {todo.childs.length
-                    ? todo.childs.map((child, id) => (
-                        <Box
-                          key={id}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                          }}
-                        >
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                size="small"
-                                checked={child.done}
-                                onChange={() =>
-                                  handleToggleTodoChild(
-                                    todo._id,
-                                    child._id,
-                                    child.done
-                                  )
-                                }
-                              />
-                            }
-                            label={child.text}
-                          />
-                          <IconButton
-                            aria-label="delete"
-                            onClick={() => {
-                              handleDeleteTodoChild(todo._id, child._id);
-                            }}
-                          >
-                            <DeleteIcon sx={{ fontSize: '22px' }} />
-                          </IconButton>
-                        </Box>
-                      ))
-                    : ''}
-                </FormGroup>
+
+                <CardTodoList
+                  todo={todo}
+                  cardDetail={cardDetail}
+                  setCardDetail={setCardDetail}
+                />
+
                 {showAddChildForm === todo._id ? (
                   <Box>
                     <TextField

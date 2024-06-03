@@ -78,6 +78,48 @@ export const updateCommentReaction = createAsyncThunk(
   }
 );
 
+export const updateReplyCommentReaction = createAsyncThunk(
+  'card/updateCommentReaction',
+  async ({ id, commentId, replyId, data }, { rejectWithValue }) => {
+    try {
+      return await cardServices.updateReplyCommentReaction(
+        id,
+        commentId,
+        replyId,
+        data
+      );
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const removeCommentReaction = createAsyncThunk(
+  'card/removeCommentReaction',
+  async ({ id, commentId }, { rejectWithValue }) => {
+    try {
+      return await cardServices.removeCommentReaction(id, commentId);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const removeReplyCommentReaction = createAsyncThunk(
+  'card/removeCommentReaction',
+  async ({ id, commentId, replyId }, { rejectWithValue }) => {
+    try {
+      return await cardServices.removeReplyCommentReaction(
+        id,
+        commentId,
+        replyId
+      );
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const replyComment = createAsyncThunk(
   'card/replyComment',
   async ({ id, commentId, data }, { rejectWithValue }) => {

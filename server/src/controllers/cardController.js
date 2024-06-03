@@ -119,6 +119,8 @@ const updateCommentReaction = async (req, res, next) => {
       req.body.reactionType
     );
 
+    req.io.emit('commentReaction', updatedComment);
+
     res.status(StatusCodes.OK).json(updatedComment);
   } catch (error) {
     next(error);
@@ -138,6 +140,57 @@ const replyComment = async (req, res, next) => {
     }
 
     res.status(StatusCodes.OK).json(comment);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateReplyCommentReaction = async (req, res, next) => {
+  try {
+    const updatedComment = await cardCommentServices.updateReplyCommentReaction(
+      req.params.id,
+      req.params.commentId,
+      req.params.replyId,
+      req.userId,
+      req.body.reactionType
+    );
+
+    req.io.emit('replyCommentReaction', updatedComment);
+
+    res.status(StatusCodes.OK).json(updatedComment);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const removeCommentReaction = async (req, res, next) => {
+  try {
+    const updatedComment = await cardCommentServices.removeCommentReaction(
+      req.params.id,
+      req.params.commentId,
+      req.userId
+    );
+
+    req.io.emit('removeCommentReaction', updatedComment);
+
+    res.status(StatusCodes.OK).json(updatedComment);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const removeReplyCommentReaction = async (req, res, next) => {
+  try {
+    const updatedComment = await cardCommentServices.removeReplyCommentReaction(
+      req.params.id,
+      req.params.commentId,
+      req.params.replyId,
+      req.userId
+    );
+
+    req.io.emit('removeReplyCommentReaction', updatedComment);
+
+    res.status(StatusCodes.OK).json(updatedComment);
   } catch (error) {
     next(error);
   }
@@ -190,6 +243,9 @@ export const cardController = {
   addComment,
   updateCommentReaction,
   replyComment,
+  updateReplyCommentReaction,
+  removeCommentReaction,
+  removeReplyCommentReaction,
   deleteTodo,
   deleteTodoChild,
   remove,

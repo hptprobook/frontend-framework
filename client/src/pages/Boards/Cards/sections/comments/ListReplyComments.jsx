@@ -1,6 +1,4 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import EmojiPicker from 'emoji-picker-react';
-import { useState } from 'react';
 import { convertHTMLToText, formatTimestamp } from '~/utils/formatters';
 import ReactionReplyComment from './ReactionReplyComment';
 
@@ -9,30 +7,12 @@ export default function ListReplyComments({
   cardDetail,
   setCardDetail,
   isShowListUser,
-  setShowEmojiPicker,
-  showEmojiPicker,
   renderReactions,
 }) {
-  const [hoveredReplyCommentId, setHoveredReplyCommentId] = useState(null);
-
-  const handleReplyMouseEnter = (replyId) => {
-    setHoveredReplyCommentId(replyId);
-  };
-
-  const handleReplyMouseLeave = () => {
-    setHoveredReplyCommentId(null);
-  };
-
   return (
     <Box>
       {comment.replies?.map((reply, id) => (
-        <Box
-          key={id}
-          sx={{
-            ml: 6,
-            mt: 1,
-          }}
-        >
+        <Box key={id} sx={{ ml: 6, mt: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar
               sx={{
@@ -42,11 +22,11 @@ export default function ListReplyComments({
                 bgcolor: 'red',
               }}
             >
-              {reply?.userName.charAt(0)}
+              {reply.userName.charAt(0)}
             </Avatar>
-            <Typography variant="body2">{reply?.userName}</Typography>
+            <Typography variant="body2">{reply.userName}</Typography>
             <Typography variant="caption">
-              {formatTimestamp(reply?.createdAt)}
+              {formatTimestamp(reply.createdAt)}
             </Typography>
           </Box>
           <Box
@@ -59,33 +39,18 @@ export default function ListReplyComments({
               bgcolor: '#f0f0f0',
             }}
           >
-            <Box>{convertHTMLToText(reply?.content)}</Box>
-            <Box
-              sx={{
-                pb: 0.5,
-                mt: 0.2,
-                display: 'flex',
-                gap: 1,
-              }}
-            >
+            <Box>{convertHTMLToText(reply.content)}</Box>
+            <Box sx={{ pb: 0.5, mt: 0.2, display: 'flex', gap: 1 }}>
               {renderReactions(reply._id, reply.emotions)}
             </Box>
           </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              mt: 0.5,
-            }}
-          >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 0.5 }}>
             <ReactionReplyComment
-              comment={comment}
+              commentId={comment._id}
+              reply={reply}
               cardDetail={cardDetail}
               setCardDetail={setCardDetail}
               isShowListUser={isShowListUser}
-              showEmojiPicker={showEmojiPicker}
-              setShowEmojiPicker={setShowEmojiPicker}
             />
           </Box>
         </Box>

@@ -27,7 +27,6 @@ export default function ListComments({
   const { current } = useSelector((state) => state.users);
   const [isShowListUser, setShowListUser] = useState(false);
   const [replyCommentContent, setReplyCommentContent] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [hoveredReaction, setHoveredReaction] = useState(null);
   const [hoveredCommentId, setHoveredCommentId] = useState(null);
 
@@ -75,6 +74,12 @@ export default function ListComments({
     setReplyCommentContent('');
   };
 
+  const handleKeyUpReply = (event) => {
+    if (event.key === 'Enter') {
+      handleReplyComment();
+    }
+  };
+
   const renderReactions = (commentId, emotions) => {
     return REACTION_TYPES.map((reactionType) => {
       const count = emotions[reactionType].length;
@@ -114,11 +119,8 @@ export default function ListComments({
                   color: '#fff',
                 }}
               >
-                {emotions[reactionType].map((user) => (
-                  <Typography
-                    key={user.userId}
-                    sx={{ fontSize: '12px !important' }}
-                  >
+                {emotions[reactionType].map((user, id) => (
+                  <Typography key={id} sx={{ fontSize: '12px !important' }}>
                     {user.userName}
                   </Typography>
                 ))}
@@ -132,8 +134,8 @@ export default function ListComments({
   return (
     <Box>
       {cardDetail?.comments
-        ? cardDetail.comments.map((comment) => (
-            <React.Fragment key={comment._id}>
+        ? cardDetail.comments.map((comment, id) => (
+            <React.Fragment key={id}>
               <Box sx={{ my: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Avatar
@@ -197,8 +199,6 @@ export default function ListComments({
                     cardDetail={cardDetail}
                     setCardDetail={setCardDetail}
                     isShowListUser={isShowListUser}
-                    showEmojiPicker={showEmojiPicker}
-                    setShowEmojiPicker={setShowEmojiPicker}
                   />
                   <Typography
                     sx={{
@@ -221,7 +221,6 @@ export default function ListComments({
                 cardDetail={cardDetail}
                 setCardDetail={setCardDetail}
                 renderReactions={renderReactions}
-                showEmojiPicker={showEmojiPicker}
               />
 
               {replyCommentId === comment._id && (
@@ -252,6 +251,7 @@ export default function ListComments({
                         onChange={(event) =>
                           setReplyCommentContent(event.target.value)
                         }
+                        onKeyUp={handleKeyUpReply}
                         style={{ marginBottom: '12px' }}
                       />
                       <Box>

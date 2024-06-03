@@ -27,8 +27,12 @@ Router.route('/:id/todos/:todoId/child/:childId')
 Router.route('/:id/comments').post(cardController.addComment);
 Router.route('/:id/comments/:commentId').put(cardController.replyComment);
 
-Router.route('/:id/comments/:commentId/reactions').put(
-  cardController.updateCommentReaction
-);
+Router.route('/:id/comments/:commentId/reactions')
+  .get(cardController.removeCommentReaction)
+  .put(cardController.updateCommentReaction);
+
+Router.route('/:id/:commentId/:replyId/reactions')
+  .get(cardController.removeReplyCommentReaction)
+  .put(cardController.updateReplyCommentReaction);
 
 export const cardRoute = Router;
