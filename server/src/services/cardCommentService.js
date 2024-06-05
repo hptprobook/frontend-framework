@@ -48,9 +48,14 @@ const updateComment = async (cardId, commentId, updateData) => {
     }
 
     updateData.updatedAt = Date.now();
-    Object.assign(card.comments[commentIndex], updateData);
+    const updatedComment = Object.assign(
+      card.comments[commentIndex],
+      updateData
+    );
 
-    return await cardModel.update(cardId, { comments: card.comments });
+    await cardModel.update(cardId, { comments: card.comments });
+
+    return updatedComment;
   } catch (error) {
     throw new Error(error);
   }
@@ -139,7 +144,7 @@ const updateCommentReaction = async (
 
 const replyComment = async (cardId, commentId, replyData) => {
   try {
-    const validReplyCommentData = await validateReplyComment(replyData);
+    const validReplyData = await validateReplyComment(replyData);
 
     const card = await cardModel.findOneById(cardId);
     if (!card) {
@@ -154,7 +159,7 @@ const replyComment = async (cardId, commentId, replyData) => {
     }
 
     card.comments[commentIndex].replies.push({
-      ...validReplyCommentData,
+      ...validReplyData,
       _id: new ObjectId(),
     });
 

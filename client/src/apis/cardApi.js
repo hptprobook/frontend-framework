@@ -40,6 +40,45 @@ export const updateTodoChild = async ({ id, todoId, childId, data }) => {
   return response.data;
 };
 
+export const updateCommentAPI = async ({ id, commentId, data }) => {
+  const response = await axios.put(
+    `${API_URL}/cards/${id}/comments/${commentId}/edit`,
+    data
+  );
+
+  return response.data;
+};
+
+export const updateReplyCommentAPI = async ({
+  id,
+  commentId,
+  replyId,
+  data,
+}) => {
+  const response = await axios.put(
+    `${API_URL}/cards/${id}/comments/${commentId}/replies/${replyId}`,
+    data
+  );
+
+  return response.data;
+};
+
+export const deleteCommentAPI = async ({ id, commentId }) => {
+  const response = await axios.delete(
+    `${API_URL}/cards/${id}/comments/${commentId}`
+  );
+
+  return response.data;
+};
+
+export const deleteReplyCommentAPI = async ({ id, commentId, replyId }) => {
+  const response = await axios.delete(
+    `${API_URL}/cards/${id}/comments/${commentId}/replies/${replyId}`
+  );
+
+  return response.data;
+};
+
 export const deleteCardDetails = async ({ id }) => {
   const response = await axios.delete(`${API_URL}/cards/${id}`);
   return response.data;

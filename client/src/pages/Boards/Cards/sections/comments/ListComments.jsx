@@ -18,10 +18,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { replyComment } from '~/redux/slices/cardSlice';
-import { convertHTMLToText, formatTimestamp } from '~/utils/formatters';
+import { formatTimestamp } from '~/utils/formatters';
 import ListReplyComments from './ListReplyComments';
 import ReactionComment from './ReactionComment';
 import { REACTION_TYPES, reactionEmojis } from '~/utils/emojiConvert';
+import { deleteCommentAPI, updateCommentAPI } from '~/apis/cardApi';
 
 export default function ListComments({
   card,
@@ -37,32 +38,55 @@ export default function ListComments({
   const [replyCommentContent, setReplyCommentContent] = useState('');
   const [hoveredReaction, setHoveredReaction] = useState(null);
   const [hoveredCommentId, setHoveredCommentId] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState({});
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editedCommentContent, setEditedCommentContent] = useState('');
-  const isMenuOpen = Boolean(anchorEl);
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuOpen = (event, commentId) => {
+    setAnchorEl((prev) => ({ ...prev, [commentId]: event.currentTarget }));
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleMenuClose = (commentId) => {
+    setAnchorEl((prev) => ({ ...prev, [commentId]: null }));
   };
 
   const handleEditComment = (comment) => {
     setEditedCommentContent(comment.content);
     setEditingCommentId(comment._id);
-    handleMenuClose();
+    handleMenuClose(comment._id);
   };
 
-  const handleDeleteComment = (commentId) => {
-    // Add logic to delete the comment
-    handleMenuClose();
+  const handleDeleteComment = async (commentId) => {
+    const updatedCard = {
+      ...cardDetail,
+      comments: cardDetail.comments.filter(
+        (comment) => comment._id !== commentId
+      ),
+    };
+
+    await deleteCommentAPI({ id: card._id, commentId });
+
+    setCardDetail(updatedCard);
+    handleMenuClose(commentId);
   };
 
-  const handleSaveEditedComment = (commentId) => {
-    // Add logic to save the edited comment
+  const handleSaveEditedComment = async (commentId) => {
+    const updatedComment = await updateCommentAPI({
+      id: card._id,
+      commentId,
+      data: {
+        content: editedCommentContent,
+      },
+    });
+
+    const updatedCard = {
+      ...cardDetail,
+      comments: cardDetail.comments.map((comment) =>
+        comment._id === updatedComment._id ? updatedComment : comment
+      ),
+    };
+
+    setCardDetail(updatedCard);
     setEditingCommentId(null);
   };
 
@@ -220,6 +244,7 @@ export default function ListComments({
                       value={editedCommentContent}
                       onChange={(e) => setEditedCommentContent(e.target.value)}
                       style={{ marginBottom: '12px' }}
+                      autoFocus
                     />
                     <Button
                       size="small"
@@ -249,7 +274,7 @@ export default function ListComments({
                       position: 'relative',
                     }}
                   >
-                    <Box>{convertHTMLToText(comment?.content)}</Box>
+                    <Box>{comment.content}</Box>
                     <Box
                       sx={{
                         pb: 0.5,
@@ -267,14 +292,14 @@ export default function ListComments({
                         top: '50%',
                         transform: 'translateY(-50%)',
                       }}
-                      onClick={handleMenuOpen}
+                      onClick={(event) => handleMenuOpen(event, comment._id)}
                     >
                       <MoreVertIcon />
                     </IconButton>
                     <Menu
-                      anchorEl={anchorEl}
-                      open={isMenuOpen}
-                      onClose={handleMenuClose}
+                      anchorEl={anchorEl[comment._id]}
+                      open={Boolean(anchorEl[comment._id])}
+                      onClose={() => handleMenuClose(comment._id)}
                     >
                       <MenuItem onClick={() => handleEditComment(comment)}>
                         <ListItemIcon>

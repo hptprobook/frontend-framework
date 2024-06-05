@@ -15,6 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useState } from 'react';
 import { convertHTMLToText, formatTimestamp } from '~/utils/formatters';
 import ReactionReplyComment from './ReactionReplyComment';
+import { deleteReplyCommentAPI, updateReplyCommentAPI } from '~/apis/cardApi';
 
 export default function ListReplyComments({
   comment,
@@ -23,34 +24,57 @@ export default function ListReplyComments({
   isShowListUser,
   renderReactions,
 }) {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState({});
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editedReplyContent, setEditedReplyContent] = useState('');
-  const [replyIdToDelete, setReplyIdToDelete] = useState(null);
 
   const handleMenuOpen = (event, replyId) => {
-    setAnchorEl(event.currentTarget);
-    setReplyIdToDelete(replyId);
+    setAnchorEl((prev) => ({ ...prev, [replyId]: event.currentTarget }));
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setReplyIdToDelete(null);
+  const handleMenuClose = (replyId) => {
+    setAnchorEl((prev) => ({ ...prev, [replyId]: null }));
   };
 
   const handleEditReply = (reply) => {
     setEditedReplyContent(reply.content);
     setEditingReplyId(reply._id);
-    handleMenuClose();
+    handleMenuClose(reply._id);
   };
 
-  const handleDeleteReply = (replyId) => {
-    // Add logic to delete the reply
-    handleMenuClose();
+  const handleDeleteReply = async (replyId) => {
+    await deleteReplyCommentAPI({
+      id: cardDetail._id,
+      commentId: comment._id,
+      replyId,
+    });
+
+    const updatedCard = {
+      ...cardDetail,
+      comments: cardDetail.comments.map((comment) => {
+        if (comment._id === comment._id) {
+          return {
+            ...comment,
+            replies: comment.replies.filter((reply) => reply._id !== replyId),
+          };
+        }
+        return comment;
+      }),
+    };
+
+    setCardDetail(updatedCard);
+    handleMenuClose(replyId);
   };
 
-  const handleSaveEditedReply = (replyId) => {
-    // Add logic to save the edited reply
+  const handleSaveEditedReply = async (replyId) => {
+    const updatedReply = await updateReplyCommentAPI({
+      id: cardDetail._id,
+      commentId: comment._id,
+      replyId,
+      data: { content: editedReplyContent },
+    });
+
+    setCardDetail(updatedReply);
     setEditingReplyId(null);
   };
 
@@ -92,6 +116,7 @@ export default function ListReplyComments({
               <TextField
                 fullWidth
                 value={editedReplyContent}
+                autoFocus
                 onChange={(e) => setEditedReplyContent(e.target.value)}
                 style={{ marginBottom: '12px' }}
               />
@@ -139,9 +164,9 @@ export default function ListReplyComments({
                 <MoreVertIcon />
               </IconButton>
               <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
+                anchorEl={anchorEl[reply._id]}
+                open={Boolean(anchorEl[reply._id])}
+                onClose={() => handleMenuClose(reply._id)}
               >
                 <MenuItem onClick={() => handleEditReply(reply)}>
                   <ListItemIcon>

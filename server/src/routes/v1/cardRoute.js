@@ -33,9 +33,9 @@ Router.route('/:id/child/:childId/done').put(cardTodoController.childDone);
 /* For Comment of Card */
 
 Router.route('/:id/comments').post(cardCommentController.addComment);
-Router.route('/:id/comments/:commentId').put(
-  cardCommentController.replyComment
-);
+Router.route('/:id/comments/:commentId')
+  .put(cardCommentController.replyComment)
+  .delete(cardCommentController.deleteComment);
 
 Router.route('/:id/comments/:commentId/reactions')
   .get(cardCommentController.removeCommentReaction)
@@ -45,12 +45,8 @@ Router.route('/:id/:commentId/:replyId/reactions')
   .get(cardCommentController.removeReplyCommentReaction)
   .put(cardCommentController.updateReplyCommentReaction);
 
-Router.route('/:id/comments/:commentId').put(
+Router.route('/:id/comments/:commentId/edit').put(
   cardCommentController.updateComment
-);
-
-Router.route('/:id/comments/:commentId').delete(
-  cardCommentController.deleteComment
 );
 
 Router.route('/:id/comments/:commentId/replies/:replyId').put(
