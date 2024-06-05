@@ -10,10 +10,12 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import { updateTodoChild } from '~/apis/cardApi';
 
 export default function TodoChildList({
   child,
   todoId,
+  cardId,
   handleToggleTodoChild,
   handleDeleteTodoChild,
   handleSaveEdit,
@@ -25,8 +27,16 @@ export default function TodoChildList({
     setIsEditing(true);
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     handleSaveEdit(todoId, child._id, editText);
+
+    await updateTodoChild({
+      id: cardId,
+      todoId,
+      childId: child._id,
+      data: { text: editText },
+    });
+
     setIsEditing(false);
   };
 

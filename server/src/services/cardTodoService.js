@@ -20,10 +20,12 @@ const addTodo = async (cardId, todoData) => {
     card.todos.push({ ...value, _id: newTodoId });
     card.todoOrderIds.push(newTodoId);
 
-    return await cardModel.update(cardId, {
+    await cardModel.update(cardId, {
       todos: card.todos,
       todoOrderIds: card.todoOrderIds,
     });
+
+    return { ...value, _id: newTodoId };
   } catch (error) {
     throw new Error(error);
   }
@@ -113,6 +115,40 @@ const updateTodoChild = async (cardId, todoId, childId, updateData) => {
   }
 };
 
+const childDone = async (cardId, childId, reqBody) => {
+  try {
+    const card = await cardModel.findOneById(cardId);
+
+    if (!card) {
+      throw new Error(`Card not found for cardId ${cardId}`);
+    }
+
+    const todo = card.todos.find((todo) =>
+      todo.childs.some((child) => child._id.equals(new ObjectId(childId)))
+    );
+
+    if (!todo) {
+      throw new Error(`Todo not found for childId ${childId}`);
+    }
+
+    const child = todo.childs.find((child) =>
+      child._id.equals(new ObjectId(childId))
+    );
+
+    if (!child) {
+      throw new Error(`Child not found with id ${childId}`);
+    }
+
+    child.done = reqBody.done;
+
+    await cardModel.update(card._id, { todos: card.todos });
+
+    return { ...child, done: true };
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const deleteTodo = async (cardId, todoId) => {
   try {
     const card = await cardModel.findOneById(cardId);
@@ -168,6 +204,7 @@ export const cardTodoServices = {
   addTodoChild,
   updateTodo,
   updateTodoChild,
+  childDone,
   deleteTodo,
   deleteTodoChild,
 };

@@ -8,7 +8,7 @@ export const updateCardDetails = async ({ id, data }) => {
   return response.data;
 };
 
-export const addTodo = async ({ id, data }) => {
+export const addTodoAPI = async ({ id, data }) => {
   const response = await axios.put(`${API_URL}/cards/${id}/addTodo`, data);
   return response.data;
 };
@@ -20,6 +20,23 @@ export const addTodoChild = async ({ id, data }) => {
 
 export const addComment = async ({ id, data }) => {
   const response = await axios.post(`${API_URL}/cards/${id}/comments`, data);
+  return response.data;
+};
+
+export const childDone = async ({ id, childId, data }) => {
+  const response = await axios.put(
+    `${API_URL}/cards/${id}/child/${childId}/done`,
+    data
+  );
+  return response.data;
+};
+
+export const updateTodoChild = async ({ id, todoId, childId, data }) => {
+  const response = await axios.put(
+    `${API_URL}/cards/${id}/todos/${todoId}/child/${childId}`,
+    data
+  );
+
   return response.data;
 };
 

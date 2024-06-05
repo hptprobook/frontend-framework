@@ -14,17 +14,6 @@ import CardDetailDesc from './sections/CardDetailDesc';
 import CardDetailTodo from './sections/todos/CardDetailTodo';
 import CardDetailHeader from './sections/CardDetailHeader';
 import CardDetailComment from './sections/comments/CardDetailComment';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  DndContext,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
 
 export default function CardDetail({
   openModal,
@@ -56,84 +45,61 @@ export default function CardDetail({
     };
   }, [card._id]);
 
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: {
-      distance: 10,
-    },
-  });
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 250,
-      tolerance: 500,
-    },
-  });
-
-  const sensors = useSensors(mouseSensor, touchSensor);
-
   return (
     <React.Fragment key={card._id}>
-      <DndContext sensors={sensors}>
-        <Dialog
-          sx={{
-            '& .MuiPaper-root': {
-              height: 'auto',
-              maxWidth: '900px',
-              width: '900px',
-              borderRadius: '10px',
-            },
-          }}
-          data-no-dnd="true"
-          open={openModal}
-          onClose={handleCloseModal}
-        >
-          {/* Card Detail Header */}
-          <CardDetailHeader
-            card={card}
-            handleCloseModal={handleCloseModal}
-            columnName={columnName}
-            setCardTitle={setCardTitle}
-            handleDeleteCard={handleDeleteCard}
-            cardDetail={cardDetail}
-            setCardDetail={setCardDetail}
-          />
+      <Dialog
+        sx={{
+          '& .MuiPaper-root': {
+            height: 'auto',
+            maxWidth: '900px',
+            width: '900px',
+            borderRadius: '10px',
+          },
+        }}
+        data-no-dnd="true"
+        open={openModal}
+        onClose={handleCloseModal}
+      >
+        {/* Card Detail Header */}
+        <CardDetailHeader
+          card={card}
+          handleCloseModal={handleCloseModal}
+          columnName={columnName}
+          setCardTitle={setCardTitle}
+          handleDeleteCard={handleDeleteCard}
+          cardDetail={cardDetail}
+          setCardDetail={setCardDetail}
+        />
 
-          {/* Card Detail Description */}
-          <CardDetailDesc
-            card={card}
-            cardDetail={cardDetail}
-            setCardDetail={setCardDetail}
-          />
+        {/* Card Detail Description */}
+        <CardDetailDesc
+          card={card}
+          cardDetail={cardDetail}
+          setCardDetail={setCardDetail}
+        />
 
-          {/* Card Detail Todos */}
-          <SortableContext
-            items={cardDetail.todos?.map((todo) => todo._id)}
-            strategy={verticalListSortingStrategy}
+        {/* Card Detail Todos */}
+
+        <CardDetailTodo cardDetail={cardDetail} setCardDetail={setCardDetail} />
+
+        {/* Card Detail Comments */}
+        <CardDetailComment
+          card={card}
+          cardDetail={cardDetail}
+          setCardDetail={setCardDetail}
+        />
+
+        <DialogActions>
+          <Button
+            onClick={handleCloseModal}
+            sx={{
+              mr: 2,
+            }}
           >
-            <CardDetailTodo
-              cardDetail={cardDetail}
-              setCardDetail={setCardDetail}
-            />
-          </SortableContext>
-
-          {/* Card Detail Comments */}
-          <CardDetailComment
-            card={card}
-            cardDetail={cardDetail}
-            setCardDetail={setCardDetail}
-          />
-
-          <DialogActions>
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                mr: 2,
-              }}
-            >
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </DndContext>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }

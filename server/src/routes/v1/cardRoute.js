@@ -1,8 +1,12 @@
 import express from 'express';
 import { cardValidation } from '~/validations/cardValidation';
 import { cardController } from '~/controllers/cardController';
+import { cardTodoController } from '~/controllers/cardTodoController';
+import { cardCommentController } from '~/controllers/cardCommentController';
 
 const Router = express.Router();
+
+/* For Card */
 
 Router.route('/').post(cardValidation.createNew, cardController.createNew);
 Router.route('/:id')
@@ -10,29 +14,51 @@ Router.route('/:id')
   .put(cardValidation.update, cardController.update)
   .delete(cardValidation.remove, cardController.remove);
 
-Router.route('/:id/addTodo')
-  .put(cardController.addTodo)
-  .post(cardController.addTodoChild);
+/* For Todo of Card */
 
-// Router.route('/:id/childDone').put(cardController.childDone);
+Router.route('/:id/addTodo')
+  .put(cardTodoController.addTodo)
+  .post(cardTodoController.addTodoChild);
 
 Router.route('/:id/todos/:todoId')
-  .put(cardController.updateTodo)
-  .delete(cardController.deleteTodo);
+  .put(cardTodoController.updateTodo)
+  .delete(cardTodoController.deleteTodo);
 
 Router.route('/:id/todos/:todoId/child/:childId')
-  .put(cardController.updateTodoChild)
-  .delete(cardController.deleteTodoChild);
+  .put(cardTodoController.updateTodoChild)
+  .delete(cardTodoController.deleteTodoChild);
 
-Router.route('/:id/comments').post(cardController.addComment);
-Router.route('/:id/comments/:commentId').put(cardController.replyComment);
+Router.route('/:id/child/:childId/done').put(cardTodoController.childDone);
+
+/* For Comment of Card */
+
+Router.route('/:id/comments').post(cardCommentController.addComment);
+Router.route('/:id/comments/:commentId').put(
+  cardCommentController.replyComment
+);
 
 Router.route('/:id/comments/:commentId/reactions')
-  .get(cardController.removeCommentReaction)
-  .put(cardController.updateCommentReaction);
+  .get(cardCommentController.removeCommentReaction)
+  .put(cardCommentController.updateCommentReaction);
 
 Router.route('/:id/:commentId/:replyId/reactions')
-  .get(cardController.removeReplyCommentReaction)
-  .put(cardController.updateReplyCommentReaction);
+  .get(cardCommentController.removeReplyCommentReaction)
+  .put(cardCommentController.updateReplyCommentReaction);
+
+Router.route('/:id/comments/:commentId').put(
+  cardCommentController.updateComment
+);
+
+Router.route('/:id/comments/:commentId').delete(
+  cardCommentController.deleteComment
+);
+
+Router.route('/:id/comments/:commentId/replies/:replyId').put(
+  cardCommentController.updateReplyComment
+);
+
+Router.route('/:id/comments/:commentId/replies/:replyId').delete(
+  cardCommentController.deleteReplyComment
+);
 
 export const cardRoute = Router;

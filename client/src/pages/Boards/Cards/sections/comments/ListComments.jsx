@@ -6,7 +6,15 @@ import {
   Chip,
   TextField,
   Typography,
+  Menu,
+  MenuItem,
+  IconButton,
+  ListItemIcon,
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { replyComment } from '~/redux/slices/cardSlice';
@@ -29,6 +37,38 @@ export default function ListComments({
   const [replyCommentContent, setReplyCommentContent] = useState('');
   const [hoveredReaction, setHoveredReaction] = useState(null);
   const [hoveredCommentId, setHoveredCommentId] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editedCommentContent, setEditedCommentContent] = useState('');
+  const isMenuOpen = Boolean(anchorEl);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleEditComment = (comment) => {
+    setEditedCommentContent(comment.content);
+    setEditingCommentId(comment._id);
+    handleMenuClose();
+  };
+
+  const handleDeleteComment = (commentId) => {
+    // Add logic to delete the comment
+    handleMenuClose();
+  };
+
+  const handleSaveEditedComment = (commentId) => {
+    // Add logic to save the edited comment
+    setEditingCommentId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+  };
 
   const handleReplyComment = () => {
     const newReplyComment = {
@@ -136,7 +176,7 @@ export default function ListComments({
       {cardDetail?.comments
         ? cardDetail.comments.map((comment, id) => (
             <React.Fragment key={id}>
-              <Box sx={{ my: 1 }}>
+              <Box sx={{ my: 1, position: 'relative' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Avatar
                     sx={{
@@ -164,28 +204,95 @@ export default function ListComments({
                     {formatTimestamp(comment?.createdAt)}
                   </Typography>
                 </Box>
-                <Box
-                  sx={{
-                    mt: 1,
-                    py: 2,
-                    px: 3,
-                    borderRadius: '8px',
-                    border: '1px solid #e4e6ea',
-                    bgcolor: '#f0f0f0',
-                  }}
-                >
-                  <Box>{convertHTMLToText(comment?.content)}</Box>
+                {editingCommentId === comment._id ? (
                   <Box
                     sx={{
-                      pb: 0.5,
-                      mt: 0.2,
-                      display: 'flex',
-                      gap: 1,
+                      mt: 1,
+                      py: 2,
+                      px: 3,
+                      borderRadius: '8px',
+                      border: '1px solid #e4e6ea',
+                      bgcolor: '#f0f0f0',
                     }}
                   >
-                    {renderReactions(comment._id, comment.emotions)}
+                    <TextField
+                      fullWidth
+                      value={editedCommentContent}
+                      onChange={(e) => setEditedCommentContent(e.target.value)}
+                      style={{ marginBottom: '12px' }}
+                    />
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      sx={{ mr: 1 }}
+                      onClick={() => handleSaveEditedComment(comment._id)}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </Button>
                   </Box>
-                </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      mt: 1,
+                      py: 2,
+                      px: 3,
+                      borderRadius: '8px',
+                      border: '1px solid #e4e6ea',
+                      bgcolor: '#f0f0f0',
+                      position: 'relative',
+                    }}
+                  >
+                    <Box>{convertHTMLToText(comment?.content)}</Box>
+                    <Box
+                      sx={{
+                        pb: 0.5,
+                        mt: 0.2,
+                        display: 'flex',
+                        gap: 1,
+                      }}
+                    >
+                      {renderReactions(comment._id, comment.emotions)}
+                    </Box>
+                    <IconButton
+                      sx={{
+                        position: 'absolute',
+                        right: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                      }}
+                      onClick={handleMenuOpen}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={isMenuOpen}
+                      onClose={handleMenuClose}
+                    >
+                      <MenuItem onClick={() => handleEditComment(comment)}>
+                        <ListItemIcon>
+                          <EditIcon fontSize="small" />
+                        </ListItemIcon>
+                        Edit
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => handleDeleteComment(comment._id)}
+                      >
+                        <ListItemIcon>
+                          <DeleteIcon fontSize="small" />
+                        </ListItemIcon>
+                        Delete
+                      </MenuItem>
+                    </Menu>
+                  </Box>
+                )}
                 <Box
                   sx={{
                     display: 'flex',

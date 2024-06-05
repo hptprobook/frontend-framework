@@ -3,7 +3,6 @@ import 'react-quill/dist/quill.snow.css';
 import { useState } from 'react';
 import ReactQuill from 'react-quill';
 import { useDispatch } from 'react-redux';
-import { unwrapResult } from '@reduxjs/toolkit';
 
 /* MUI components */
 import {
@@ -26,14 +25,10 @@ import CardAction from './CardAction';
 import MenuModal from '~/components/MenuModal';
 
 /* API endpoint */
-import { addTodo, updateCardDetails } from '~/redux/slices/cardSlice';
+import { updateCardDetails } from '~/redux/slices/cardSlice';
+import { addTodoAPI } from '~/apis/cardApi';
 
-export default function CardDetailDesc({
-  card,
-  cardDetail,
-  setCardDetail,
-  handleAddChildFormOpen,
-}) {
+export default function CardDetailDesc({ card, cardDetail, setCardDetail }) {
   const dispatch = useDispatch();
   const [addMemberMenu, setAddMemberMenu] = useState(null);
   const [addTodoMenu, setAddTodoMenu] = useState(null);
@@ -70,22 +65,19 @@ export default function CardDetailDesc({
   };
 
   const handleAddTodo = async () => {
+    const todoAdded = await addTodoAPI({
+      id: cardDetail._id,
+      data: { text: todoTitle },
+    });
+
     setAddTodoMenu(null);
-    const newTodo = { text: todoTitle, childs: [] };
+    const newTodo = { text: todoTitle, childs: [], _id: todoAdded._id };
     const updatedCard = {
       ...cardDetail,
       todos: [...cardDetail.todos, newTodo],
     };
     setCardDetail(updatedCard);
-
-    const resultAction = await dispatch(
-      addTodo({ id: card._id, data: { text: todoTitle } })
-    );
-    const result = unwrapResult(resultAction);
-    if (result) {
-      setTodoTitle('');
-      handleAddChildFormOpen(result.todos[result.todos.length - 1]._id);
-    }
+    setTodoTitle('');
   };
 
   return (

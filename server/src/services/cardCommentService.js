@@ -56,6 +56,38 @@ const updateComment = async (cardId, commentId, updateData) => {
   }
 };
 
+const updateReplyComment = async (cardId, commentId, replyId, updateData) => {
+  try {
+    const card = await cardModel.findOneById(cardId);
+    if (!card) {
+      throw new Error(`Card not found for id ${cardId}`);
+    }
+
+    const commentIndex = card.comments.findIndex((comment) =>
+      comment._id.equals(new ObjectId(commentId))
+    );
+    if (commentIndex === -1) {
+      throw new Error(`Comment not found in card ${cardId}`);
+    }
+
+    const comment = card.comments[commentIndex];
+    const replyIndex = comment.replies.findIndex((reply) =>
+      reply._id.equals(new ObjectId(replyId))
+    );
+
+    if (replyIndex === -1) {
+      throw new Error(`Reply not found in comment ${commentId}`);
+    }
+
+    updateData.updatedAt = Date.now();
+    Object.assign(comment.replies[replyIndex], updateData);
+
+    return await cardModel.update(cardId, { comments: card.comments });
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const updateCommentReaction = async (
   cardId,
   commentId,
@@ -286,13 +318,47 @@ const deleteComment = async (cardId, commentId) => {
   }
 };
 
+const deleteReplyComment = async (cardId, commentId, replyId) => {
+  try {
+    const card = await cardModel.findOneById(cardId);
+    if (!card) {
+      throw new Error(`Card not found for id ${cardId}`);
+    }
+
+    const commentIndex = card.comments.findIndex((comment) =>
+      comment._id.equals(new ObjectId(commentId))
+    );
+    if (commentIndex === -1) {
+      throw new Error(`Comment not found in card ${cardId}`);
+    }
+
+    const comment = card.comments[commentIndex];
+    const replyIndex = comment.replies.findIndex((reply) =>
+      reply._id.equals(new ObjectId(replyId))
+    );
+
+    if (replyIndex === -1) {
+      throw new Error(`Reply not found in comment ${commentId}`);
+    }
+
+    // Remove the reply
+    comment.replies.splice(replyIndex, 1);
+
+    return await cardModel.update(cardId, { comments: card.comments });
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const cardCommentServices = {
   addComment,
   updateComment,
   updateCommentReaction,
   replyComment,
+  updateReplyComment,
   removeCommentReaction,
   removeReplyCommentReaction,
   updateReplyCommentReaction,
   deleteComment,
+  deleteReplyComment,
 };
