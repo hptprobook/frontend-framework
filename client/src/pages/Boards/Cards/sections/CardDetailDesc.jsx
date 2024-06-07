@@ -1,6 +1,6 @@
 /* Config */
 import 'react-quill/dist/quill.snow.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import { useDispatch } from 'react-redux';
 
@@ -27,6 +27,7 @@ import MenuModal from '~/components/MenuModal';
 /* API endpoint */
 import { updateCardDetails } from '~/redux/slices/cardSlice';
 import { addTodoAPI } from '~/apis/cardApi';
+import socket from '~/socket/socket';
 
 export default function CardDetailDesc({ card, cardDetail, setCardDetail }) {
   const dispatch = useDispatch();
@@ -36,6 +37,19 @@ export default function CardDetailDesc({ card, cardDetail, setCardDetail }) {
   const [isEditingDesc, setEditingDesc] = useState(false);
   const [initialDesc, setInitialDesc] = useState(card ? card.description : '');
   const [todoTitle, setTodoTitle] = useState('');
+
+  useEffect(() => {
+    socket.on('updateCard', (data) => {
+      if (data) {
+        setCardDetail(data);
+        setDesc(data.description);
+      }
+    });
+
+    return () => {
+      socket.off('updateCard');
+    };
+  }, [cardDetail, setCardDetail]);
 
   const handleSaveDesc = () => {
     setEditingDesc(false);
@@ -71,12 +85,19 @@ export default function CardDetailDesc({ card, cardDetail, setCardDetail }) {
     });
 
     setAddTodoMenu(null);
-    const newTodo = { text: todoTitle, childs: [], _id: todoAdded._id };
-    const updatedCard = {
-      ...cardDetail,
-      todos: [...cardDetail.todos, newTodo],
-    };
-    setCardDetail(updatedCard);
+    const todoExists = cardDetail.todos.some(
+      (todo) => todo._id === todoAdded._id
+    );
+
+    if (!todoExists) {
+      const newTodo = { text: todoTitle, childs: [], _id: todoAdded._id };
+      const updatedCard = {
+        ...cardDetail,
+        todos: [...cardDetail.todos, newTodo],
+      };
+      setCardDetail(updatedCard);
+    }
+
     setTodoTitle('');
   };
 

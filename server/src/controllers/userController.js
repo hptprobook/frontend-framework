@@ -1,16 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '~/services/userService';
 
-const createNew = async (req, res, next) => {
-  try {
-    await userService.createNew(req.body);
-
-    res.status(StatusCodes.CREATED).json({ message: 'Login successfully' });
-  } catch (error) {
-    next(error);
-  }
-};
-
 const getCurrent = async (req, res, next) => {
   try {
     const currentUser = await userService.getCurrent(req.userId);
@@ -40,7 +30,6 @@ const update = async (req, res, next) => {
 };
 
 export const userController = {
-  createNew,
   getCurrent,
   findUser,
   update,

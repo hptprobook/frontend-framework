@@ -5,6 +5,8 @@ const addTodo = async (req, res, next) => {
   try {
     const todoAdded = await cardTodoServices.addTodo(req.params.id, req.body);
 
+    req.io.emit('addTodo', todoAdded);
+
     res.status(StatusCodes.OK).json(todoAdded);
   } catch (error) {
     next(error);
@@ -17,6 +19,8 @@ const addTodoChild = async (req, res, next) => {
       req.params.id,
       req.body
     );
+
+    req.io.emit('addTodoChild', createdTodoChild);
 
     res.status(StatusCodes.OK).json(createdTodoChild);
   } catch (error) {
@@ -46,6 +50,8 @@ const updateTodo = async (req, res, next) => {
       req.body
     );
 
+    req.io.emit('updateTodo', updatedCard);
+
     res.status(StatusCodes.OK).json(updatedCard);
   } catch (error) {
     next(error);
@@ -61,6 +67,8 @@ const updateTodoChild = async (req, res, next) => {
       req.body
     );
 
+    req.io.emit('updateTodoChild', updatedCard);
+
     res.status(StatusCodes.OK).json(updatedCard);
   } catch (error) {
     next(error);
@@ -70,6 +78,8 @@ const updateTodoChild = async (req, res, next) => {
 const deleteTodo = async (req, res, next) => {
   try {
     await cardTodoServices.deleteTodo(req.params.id, req.params.todoId);
+
+    req.io.emit('deleteTodo', req.params.todoId);
 
     res.status(StatusCodes.NO_CONTENT).json({ success: true });
   } catch (error) {
@@ -84,6 +94,11 @@ const deleteTodoChild = async (req, res, next) => {
       req.params.todoId,
       req.params.childId
     );
+
+    req.io.emit('deleteTodoChild', {
+      childId: req.params.childId,
+      todoId: req.params.todoId,
+    });
 
     res.status(StatusCodes.NO_CONTENT).json({ success: true });
   } catch (error) {

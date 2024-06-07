@@ -13,6 +13,15 @@ export const addTodoAPI = async ({ id, data }) => {
   return response.data;
 };
 
+export const updateTodoAPI = async ({ id, todoId, data }) => {
+  const response = await axios.put(
+    `${API_URL}/cards/${id}/todos/${todoId}`,
+    data
+  );
+
+  return response.data;
+};
+
 export const addTodoChild = async ({ id, data }) => {
   const response = await axios.post(`${API_URL}/cards/${id}/addTodo`, data);
   return response.data;

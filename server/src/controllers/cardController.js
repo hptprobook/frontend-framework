@@ -26,6 +26,8 @@ const update = async (req, res, next) => {
   try {
     const updatedCard = await cardService.update(req.params.id, req.body);
 
+    if (updatedCard) req.io.emit('updateCard', updatedCard);
+
     res.status(StatusCodes.OK).json(updatedCard);
   } catch (error) {
     next(error);

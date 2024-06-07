@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* Config */
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 /* MUI components */
@@ -9,6 +10,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 
 /* API endpoint */
 import { updateCardDetails } from '~/redux/slices/cardSlice';
+import socket from '~/socket/socket';
 
 export default function CardDetailHeader({
   card,
@@ -23,15 +25,28 @@ export default function CardDetailHeader({
   const [title, setTitle] = useState(card ? card.title : '');
   const [isEditingTitle, setEditingTitle] = useState(false);
 
+  useEffect(() => {
+    socket.on('updateCard', (data) => {
+      if (data) {
+        setCardTitle(data.title);
+        setCardDetail(data);
+      }
+    });
+
+    return () => {
+      socket.off('updateCard');
+    };
+  }, [cardDetail, setCardDetail]);
+
   const handleSaveTitle = (e) => {
     if (e.key === 'Enter') {
       setEditingTitle(false);
       const updatedCard = { ...cardDetail, title: e.target.value };
+      setCardTitle(e.target.value);
       setCardDetail(updatedCard);
       dispatch(
         updateCardDetails({ id: card._id, data: { title: e.target.value } })
       );
-      setCardTitle(e.target.value);
     }
   };
 

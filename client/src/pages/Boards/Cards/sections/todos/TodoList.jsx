@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -15,9 +15,11 @@ import {
   deleteTodo,
   addTodoChild,
   childDone,
+  updateTodoAPI,
 } from '~/apis/cardApi';
 import { toast } from 'react-toastify';
 import TodoChildList from './TodoChildList';
+import socket from '~/socket/socket';
 
 export default function CardTodoList({ todo, cardDetail, setCardDetail }) {
   const confirmDeleteTodo = useConfirm();
@@ -26,6 +28,69 @@ export default function CardTodoList({ todo, cardDetail, setCardDetail }) {
   const [childText, setChildText] = useState('');
   const [showAddChildForm, setShowAddChildForm] = useState(null);
   const addChildRef = useRef(null);
+  const [editTodoId, setEditTodoId] = useState(null); // state to store the todo being edited
+  const [editTodoText, setEditTodoText] = useState(''); // state to store the new todo text
+
+  useEffect(() => {
+    socket.on('addTodo', (data) => {
+      if (data) {
+        setCardDetail({ ...cardDetail, todos: [...cardDetail.todos, data] });
+      }
+    });
+
+    socket.on('updateTodo', (data) => {
+      if (data) {
+        setCardDetail(data);
+      }
+    });
+
+    socket.on('deleteTodo', (todoId) => {
+      if (todoId) {
+        setCardDetail({
+          ...cardDetail,
+          todos: cardDetail.todos.filter((todo) => todo._id !== todoId),
+        });
+      }
+    });
+
+    socket.on('addTodoChild', (data) => {
+      if (data) {
+        setCardDetail(data);
+      }
+    });
+
+    socket.on('updateTodoChild', (data) => {
+      if (data) {
+        setCardDetail(data);
+      }
+    });
+
+    socket.on('deleteTodoChild', ({ childId, todoId }) => {
+      if (childId) {
+        const updatedCard = {
+          ...cardDetail,
+          todos: cardDetail.todos.map((todo) =>
+            todo._id === todoId
+              ? {
+                  ...todo,
+                  childs: todo.childs.filter((child) => child._id !== childId),
+                }
+              : todo
+          ),
+        };
+        setCardDetail(updatedCard);
+      }
+    });
+
+    return () => {
+      socket.off('addTodo');
+      socket.off('updateTodo');
+      socket.off('deleteTodo');
+      socket.off('addTodoChild');
+      socket.off('updateTodoChild');
+      socket.off('deleteTodoChild');
+    };
+  }, [cardDetail, setCardDetail]);
 
   const handleToggleTodoChild = async (todoId, childId, done) => {
     const result = await childDone({
@@ -135,27 +200,38 @@ export default function CardTodoList({ todo, cardDetail, setCardDetail }) {
   };
 
   const handleAddChild = async (todoId) => {
-    const childAdded = await addTodoChild({
+    const updatedCard = await addTodoChild({
       id: cardDetail._id,
       data: { text: childText, todoId },
     });
 
-    const updatedCard = {
-      ...cardDetail,
-      todos: cardDetail.todos.map((todo) =>
-        todo._id === todoId
-          ? {
-              ...todo,
-              childs: [...todo.childs, childAdded],
-            }
-          : todo
-      ),
-    };
-
     setCardDetail(updatedCard);
-
     setChildText('');
     addChildRef.current.focus();
+  };
+
+  const handleEditTodo = (todoId, newText) => {
+    setEditTodoId(todoId);
+    setEditTodoText(newText);
+  };
+
+  const handleSaveEditTodo = async (todoId) => {
+    const updatedCard = await updateTodoAPI({
+      id: cardDetail._id,
+      todoId,
+      data: { text: editTodoText },
+    });
+
+    setCardDetail(updatedCard);
+    setEditTodoId(null);
+  };
+
+  const handleEditTodoKeyPress = (event, todoId) => {
+    if (event.key === 'Enter') {
+      handleSaveEditTodo(todoId);
+    } else if (event.key === 'Escape') {
+      setEditTodoId(null);
+    }
   };
 
   return (
@@ -168,17 +244,40 @@ export default function CardTodoList({ todo, cardDetail, setCardDetail }) {
           mb: 1,
         }}
       >
-        <Typography sx={{ fontWeight: 'bold', fontSize: '18px !important' }}>
-          {todo.text}
-        </Typography>
-        <Button
-          onClick={() => handleDeleteTodo(todo._id)}
-          size="small"
-          variant="outlined"
-          sx={{ mr: 1 }}
-        >
-          Delete
-        </Button>
+        {editTodoId === todo._id ? (
+          <TextField
+            size="small"
+            value={editTodoText}
+            onChange={(e) => setEditTodoText(e.target.value)}
+            onKeyUp={(event) => handleEditTodoKeyPress(event, todo._id)}
+            autoFocus
+          />
+        ) : (
+          <Typography
+            sx={{ fontWeight: 'bold', fontSize: '18px !important' }}
+            onClick={() => handleEditTodo(todo._id, todo.text)}
+          >
+            {todo.text}
+          </Typography>
+        )}
+        {editTodoId === todo._id ? (
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => setEditTodoId(null)}
+          >
+            Cancel
+          </Button>
+        ) : (
+          <Button
+            onClick={() => handleDeleteTodo(todo._id)}
+            size="small"
+            variant="outlined"
+            sx={{ mr: 1 }}
+          >
+            Delete
+          </Button>
+        )}
       </Box>
       <FormGroup>
         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>

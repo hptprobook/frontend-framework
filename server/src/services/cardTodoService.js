@@ -58,9 +58,7 @@ const addTodoChild = async (cardId, childData) => {
     todo.childs.push(todoChildData);
     todo.childOrderIds.push(newChildId);
 
-    await cardModel.update(cardId, { todos: card.todos });
-
-    return todoChildData;
+    return await cardModel.update(cardId, { todos: card.todos });
   } catch (error) {
     throw new Error(error);
   }
