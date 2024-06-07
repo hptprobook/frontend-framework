@@ -5,6 +5,13 @@ import { userValidation } from '~/validations/userValidation';
 const Router = express.Router();
 
 Router.post('/google', userValidation.createNew, authController.loginGoogle);
-Router.post('/google/refresh', authController.refreshToken);
+
+Router.post(
+  '/phone',
+  userValidation.createNewWithPhoneNumber,
+  authController.loginWithPhoneNumber
+);
+
+Router.post('/refresh', authController.refreshToken);
 
 export const authRoute = Router;

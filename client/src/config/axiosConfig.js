@@ -22,7 +22,7 @@ request.interceptors.response.use(
 
       try {
         const response = await axios.post(
-          `${API_ROOT}/google/refresh`,
+          `${API_ROOT}/auth/refresh`,
           {},
           { withCredentials: true }
         );

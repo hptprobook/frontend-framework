@@ -6,7 +6,23 @@ const loginGoogle = async (req, res, next) => {
   try {
     await authService.loginGoogle(req.body);
 
-    res.cookies('refreshToken', req.body.refreshToken, {
+    res.cookie('refreshToken', req.body.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict',
+    });
+
+    res.status(StatusCodes.CREATED).json({ message: 'Login successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const loginWithPhoneNumber = async (req, res, next) => {
+  try {
+    await authService.loginWithPhoneNumber(req.body);
+
+    res.cookie('refreshToken', req.body.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'Strict',
@@ -30,7 +46,7 @@ const refreshToken = async (req, res, next) => {
       refreshToken
     );
 
-    res.cookies('refreshToken', newRefreshToken, {
+    res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'Strict',
@@ -44,5 +60,6 @@ const refreshToken = async (req, res, next) => {
 
 export const authController = {
   loginGoogle,
+  loginWithPhoneNumber,
   refreshToken,
 };

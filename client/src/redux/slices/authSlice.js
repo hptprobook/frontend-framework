@@ -12,6 +12,17 @@ export const loginGoogle = createAsyncThunk(
   }
 );
 
+export const loginWithPhoneNumber = createAsyncThunk(
+  'auth/phoneNumber',
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      return await authServices.loginWithPhoneNumber(data);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState: {

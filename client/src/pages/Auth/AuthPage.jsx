@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Logo from '~/assets/trello.svg?react';
@@ -5,24 +6,32 @@ import SvgIcon from '@mui/material/SvgIcon';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import GoogleIcon from '@mui/icons-material/Google';
-import MicrosoftIcon from '@mui/icons-material/Microsoft';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import AppleIcon from '@mui/icons-material/Apple';
 import { Link } from 'react-router-dom';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import 'firebase/auth';
 import { toast } from 'react-toastify';
 import useAuthStatus from '~/hooks/useAuthStatus';
-import { loginGoogle } from '~/redux/slices/authSlice';
+import { loginGoogle, loginWithPhoneNumber } from '~/redux/slices/authSlice';
 
 export default function AuthPage() {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [showOtpForm, setShowOtpForm] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isAuth = useAuthStatus();
-  const provider = new GoogleAuthProvider();
+  const googleProvider = new GoogleAuthProvider();
   const auth = getAuth();
 
   useEffect(() => {
@@ -31,8 +40,25 @@ export default function AuthPage() {
     }
   }, [isAuth, navigate]);
 
+  useEffect(() => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        'recaptcha-container',
+        {
+          size: 'normal',
+
+          'expired-callback': () => {
+            toast.error('OTP expired! Please try again.');
+          },
+        }
+      );
+    }
+  }, [auth]);
+
+  /* Xử lý login bằng Google */
   const handleLoginGoogle = () => {
-    signInWithPopup(auth, provider)
+    signInWithPopup(auth, googleProvider)
       .then((result) => {
         const user = result.user;
         localStorage.setItem('isLoggedIn', 'true');
@@ -48,12 +74,52 @@ export default function AuthPage() {
             },
           })
         );
-        navigate('/w');
-        window.location.reload();
+        // navigate('/w');
+        // window.location.reload();
       })
       .catch(() => {
         toast.error('Cannot sign in with Google! Please try again');
       });
+  };
+
+  const handleSendOtp = () => {
+    const appVerifier = window.recaptchaVerifier;
+
+    signInWithPhoneNumber(auth, `+84${phoneNumber}`, appVerifier)
+      .then((confirmationResult) => {
+        setConfirmationResult(confirmationResult);
+        setShowOtpForm(true);
+        toast.success('OTP has been sent!');
+      })
+      .catch(() => {
+        toast.error('Failed to send OTP! Please try again.');
+      });
+  };
+
+  const handleVerifyOtp = () => {
+    if (confirmationResult && otp) {
+      confirmationResult
+        .confirm(otp)
+        .then((result) => {
+          const user = result.user;
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('accessToken', user.accessToken);
+          dispatch(
+            loginWithPhoneNumber({
+              data: {
+                user_id: user.uid,
+                phoneNumber: user.phoneNumber,
+                refreshToken: user.refreshToken,
+              },
+            })
+          );
+          // navigate('/w');
+          // window.location.reload();
+        })
+        .catch(() => {
+          toast.error('Invalid OTP! Please try again.');
+        });
+    }
   };
 
   return (
@@ -84,36 +150,73 @@ export default function AuthPage() {
           </Typography>
         </Box>
       </Link>
-      <Typography
-        variant="h6"
-        sx={{
-          textAlign: 'center',
-          mt: 2,
-          fontSize: '18px',
-        }}
-      >
-        Please login to continue ...
-      </Typography>
-      <TextField
-        label="Email"
-        fullWidth
-        size="small"
-        sx={{
-          mt: 2,
-        }}
-        disabled
-      />
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        sx={{
-          mt: 2,
-        }}
-        disabled
-      >
-        Continue
-      </Button>
+      {!showOtpForm && (
+        <>
+          <Typography
+            variant="h6"
+            sx={{
+              textAlign: 'center',
+              mt: 2,
+              fontSize: '18px',
+            }}
+          >
+            Please login to continue ...
+          </Typography>
+          <TextField
+            label="Phone number..."
+            fullWidth
+            size="small"
+            sx={{
+              mt: 2,
+            }}
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+          />
+          <Box
+            sx={{
+              mt: 2,
+            }}
+            id="recaptcha-container"
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{
+              mt: 2,
+            }}
+            onClick={handleSendOtp}
+          >
+            Send OTP
+          </Button>
+        </>
+      )}
+
+      {showOtpForm && (
+        <>
+          <TextField
+            label="OTP..."
+            fullWidth
+            size="small"
+            sx={{
+              mt: 2,
+            }}
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{
+              mt: 2,
+            }}
+            onClick={handleVerifyOtp}
+          >
+            Verify OTP
+          </Button>
+        </>
+      )}
       <Typography
         variant="h6"
         sx={{
@@ -132,35 +235,6 @@ export default function AuthPage() {
       >
         Login With Google
       </Button>
-      <Button
-        variant="outlined"
-        fullWidth
-        sx={{ mb: 1 }}
-        startIcon={<MicrosoftIcon />}
-        disabled
-      >
-        Login With Microsoft
-      </Button>
-      <Button
-        variant="outlined"
-        fullWidth
-        sx={{ mb: 1 }}
-        startIcon={<FacebookIcon />}
-      >
-        Login With Facebook
-      </Button>
-      <Button
-        variant="outlined"
-        fullWidth
-        sx={{ mb: 1 }}
-        startIcon={<AppleIcon />}
-        disabled
-      >
-        Login With Apple
-      </Button>
-      <Link>Forgot password ?</Link>
-      {/* eslint-disable-next-line quotes */}
-      <Link>{"You don't have an account?"}</Link>
     </Box>
   );
 }

@@ -51,6 +51,42 @@ const findOrCreate = async (reqBody) => {
   }
 };
 
+const findOrCreateWithPhoneNumber = async (reqBody) => {
+  try {
+    const db = await GET_DB();
+    const userCollection = db.collection(userSchema.USER_COLLECTION_NAME);
+
+    let user = await userCollection.findOne({
+      _id: reqBody.user_id,
+    });
+
+    if (!user) {
+      const newUser = {
+        ...reqBody,
+        _id: reqBody.user_id,
+      };
+
+      delete newUser.user_id;
+
+      await userCollection.insertOne(newUser);
+    } else {
+      const updateUser = {
+        ...reqBody,
+        updatedAt: Date.now(),
+      };
+
+      delete updateUser.user_id;
+
+      await userCollection.updateOne(
+        { _id: reqBody.user_id },
+        { $set: updateUser }
+      );
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const findOneById = async (userId) => {
   try {
     const result = await GET_DB()
@@ -170,6 +206,7 @@ const deleteOneById = async (userId) => {
 
 export const userModal = {
   findOrCreate,
+  findOrCreateWithPhoneNumber,
   findOneById,
   findOneByEmail,
   getAll,

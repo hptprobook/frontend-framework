@@ -10,6 +10,14 @@ const loginGoogle = async (reqBody) => {
   }
 };
 
+const loginWithPhoneNumber = async (reqBody) => {
+  try {
+    return await userModal.findOrCreateWithPhoneNumber(reqBody);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const refreshToken = async (refreshToken) => {
   try {
     const response = await axios.post(
@@ -31,5 +39,6 @@ const refreshToken = async (refreshToken) => {
 
 export const authService = {
   loginGoogle,
+  loginWithPhoneNumber,
   refreshToken,
 };
