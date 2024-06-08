@@ -13,6 +13,7 @@ import {
   GoogleAuthProvider,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  FacebookAuthProvider,
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -32,6 +33,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const isAuth = useAuthStatus();
   const googleProvider = new GoogleAuthProvider();
+  const fbProvider = new FacebookAuthProvider();
   const auth = getAuth();
 
   useEffect(() => {
@@ -74,11 +76,26 @@ export default function AuthPage() {
             },
           })
         );
+        navigate('/w');
+        window.location.reload();
+      })
+      .catch(() => {
+        toast.error('Cannot sign in with Google! Please try again');
+      });
+  };
+
+  const handleLoginFacebook = () => {
+    signInWithPopup(auth, fbProvider)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        // localStorage.setItem('isLoggedIn', 'true');
+        // localStorage.setItem('accessToken', user.accessToken);
         // navigate('/w');
         // window.location.reload();
       })
       .catch(() => {
-        toast.error('Cannot sign in with Google! Please try again');
+        toast.error('Cannot sign in with Facebook! Please try again');
       });
   };
 
@@ -234,6 +251,15 @@ export default function AuthPage() {
         onClick={handleLoginGoogle}
       >
         Login With Google
+      </Button>
+      <Button
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 1 }}
+        startIcon={<GoogleIcon />}
+        onClick={handleLoginFacebook}
+      >
+        Login With Facebook
       </Button>
     </Box>
   );
