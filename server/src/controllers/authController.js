@@ -1,4 +1,6 @@
+import axios from 'axios';
 import { StatusCodes } from 'http-status-codes';
+import { env } from '~/config/environment';
 import { authService } from '~/services/authService';
 import ApiError from '~/utils/ApiError';
 
@@ -8,6 +10,7 @@ const loginGoogle = async (req, res, next) => {
 
     res.cookie('refreshToken', req.body.refreshToken, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 7000, // 7 days
     });
 
@@ -23,6 +26,7 @@ const loginWithPhoneNumber = async (req, res, next) => {
 
     res.cookie('refreshToken', req.body.refreshToken, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 7000, // 7 days
     });
 
@@ -36,7 +40,7 @@ const refreshToken = async (req, res, next) => {
   try {
     const cookie = req.cookies;
 
-    console.log(cookie);
+    console.log('cookie in refresh token: ', cookie);
 
     if (!cookie && !cookie.refreshToken) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Missing refresh token');
@@ -44,16 +48,29 @@ const refreshToken = async (req, res, next) => {
 
     const refreshToken = cookie.refreshToken;
 
-    const { newAccessToken, newRefreshToken } = await authService.refreshToken(
-      refreshToken
+    const response = await axios.post(
+      `https://securetoken.googleapis.com/v1/token?key=${env.FIREBASE_API_KEY}`,
+      `grant_type=refresh_token&refresh_token=${refreshToken}`,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
     );
 
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 7000, // 7 days
-    });
+    console.log('ressponse in refresh: ', response);
 
-    return res.status(StatusCodes.OK).json({ accessToken: newAccessToken });
+    // const { newAccessToken, newRefreshToken } = await authService.refreshToken(
+    //   refreshToken
+    // );
+
+    // res.cookie('refreshToken', newRefreshToken, {
+    //   httpOnly: true,
+    // secure: process.env.NODE_ENV === 'production',
+    //   maxAge: 24 * 60 * 60 * 7000, // 7 days
+    // });
+
+    // return res.status(StatusCodes.OK).json({ accessToken: newAccessToken });
   } catch (error) {
     next(error);
   }

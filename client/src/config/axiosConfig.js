@@ -14,7 +14,7 @@ const request = axios.create({
   withCredentials: true,
 });
 
-request.interceptors.request.use(
+axios.interceptors.request.use(
   async (config) => {
     if (accessToken) {
       config.headers['Authorization'] = 'Bearer ' + accessToken;
@@ -30,21 +30,6 @@ request.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
-  }
-);
-
-request.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response.status === 401 && !originalRequest._retry) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('isLoggedIn');
-      window.location.reload();
-    }
-
     return Promise.reject(error);
   }
 );

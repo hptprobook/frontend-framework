@@ -77,7 +77,7 @@ export default function AuthPage() {
           })
         );
         navigate('/w');
-        // window.location.reload();
+        window.location.reload();
       })
       .catch(() => {
         toast.error('Cannot sign in with Google! Please try again');
