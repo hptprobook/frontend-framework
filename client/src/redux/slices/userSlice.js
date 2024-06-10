@@ -34,6 +34,17 @@ export const readNotify = createAsyncThunk(
   }
 );
 
+export const updateUser = createAsyncThunk(
+  'user/update',
+  async (data, { rejectWithValue }) => {
+    try {
+      return await userService.updateUser(data);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const userSlice = createSlice({
   name: 'users',
   initialState: {

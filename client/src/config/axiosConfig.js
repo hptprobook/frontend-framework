@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_ROOT } from '../utils/constants';
-import { toast } from 'react-toastify';
+import { jwtDecode } from 'jwt-decode';
+import dayjs from 'dayjs';
 
 const accessToken = localStorage.getItem('accessToken');
 
@@ -12,49 +13,37 @@ const request = axios.create({
   },
 });
 
+request.interceptors.request.use(
+  async (config) => {
+    if (accessToken) {
+      config.headers['Authorization'] = 'Bearer ' + accessToken;
+    }
+
+    const user = jwtDecode(accessToken);
+    const isTokenExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
+    if (!isTokenExpired) return config;
+
+    const response = await axios.get(`${API_ROOT}/v1/auth/refresh-token`);
+    localStorage.setItem('accessToken', response.data.accessToken);
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 request.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
     if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const response = await axios.post(
-          `${API_ROOT}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-
-        const newAccessToken = response.data.accessToken;
-
-        localStorage.setItem('accessToken', newAccessToken);
-        axios.defaults.headers.common[
-          'Authorization'
-        ] = `Bearer ${newAccessToken}`;
-
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-
-        return axios(originalRequest);
-      } catch (e) {
-        toast.error('Session expired. Please log in again.');
-        return Promise.reject(e);
-      }
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('isLoggedIn');
+      window.location.reload();
     }
 
-    return Promise.reject(error);
-  }
-);
-
-axios.interceptors.request.use(
-  (config) => {
-    if (accessToken) {
-      config.headers['Authorization'] = 'Bearer ' + accessToken;
-    }
-    return config;
-  },
-  (error) => {
     return Promise.reject(error);
   }
 );

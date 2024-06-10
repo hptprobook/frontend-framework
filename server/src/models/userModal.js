@@ -14,6 +14,12 @@ const validateBeforeCreate = async (data) => {
   });
 };
 
+const validateBeforeCreateWithPhone = async (data) => {
+  return await userSchema.USER_LOGIN_PHONE_SCHEMA.validateAsync(data, {
+    abortEarly: false,
+  });
+};
+
 const findOrCreate = async (reqBody) => {
   try {
     const db = await GET_DB();
@@ -56,14 +62,16 @@ const findOrCreateWithPhoneNumber = async (reqBody) => {
     const db = await GET_DB();
     const userCollection = db.collection(userSchema.USER_COLLECTION_NAME);
 
+    const validData = await validateBeforeCreateWithPhone(reqBody);
+
     let user = await userCollection.findOne({
-      _id: reqBody.user_id,
+      _id: validData.user_id,
     });
 
     if (!user) {
       const newUser = {
-        ...reqBody,
-        _id: reqBody.user_id,
+        ...validData,
+        _id: validData.user_id,
       };
 
       delete newUser.user_id;
@@ -71,14 +79,14 @@ const findOrCreateWithPhoneNumber = async (reqBody) => {
       await userCollection.insertOne(newUser);
     } else {
       const updateUser = {
-        ...reqBody,
+        ...validData,
         updatedAt: Date.now(),
       };
 
       delete updateUser.user_id;
 
       await userCollection.updateOne(
-        { _id: reqBody.user_id },
+        { _id: validData.user_id },
         { $set: updateUser }
       );
     }
@@ -104,6 +112,18 @@ const findOneByEmail = async (email) => {
     const result = await GET_DB()
       .collection(userSchema.USER_COLLECTION_NAME)
       .findOne({ email });
+    if (!result) throw new Error('User not found!');
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const findOneByPhoneNumber = async (phoneNumber) => {
+  try {
+    const result = await GET_DB()
+      .collection(userSchema.USER_COLLECTION_NAME)
+      .findOne({ phoneNumber });
     if (!result) throw new Error('User not found!');
     return result;
   } catch (error) {
@@ -148,9 +168,33 @@ const update = async (userId, updateData) => {
       }
     });
 
+    const isEmailDuplicate = async (email) => {
+      const user = await userCollection.findOne({ email });
+      return user && user._id.toString() !== userId.toString();
+    };
+
+    const isPhoneNumberDuplicate = async (phoneNumber) => {
+      const user = await userCollection.findOne({ phoneNumber });
+      return user && user._id.toString() !== userId.toString();
+    };
+
+    if (updateData.email && (await isEmailDuplicate(updateData.email))) {
+      return { success: false, message: 'Email already exists.' };
+    }
+
+    if (
+      updateData.phoneNumber &&
+      (await isPhoneNumberDuplicate(updateData.phoneNumber))
+    ) {
+      return { success: false, message: 'Phone number already exists.' };
+    }
+
     if (updateData.notifyId) {
       const result = await userCollection.updateOne(
-        { _id: userId, 'notifies._id': new ObjectId(updateData.notifyId) },
+        {
+          _id: userId,
+          'notifies._id': new ObjectId(updateData.notifyId),
+        },
         { $set: { 'notifies.$.seen': true } }
       );
 
@@ -167,7 +211,9 @@ const update = async (userId, updateData) => {
       { returnDocument: 'after' }
     );
 
-    return result || null;
+    delete result.refreshToken;
+
+    return result;
   } catch (error) {
     throw new Error(error);
   }
@@ -209,6 +255,7 @@ export const userModal = {
   findOrCreateWithPhoneNumber,
   findOneById,
   findOneByEmail,
+  findOneByPhoneNumber,
   getAll,
   getDetails,
   update,

@@ -77,7 +77,7 @@ export default function AuthPage() {
           })
         );
         navigate('/w');
-        window.location.reload();
+        // window.location.reload();
       })
       .catch(() => {
         toast.error('Cannot sign in with Google! Please try again');
@@ -88,11 +88,10 @@ export default function AuthPage() {
     signInWithPopup(auth, fbProvider)
       .then((result) => {
         const user = result.user;
-        console.log(user);
-        // localStorage.setItem('isLoggedIn', 'true');
-        // localStorage.setItem('accessToken', user.accessToken);
-        // navigate('/w');
-        // window.location.reload();
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('accessToken', user.accessToken);
+        navigate('/w');
+        window.location.reload();
       })
       .catch(() => {
         toast.error('Cannot sign in with Facebook! Please try again');
@@ -130,8 +129,8 @@ export default function AuthPage() {
               },
             })
           );
-          // navigate('/w');
-          // window.location.reload();
+          navigate('/w');
+          window.location.reload();
         })
         .catch(() => {
           toast.error('Invalid OTP! Please try again.');

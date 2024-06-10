@@ -10,7 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import { deepPurple } from '@mui/material/colors';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function Profile({ current }) {
@@ -93,14 +93,16 @@ function Profile({ current }) {
             sx={{ bgcolor: deepPurple[500], width: 32, height: 32 }}
             src={current?.photoURL}
           />
-          {current?.displayName}
+          {current?.displayName || current?.phoneNumber}
         </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <AccountCircleIcon fontSize="small" />
-          </ListItemIcon>
-          My account
-        </MenuItem>
+        <NavLink to="/profile">
+          <MenuItem onClick={handleClose}>
+            <ListItemIcon>
+              <AccountCircleIcon fontSize="small" />
+            </ListItemIcon>
+            My account
+          </MenuItem>
+        </NavLink>
         <Divider />
         <MenuItem onClick={handleClose}>
           <ListItemIcon>

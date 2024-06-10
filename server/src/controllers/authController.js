@@ -8,8 +8,7 @@ const loginGoogle = async (req, res, next) => {
 
     res.cookie('refreshToken', req.body.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
+      maxAge: 24 * 60 * 60 * 7000, // 7 days
     });
 
     res.status(StatusCodes.CREATED).json({ message: 'Login successfully' });
@@ -24,8 +23,7 @@ const loginWithPhoneNumber = async (req, res, next) => {
 
     res.cookie('refreshToken', req.body.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
+      maxAge: 24 * 60 * 60 * 7000, // 7 days
     });
 
     res.status(StatusCodes.CREATED).json({ message: 'Login successfully' });
@@ -36,11 +34,13 @@ const loginWithPhoneNumber = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const cookie = req.cookies;
 
-    if (!refreshToken) {
+    if (!cookie && !cookie.refreshToken) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Missing refresh token');
     }
+
+    const refreshToken = cookie.refreshToken;
 
     const { newAccessToken, newRefreshToken } = await authService.refreshToken(
       refreshToken
@@ -48,8 +48,7 @@ const refreshToken = async (req, res, next) => {
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
+      maxAge: 24 * 60 * 60 * 7000, // 7 days
     });
 
     return res.status(StatusCodes.OK).json({ accessToken: newAccessToken });

@@ -3,6 +3,8 @@ import { userController } from '~/controllers/userController';
 
 const Router = express.Router();
 
+Router.route('/').put(userController.update);
+
 Router.route('/current').get(userController.getCurrent);
 
 Router.route('/find').post(userController.findUser);

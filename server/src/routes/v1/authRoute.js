@@ -12,6 +12,6 @@ Router.post(
   authController.loginWithPhoneNumber
 );
 
-Router.post('/refresh', authController.refreshToken);
+Router.get('/refresh', authController.refreshToken);
 
 export const authRoute = Router;
