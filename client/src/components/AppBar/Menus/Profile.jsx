@@ -12,10 +12,13 @@ import Logout from '@mui/icons-material/Logout';
 import { deepPurple } from '@mui/material/colors';
 import { NavLink, useNavigate } from 'react-router-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useCookies } from 'react-cookie';
 
 function Profile({ current }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
+  const [cookies, setCookie, removeCookie] = useCookies(['refreshToken']);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -28,6 +31,7 @@ function Profile({ current }) {
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('isLoggedIn');
+    removeCookie('refreshToken', { path: '/' });
     navigate('/');
     window.location.reload();
   };

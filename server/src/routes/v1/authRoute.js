@@ -12,6 +12,12 @@ Router.post(
   authController.loginWithPhoneNumber
 );
 
+Router.post(
+  '/facebook',
+  userValidation.createNewWithFacebook,
+  authController.createNewWithFacebook
+);
+
 Router.get('/refresh', authController.refreshToken);
 
 export const authRoute = Router;

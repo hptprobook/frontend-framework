@@ -36,11 +36,25 @@ const loginWithPhoneNumber = async (req, res, next) => {
   }
 };
 
+const createNewWithFacebook = async (req, res, next) => {
+  try {
+    await authService.loginWithFacebook(req.body);
+
+    res.cookie('refreshToken', req.body.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 7000, // 7 days
+    });
+
+    res.status(StatusCodes.CREATED).json({ message: 'Login successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const refreshToken = async (req, res, next) => {
   try {
     const cookie = req.cookies;
-
-    console.log('cookie in refresh token: ', cookie);
 
     if (!cookie && !cookie.refreshToken) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Missing refresh token');
@@ -58,19 +72,15 @@ const refreshToken = async (req, res, next) => {
       }
     );
 
-    console.log('ressponse in refresh: ', response);
+    const { newAccessToken, newRefreshToken } = response.data;
 
-    // const { newAccessToken, newRefreshToken } = await authService.refreshToken(
-    //   refreshToken
-    // );
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 7000, // 7 days
+    });
 
-    // res.cookie('refreshToken', newRefreshToken, {
-    //   httpOnly: true,
-    // secure: process.env.NODE_ENV === 'production',
-    //   maxAge: 24 * 60 * 60 * 7000, // 7 days
-    // });
-
-    // return res.status(StatusCodes.OK).json({ accessToken: newAccessToken });
+    return res.status(StatusCodes.OK).json({ accessToken: newAccessToken });
   } catch (error) {
     next(error);
   }
@@ -79,5 +89,6 @@ const refreshToken = async (req, res, next) => {
 export const authController = {
   loginGoogle,
   loginWithPhoneNumber,
+  createNewWithFacebook,
   refreshToken,
 };

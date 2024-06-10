@@ -39,7 +39,26 @@ const createNewWithPhoneNumber = async (req, res, next) => {
   }
 };
 
+const createNewWithFacebook = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    user_id: Joi.string().required(),
+    displayName: Joi.string().required(),
+    photoURL: Joi.string().required(),
+    refreshToken: Joi.string().required(),
+  });
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false });
+    next();
+  } catch (error) {
+    next(
+      new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)
+    );
+  }
+};
+
 export const userValidation = {
   createNew,
   createNewWithPhoneNumber,
+  createNewWithFacebook,
 };

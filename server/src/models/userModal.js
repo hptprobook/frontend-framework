@@ -20,6 +20,12 @@ const validateBeforeCreateWithPhone = async (data) => {
   });
 };
 
+const validateBeforeCreateWithFacebook = async (data) => {
+  return await userSchema.USER_LOGIN_FACEBOOK_SCHEMA.validateAsync(data, {
+    abortEarly: false,
+  });
+};
+
 const findOrCreate = async (reqBody) => {
   try {
     const db = await GET_DB();
@@ -85,6 +91,39 @@ const findOrCreateWithPhoneNumber = async (reqBody) => {
 
       delete updateUser.user_id;
 
+      await userCollection.updateOne(
+        { _id: validData.user_id },
+        { $set: updateUser }
+      );
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const findOrCreateWithFacebook = async (reqBody) => {
+  try {
+    const db = await GET_DB();
+    const userCollection = db.collection(userSchema.USER_COLLECTION_NAME);
+
+    const validData = await validateBeforeCreateWithFacebook(reqBody);
+
+    let user = await userCollection.findOne({
+      _id: validData.user_id,
+    });
+    if (!user) {
+      const newUser = {
+        ...validData,
+        _id: validData.user_id,
+      };
+      delete newUser.user_id;
+      await userCollection.insertOne(newUser);
+    } else {
+      const updateUser = {
+        ...validData,
+        updatedAt: Date.now(),
+      };
+      delete updateUser.user_id;
       await userCollection.updateOne(
         { _id: validData.user_id },
         { $set: updateUser }
@@ -253,6 +292,7 @@ const deleteOneById = async (userId) => {
 export const userModal = {
   findOrCreate,
   findOrCreateWithPhoneNumber,
+  findOrCreateWithFacebook,
   findOneById,
   findOneByEmail,
   findOneByPhoneNumber,

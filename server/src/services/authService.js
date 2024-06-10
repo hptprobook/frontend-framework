@@ -16,7 +16,16 @@ const loginWithPhoneNumber = async (reqBody) => {
   }
 };
 
+const loginWithFacebook = async (reqBody) => {
+  try {
+    return await userModal.findOrCreateWithFacebook(reqBody);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const authService = {
   loginGoogle,
   loginWithPhoneNumber,
+  loginWithFacebook,
 };

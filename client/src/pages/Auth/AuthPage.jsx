@@ -21,7 +21,12 @@ import { useEffect } from 'react';
 import 'firebase/auth';
 import { toast } from 'react-toastify';
 import useAuthStatus from '~/hooks/useAuthStatus';
-import { loginGoogle, loginWithPhoneNumber } from '~/redux/slices/authSlice';
+import {
+  loginGoogle,
+  loginWithFacebook,
+  loginWithPhoneNumber,
+} from '~/redux/slices/authSlice';
+import { useCookies } from 'react-cookie';
 
 export default function AuthPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -35,6 +40,7 @@ export default function AuthPage() {
   const googleProvider = new GoogleAuthProvider();
   const fbProvider = new FacebookAuthProvider();
   const auth = getAuth();
+  let d = new Date();
 
   useEffect(() => {
     if (isAuth) {
@@ -59,12 +65,21 @@ export default function AuthPage() {
   }, [auth]);
 
   /* Xử lý login bằng Google */
+  // eslint-disable-next-line no-unused-vars
+  const [cookies, setCookie] = useCookies(['refreshToken']);
+
   const handleLoginGoogle = () => {
     signInWithPopup(auth, googleProvider)
       .then((result) => {
         const user = result.user;
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('accessToken', user.accessToken);
+        d.setTime(d.getTime() + 24 * 60 * 60 * 7000);
+
+        setCookie('refreshToken', user.refreshToken, {
+          path: '/',
+          expires: d,
+        });
         dispatch(
           loginGoogle({
             data: {
@@ -90,6 +105,23 @@ export default function AuthPage() {
         const user = result.user;
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('accessToken', user.accessToken);
+        d.setTime(d.getTime() + 24 * 60 * 60 * 7000);
+
+        setCookie('refreshToken', user.refreshToken, {
+          path: '/',
+          expires: d,
+        });
+
+        dispatch(
+          loginWithFacebook({
+            data: {
+              user_id: user.uid,
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+              refreshToken: user.refreshToken,
+            },
+          })
+        );
         navigate('/w');
         window.location.reload();
       })
@@ -120,6 +152,14 @@ export default function AuthPage() {
           const user = result.user;
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('accessToken', user.accessToken);
+
+          d.setTime(d.getTime() + 24 * 60 * 60 * 7000);
+
+          setCookie('refreshToken', user.refreshToken, {
+            path: '/',
+            expires: d,
+          });
+
           dispatch(
             loginWithPhoneNumber({
               data: {

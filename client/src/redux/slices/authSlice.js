@@ -23,6 +23,17 @@ export const loginWithPhoneNumber = createAsyncThunk(
   }
 );
 
+export const loginWithFacebook = createAsyncThunk(
+  'auth/facebook',
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      return await authServices.loginWithFacebook(data);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState: {
