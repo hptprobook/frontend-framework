@@ -9,6 +9,7 @@ import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware';
 import { corsOptions } from './config/cors';
 import http from 'http';
 import { Server } from 'socket.io';
+import cookieParser from 'cookie-parser';
 
 const START_SERVER = () => {
   const app = express();
@@ -30,6 +31,8 @@ const START_SERVER = () => {
       console.log('A user disconnected!');
     });
   });
+
+  app.use(cookieParser());
 
   app.use(cors(corsOptions));
 

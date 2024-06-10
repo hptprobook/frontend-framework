@@ -11,6 +11,7 @@ const request = axios.create({
     'Content-Type': 'application/json',
     Authorization: `Bearer ${accessToken}`,
   },
+  withCredentials: true,
 });
 
 request.interceptors.request.use(
@@ -23,7 +24,7 @@ request.interceptors.request.use(
     const isTokenExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
     if (!isTokenExpired) return config;
 
-    const response = await axios.get(`${API_ROOT}/v1/auth/refresh-token`);
+    const response = await axios.get(`${API_ROOT}/v1/auth/refresh`);
     localStorage.setItem('accessToken', response.data.accessToken);
 
     return config;

@@ -36,6 +36,8 @@ const refreshToken = async (req, res, next) => {
   try {
     const cookie = req.cookies;
 
+    console.log(cookie);
+
     if (!cookie && !cookie.refreshToken) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Missing refresh token');
     }
