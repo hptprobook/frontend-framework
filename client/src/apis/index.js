@@ -1,57 +1,35 @@
-import axios from 'axios';
-import { API_ROOT } from '~/utils/constants';
+import { handleRequest } from '~/utils/request';
 
-/* Boards */
 export const fetchBoardDetailsAPI = async (boardId) => {
-  const response = await axios.get(`${API_ROOT}/v1/boards/${boardId}`);
-  return response.data;
+  return handleRequest('get', `/v1/boards/${boardId}`);
 };
 
 export const updateBoardDetailsAPI = async (boardId, updateData) => {
-  const response = await axios.put(
-    `${API_ROOT}/v1/boards/${boardId}`,
-    updateData
-  );
-  return response.data;
+  return handleRequest('put', `/v1/boards/${boardId}`, updateData);
 };
 
 export const moveCardDifferentColumnAPI = async (updateData) => {
-  const response = await axios.put(
-    `${API_ROOT}/v1/boards/supports/moving_card`,
-    updateData
-  );
-  return response.data;
+  return handleRequest('put', '/v1/boards/supports/moving_card', updateData);
 };
 
 /* Columns */
 export const createNewColumnAPI = async (newColumnData) => {
-  const response = await axios.post(`${API_ROOT}/v1/columns`, newColumnData);
-  return response.data;
+  return handleRequest('post', '/v1/columns', newColumnData);
 };
 
 export const updateColumnDetailsAPI = async (columnId, updateData) => {
-  const response = await axios.put(
-    `${API_ROOT}/v1/columns/${columnId}`,
-    updateData
-  );
-  return response.data;
+  return handleRequest('put', `/v1/columns/${columnId}`, updateData);
 };
 
 export const changeColumnTitleAPI = async (columnId, updateData) => {
-  const response = await axios.put(
-    `${API_ROOT}/v1/columns/${columnId}/title`,
-    updateData
-  );
-  return response.data;
+  return handleRequest('put', `/v1/columns/${columnId}/title`, updateData);
 };
 
 export const deleteColumnDetailsAPI = async (columnId) => {
-  const response = await axios.delete(`${API_ROOT}/v1/columns/${columnId}`);
-  return response.data;
+  return handleRequest('delete', `/v1/columns/${columnId}`);
 };
 
 /* Cards */
 export const createNewCardAPI = async (newCardData) => {
-  const response = await axios.post(`${API_ROOT}/v1/cards`, newCardData);
-  return response.data;
+  return handleRequest('post', '/v1/cards', newCardData);
 };

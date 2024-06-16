@@ -1,61 +1,44 @@
-import axios from 'axios';
-import { API_ROOT } from '~/utils/constants';
+import { handleRequest } from '~/utils/request';
 
-const API_URL = `${API_ROOT}/v1`;
-
+/* Cards */
 export const updateCardDetails = async ({ id, data }) => {
-  const response = await axios.put(`${API_URL}/cards/${id}`, data);
-  return response.data;
+  return handleRequest('put', `/v1/cards/${id}`, data);
 };
 
 export const addTodoAPI = async ({ id, data }) => {
-  const response = await axios.put(`${API_URL}/cards/${id}/addTodo`, data);
-  return response.data;
+  return handleRequest('put', `/v1/cards/${id}/addTodo`, data);
 };
 
 export const updateTodoAPI = async ({ id, todoId, data }) => {
-  const response = await axios.put(
-    `${API_URL}/cards/${id}/todos/${todoId}`,
-    data
-  );
-
-  return response.data;
+  return handleRequest('put', `/v1/cards/${id}/todos/${todoId}`, data);
 };
 
 export const addTodoChild = async ({ id, data }) => {
-  const response = await axios.post(`${API_URL}/cards/${id}/addTodo`, data);
-  return response.data;
+  return handleRequest('post', `/v1/cards/${id}/addTodo`, data);
 };
 
 export const addComment = async ({ id, data }) => {
-  const response = await axios.post(`${API_URL}/cards/${id}/comments`, data);
-  return response.data;
+  return handleRequest('post', `/v1/cards/${id}/comments`, data);
 };
 
 export const childDone = async ({ id, childId, data }) => {
-  const response = await axios.put(
-    `${API_URL}/cards/${id}/child/${childId}/done`,
-    data
-  );
-  return response.data;
+  return handleRequest('put', `/v1/cards/${id}/child/${childId}/done`, data);
 };
 
 export const updateTodoChild = async ({ id, todoId, childId, data }) => {
-  const response = await axios.put(
-    `${API_URL}/cards/${id}/todos/${todoId}/child/${childId}`,
+  return handleRequest(
+    'put',
+    `/v1/cards/${id}/todos/${todoId}/child/${childId}`,
     data
   );
-
-  return response.data;
 };
 
 export const updateCommentAPI = async ({ id, commentId, data }) => {
-  const response = await axios.put(
-    `${API_URL}/cards/${id}/comments/${commentId}/edit`,
+  return handleRequest(
+    'put',
+    `/v1/cards/${id}/comments/${commentId}/edit`,
     data
   );
-
-  return response.data;
 };
 
 export const updateReplyCommentAPI = async ({
@@ -64,43 +47,35 @@ export const updateReplyCommentAPI = async ({
   replyId,
   data,
 }) => {
-  const response = await axios.put(
-    `${API_URL}/cards/${id}/comments/${commentId}/replies/${replyId}`,
+  return handleRequest(
+    'put',
+    `/v1/cards/${id}/comments/${commentId}/replies/${replyId}`,
     data
   );
-
-  return response.data;
 };
 
 export const deleteCommentAPI = async ({ id, commentId }) => {
-  const response = await axios.delete(
-    `${API_URL}/cards/${id}/comments/${commentId}`
-  );
-
-  return response.data;
+  return handleRequest('delete', `/v1/cards/${id}/comments/${commentId}`);
 };
 
 export const deleteReplyCommentAPI = async ({ id, commentId, replyId }) => {
-  const response = await axios.delete(
-    `${API_URL}/cards/${id}/comments/${commentId}/replies/${replyId}`
+  return handleRequest(
+    'delete',
+    `/v1/cards/${id}/comments/${commentId}/replies/${replyId}`
   );
-
-  return response.data;
 };
 
 export const deleteCardDetails = async ({ id }) => {
-  const response = await axios.delete(`${API_URL}/cards/${id}`);
-  return response.data;
+  return handleRequest('delete', `/v1/cards/${id}`);
 };
 
 export const deleteTodo = async ({ id, todoId }) => {
-  const response = await axios.delete(`${API_URL}/cards/${id}/todos/${todoId}`);
-  return response.data;
+  return handleRequest('delete', `/v1/cards/${id}/todos/${todoId}`);
 };
 
 export const deleteTodoChild = async ({ id, todoId, childId }) => {
-  const response = await axios.delete(
-    `${API_URL}/cards/${id}/todos/${todoId}/child/${childId}`
+  return handleRequest(
+    'delete',
+    `/v1/cards/${id}/todos/${todoId}/child/${childId}`
   );
-  return response.data;
 };
